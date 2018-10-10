@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<!--suppress ALL -->
+<html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>searchrefiner - QueryVis</title>
+    <link rel="icon" href="static/favicon.png" type="image/x-png">
+    <link rel="stylesheet" href="/static/spectre.min.css" type="text/css">
+    <link rel="stylesheet" href="/static/spectre-icons.min.css" type="text/css">
+    <link rel="stylesheet" href="/static/spectre-exp.min.css" type="text/css">
+    <link rel="stylesheet" href="/static/vis.min.css" type="text/css">
+    <link rel="stylesheet" href="/static/vue-multiselect.min.css" type="text/css">
+    <link rel="stylesheet" href="/static/logtail.css" type="text/css">
+    <link rel="stylesheet" href="/static/searchrefiner.css" type="text/css">
+    <style>
+        body, html, .container {
+            height: 100%;
+            max-height: 100%;
+            overflow: hidden;
+        }
+
+        #tree {
+            height: 100%;
+        }
+
+        .columns {
+            height: calc(100%);
+        }
+
+        #tree-wrapper {
+            background-color: #f9f9f9;
+            height: 100%;
+        }
+
+        textarea {
+            padding: 0;
+            margin: 0;
+        }
+
+        .tab-block {
+            margin: 0;
+        }
+
+        .panel-header, .panel-body, .panel-footer {
+            padding: 0 !important;
+        }
+
+        .panel {
+            padding-left: 12px !important;
+        }
+
+        #console {
+            margin: 0;
+            overflow-y: scroll;
+            height: 100%;
+            background-color: #1c1c1c;
+            color: #f9f9f9;
+            font-size: 12px;
+        }
+
+        #tree-stats {
+            position: absolute;
+            top: 64px;
+            right: 32px;
+            background-color: #ffffff;
+            padding: 8px;
+            z-index: 99999999999;
+            border: 1px solid #1c1c1c;
+        }
+    </style>
+</head>
+<body>
+<script type="text/javascript" src="/static/bigbro.js"></script>
+<script type="text/javascript">
+    let events = ["click", "dblclick", "submit", "cut", "copy", "paste", "select"];
+    let bb = BigBro.init({{.UID}}, "43.240.96.223:1984", events);
+</script>
+<div class="container" id="app">
+    <header class="navbar bg-secondary nav-height">
+    {{template "sidebar"}}
+        <section class="navbar-section">Participant ID:<span class="label label-primary mr-1 ml-1">{{.UID}}</span></section>
+    </header>
+    <div class="columns">
+        <div class="column col-4">
+            <div class="form-group">
+                <textarea name="query" class="form-input" id="search-box" placeholder="Enter query here." rows="20" required v-model="textQuery" v-on:change="updateText"></textarea>
+                <input type="hidden" name="lang" value="pubmed">
+            </div>
+            <button class="btn btn-primary text-error nav-height float-right" id="btn-update-tree" v-on:click="updateTree">
+                <i class="icon icon-refresh"></i> Update Tree
+            </button>
+        </div>
+        <div class="column col-8">
+            <div id="tree-wrapper">
+                <div id="tree-stats" v-if="numRet">
+                    <div><strong>[[ numRet ]]</strong> citations retrieved</div>
+                    <div><strong>[[ numRel ]]</strong> citations relevant</div>
+                    <div><strong>[[ numRelRet ]]</strong> citations relevant retrieved</div>
+                    <a href="/help#LoadingPMIDs">
+                        <small>help?</small>
+                    </a>
+                </div>
+                <div id="tree" class="c-move"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main app code. -->
+<script src="/static/vue.js" type="text/javascript"></script>
+<script type="text/javascript" src="/static/lodash.min.js"></script>
+<script src="/static/Sortable.min.js"></script>
+<script src="/static/vuedraggable.min.js"></script>
+<!--suppress JSUnusedGlobalSymbols -->
+<script>
+    var structuredID = 0;
+    var vm = new Vue({
+        delimiters: ["[[", "]]"],
+        el: "#app",
+        data: {
+            tabEditor: 0,
+            tabVisualise: 0,
+            numRet: null,
+            numRel: null,
+            numRelRet: null,
+            textQuery: "",
+            queryLanguage: "{{.Language}}",
+            cqrQuery: {},
+        },
+        methods: {
+            updateTree: function (e) {
+                var self = this
+                var el = document.getElementById("btn-update-tree");
+                el.classList.add("loading");
+                var request = new XMLHttpRequest();
+                request.addEventListener("load", function (ev) {
+                    el.classList.remove("loading");
+                    var resp = JSON.parse(ev.target.responseText);
+                    network.setData(resp);
+                    for (var i = 0; i < resp.nodes.length; i++) {
+                        if (resp.nodes[i].id == 1) {
+                            self.numRet = resp.nodes[i].value
+                        }
+                    }
+                    self.numRel = resp.NumRel;
+                    self.numRelRet = resp.NumRelRet;
+                });
+                request.open("POST", "/api/tree", true);
+                request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                request.send("query=" + this.textQuery + "&lang=" + this.queryLanguage);
+                bb.log(e, "treesubmit", document.getElementById("search-box").value)
+            },
+            updateText: _.debounce(function () {
+                var self = this;
+                var request = new XMLHttpRequest();
+                request.addEventListener("load", function (ev) {
+                    if (ev.currentTarget.status === 200) {
+                        self.cqrQuery = JSON.parse(ev.currentTarget.responseText)
+                    }
+                });
+                request.open("POST", "/api/query2cqr");
+                request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                request.send("query=" + self.textQuery + "&lang=" + self.queryLanguage);
+            }, 300)
+        },
+        watch: {
+            vennSelected: function () {
+                console.log(this.vennSelected)
+            },
+            // Do not continue to update the log when we are not in the console tab.
+            tabVisualise: function (val) {
+                if (val === 2) {
+                    ConsoleInitial = setTimeout(GetLog, ConsolePoll)
+                } else {
+                    clearTimeout(ConsoleInitial)
+                }
+            }
+        }
+    })
+</script>
+
+<!-- Tree view. -->
+<script src="/static/vis.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+    // create an array with nodes
+    var nodes = new vis.DataSet([]);
+
+    // create an array with edges
+    var edges = new vis.DataSet([]);
+
+    // create a network
+    var container = document.getElementById('tree');
+
+    // provide the data in the vis format
+    var data = {
+        nodes: nodes,
+        edges: edges
+    };
+    var options = {
+        physics: {
+            enabled: true,
+            hierarchicalRepulsion: {
+                nodeDistance: 200
+            }
+        },
+        edges: {
+            font: {
+                align: "top"
+            },
+            smooth: {
+                enabled: true,
+                type: "dynamic"
+            },
+            scaling: {
+                label: {
+                    enabled: true,
+                    min: 25,
+                    max: 30
+                }
+            }
+        },
+        nodes: {
+            shape: "box",
+            color: "#CED2FF",
+            font: {
+                color: "#333333"
+            },
+            scaling: {
+                customScalingFunction: function (min, max, total, value) {
+                    return value / total;
+                },
+                min: 60,
+                max: 100,
+                label: {
+                    enabled: true,
+                    min: 25,
+                    max: 30
+                }
+            },
+            widthConstraint: true
+        },
+        layout: {
+            hierarchical: {
+                enabled: true,
+                blockShifting: false,
+                edgeMinimization: true,
+                parentCentralization: true,
+                nodeSpacing: 10,
+                levelSeparation: 250
+            }
+        }
+    };
+
+    // initialize your network!
+    var network = new vis.Network(container, data, options);
+</script>
+</body>
+</html>
