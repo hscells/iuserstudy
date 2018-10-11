@@ -77,7 +77,7 @@
 </script>
 <div class="container" id="app">
     <header class="navbar bg-secondary nav-height">
-    {{template "sidebar"}}
+        <section class="navbar-section"><a href="?uid={{.UID}}"><i class="icon icon-arrow-left"></i>back</a></section>
         <section class="navbar-section">Participant ID:<span class="label label-primary mr-1 ml-1">{{.UID}}</span></section>
     </header>
     <div class="columns">

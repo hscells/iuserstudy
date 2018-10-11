@@ -1,10 +1,265 @@
+{{/*
+TODO Automatically fill in the participant ID in the Google Form.
+*/}}
+{{define "queryvis"}}
+<p>
+    Please use the searchrefiner query visualiser to complete this task.
+    At the end of the task please paste the <b>completed query</b> into the textarea below.
+</p>
+<a href="?uid={{.UID}}&tree" class="btn btn-link">Open Visualisation<i class="icon icon-arrow-right"></i></a>
+<p><em>A number of seed studies have been loaded into this interface automatically:</em></p>
+<ul>
+    <li>TODO</li>
+</ul>
+{{end}}
+{{define "pubmed"}}
+<p>
+    Please use PubMed to complete this task.
+    At the end of this task please paste the <b>completed query</b> into the textarea below and upload the <b>PubMed history file</b> into the upload space below.
+</p>
+<a href="https://www.ncbi.nlm.nih.gov/pubmed" target="_blank" class="btn btn-link">Open PubMed<i class="icon icon-arrow-right"></i></a>
+<p><em>A number of seed studies have been identified to assist with query formulation:</em></p>
+<ul>
+    <li>TODO</li>
+</ul>
+{{end}}
+{{define "protocol1"}}
+<p>This will eventually contain a description of the first systematic review protocol.</p>
+{{end}}
+{{define "protocol2"}}
+<p>This will eventually contain a description of the second systematic review protocol.</p>
+{{end}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>User Study Home</title>
+    <link rel="icon" href="/static/favicon.png" type="image/x-png">
+    <link rel="stylesheet" href="/static/spectre.min.css" type="text/css">
+    <link rel="stylesheet" href="/static/spectre-icons.min.css" type="text/css">
+    <link rel="stylesheet" href="/static/spectre-exp.min.css" type="text/css">
+    <link rel="stylesheet" href="/static/vis.min.css" type="text/css">
+    <link rel="stylesheet" href="/static/vue-multiselect.min.css" type="text/css">
+    <link rel="stylesheet" href="/static/logtail.css" type="text/css">
+    <link rel="stylesheet" href="/static/searchrefiner.css" type="text/css">
+    <!--suppress CssUnknownTarget -->
+    <style>
+        body {
+            background: url("/static/searchrefiner.png") no-repeat fixed bottom right;
+            background-size: 25%;
+        }
+
+        p {
+            text-align: left;
+        }
+
+        .info {
+            max-width: 640px;
+        }
+    </style>
 </head>
 <body>
-
+<script type="text/javascript" src="/static/bigbro.js"></script>
+<script type="text/javascript">
+    let events = ["click", "dblclick", "submit", "cut", "copy", "paste", "select"];
+    let bb = BigBro.init({{.UID}}, "43.240.96.223:1984", events);
+</script>
+<div class="container" id="app">
+    <header class="navbar bg-secondary nav-height">
+        <section class="navbar-section">Participant ID:<span class="label label-primary mr-1 ml-1">{{.UID}}</span></section>
+    </header>
+    <section class="container" style="padding: 0 5em 5em 5em;">
+        <h1><img src="/static/favicon.png" height="22px"> searchrefiner User Study</h1>
+        <ul class="step">
+            <li class="step-item {{ if eq .Step 1}}active{{end}}">
+                <a href="#" class="tooltip" data-tooltip="Pre-Study Questionnaire">Step 1</a>
+            </li>
+            <li class="step-item {{ if eq .Step 2}}active{{end}}">
+                <a href="#" class="tooltip" data-tooltip="Pre-Task 1 Questionnaire">Step 2</a>
+            </li>
+            <li class="step-item {{ if eq .Step 3}}active{{end}}">
+                <a href="#" class="tooltip" data-tooltip="Task 1">Step 3</a>
+            </li>
+            <li class="step-item {{ if eq .Step 4}}active{{end}}">
+                <a href="#" class="tooltip" data-tooltip="Post-Task 1 Questionnaire">Step 4</a>
+            </li>
+            <li class="step-item {{ if eq .Step 5}}active{{end}}">
+                <a href="#" class="tooltip" data-tooltip="Pre-Task 2 Questionnaire">Step 5</a>
+            </li>
+            <li class="step-item {{ if eq .Step 6}}active{{end}}">
+                <a href="#" class="tooltip" data-tooltip="Task 2">Step 6</a>
+            </li>
+            <li class="step-item {{ if eq .Step 7}}active{{end}}">
+                <a href="#" class="tooltip" data-tooltip="Post-Task 2 Questionnaire">Step 7</a>
+            </li>
+            <li class="step-item {{ if eq .Step 8}}active{{end}}">
+                <a href="#" class="tooltip" data-tooltip="Post-Study Questionnaire">Step 8</a>
+            </li>
+        </ul>
+    {{ if eq .Step 1}}
+        <div class="info">
+            <h2>Welcome</h2>
+            <p>
+                You are invited to participate in a user study about query visualisation in the context of systematic review query formulation.
+            </p>
+            <p>
+                This study comprises eight steps in total for you to complete.
+                Steps 3 and 6 will have you formulating queries in <b>PubMed syntax</b> for real systematic reviews.
+                The other steps involve answering short questionnaires about your knowledge about of formulation and the tasks.
+            </p>
+            <p>
+                Please ensure that each step has been completed before moving to the next step in the study.
+                For example, the questionnaires will say "<b>Your response has been recorded.</b>" once completed.
+            </p>
+            <h2>Pre-Study Questionnaire <span class="h3">(Step {{ .Step }})</span></h2>
+            <p><em>Please ensure the Google Form below has been completed in full before continuing to the next step in the study. The questionnaire will say "<b>Your response has been recorded.</b>" once completed.</em></p>
+            <form action="/plugin/iuserstudy?uid={{.UID}}" method="post">
+                <input type="hidden" name="step" value="2">
+                <input class="btn btn-primary btn-lg" value="Continue to next step" type="submit">
+            </form>
+        </div>
+        <div class="divider"></div>
+        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdI1fNGuoZZ5RmVnzIw-xAICgw7OA0Gtta-lQvjF1hTIfmlqA/viewform?embedded=true" width="640" height="600" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+    {{end}}
+    {{ if eq .Step 2}}
+        <div class="info">
+            <h2>Pre-Task 1 Questionnaire <span class="h3">(Step {{ .Step }})</span></h2>
+            <p><b>Task</b>: You have been provided with the following protocol for a systematic review:</p>
+        {{ if eq .Protocol 1 }}
+            {{template "protocol1" . }}
+        {{ else }}
+            {{template "protocol2" . }}
+        {{ end }}
+            <p>
+                Your task is to formulate a query that will be used to screen studies for inclusion in the systematic review.
+                Before you begin, please complete the following questionnaire.
+            </p>
+            <p><em>Please ensure the Google Form below has been completed in full before continuing to the next step in the study. The questionnaire will say "<b>Your response has been recorded.</b>" once completed.</em></p>
+            <form action="/plugin/iuserstudy?uid={{.UID}}" method="post">
+                <input type="hidden" name="step" value="3">
+                <input class="btn btn-primary btn-lg" value="Continue to next step" type="submit">
+            </form>
+        </div>
+        <div class="divider"></div>
+        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSe4qzij6W9Of9KKw2IupSX7ltcjFHsYWAhWavtMKVtlJiHTzQ/viewform?embedded=true" width="640" height="1240" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+    {{end}}
+    {{ if eq .Step 3}}
+        <div class="info">
+            <h2>Task 1 <span class="h3">(Step {{ .Step }})</span></h2>
+            <p>Please complete the first task required of the study. Below is a <b>protocol</b> for a systematic review and an <b>interface</b> for you to formulate a query to that will be used to screen studies to include in the review.</p>
+            <p>When formulating a query, please <b>do not use any other systems</b> other than the one prescribed below.</p>
+            <h4>Protocol</h4>
+        {{ if eq .Protocol 1 }}
+            {{template "protocol1" . }}
+    {{ else }}
+            {{template "protocol2" . }}
+    {{ end }}
+            <h4>Interface</h4>
+        {{ if eq .Interface 1 }}
+            {{template "queryvis" . }}
+    {{ else }}
+            {{template "pubmed" . }}
+    {{ end }}
+        </div>
+        <div class="divider"></div>
+        <form enctype="multipart/form-data" action="/plugin/iuserstudy?uid={{.UID}}" method="post">
+            <input type="hidden" name="step" value="7">
+            <label class="form-label" for="query">Paste completed query below</label>
+            <textarea required class="form-input" id="query" name="query" rows="14"></textarea>
+        {{ if eq .Interface 2 }}
+            <br/>
+            <label class="form-label" for="history">Upload PubMed search history below</label>
+            <input class="form-input" type="file" required id="history" name="history"/>
+        {{ end }}
+            <br/>
+            <input class="btn btn-primary btn-lg" value="Continue to next step" type="submit">
+        </form>
+    {{end}}
+    {{ if eq .Step 4}}
+        <div class="info">
+            <h2>Post-Task 1 Questionnaire <span class="h3">(Step {{ .Step }})</span></h2>
+            <p><em>Please ensure the Google Form below has been completed in full before continuing to the next step in the study. The questionnaire will say "<b>Your response has been recorded.</b>" once completed.</em></p>
+            <form action="/plugin/iuserstudy?uid={{.UID}}" method="post">
+                <input type="hidden" name="step" value="5">
+                <input class="btn btn-primary btn-lg" value="Continue to next step" type="submit">
+            </form>
+        </div>
+        <div class="divider"></div>
+        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSe4qzij6W9Of9KKw2IupSX7ltcjFHsYWAhWavtMKVtlJiHTzQ/viewform?embedded=true" width="640" height="1240" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+    {{end}}
+    {{ if eq .Step 5}}
+        <div class="info">
+            <h2>Pre-Task 2 Questionnaire <span class="h3">(Step {{ .Step }})</span></h2>
+            <p>Task: You have been provided with the following protocol for a systematic review.</p>
+        {{ if eq .Protocol 1 }}
+            {{template "protocol1" . }}
+    {{ else }}
+            {{template "protocol2" . }}
+    {{ end }}
+            <p>You are now tasked with formulating a query that will be used to screen studies for inclusion in the systematic review.</p>
+            <p><em>Please ensure the Google Form below has been completed in full before continuing to the next step in the study. The questionnaire will say "<b>Your response has been recorded.</b>" once completed.</em></p>
+            <form action="/plugin/iuserstudy?uid={{.UID}}" method="post">
+                <input type="hidden" name="step" value="6">
+                <input class="btn btn-primary btn-lg" value="Continue to next step" type="submit">
+            </form>
+        </div>
+        <div class="divider"></div>
+        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSe4qzij6W9Of9KKw2IupSX7ltcjFHsYWAhWavtMKVtlJiHTzQ/viewform?embedded=true" width="640" height="1240" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+    {{end}}
+    {{ if eq .Step 6}}
+        <div class="info">
+            <h2>Task 2 <span class="h3">(Step {{ .Step }})</span></h2>
+            <p>Please complete the second task required of the study. Below is a <b>protocol</b> for a systematic review and an <b>interface</b> for you to formulate a query to that will be used to screen studies to include in the review.</p>
+            <p>When formulating a query, please <b>do not use any other systems</b> other than the one prescribed below.</p>
+            <h4>Protocol</h4>
+        {{ if eq .Protocol 1 }}
+            {{template "protocol1" . }}
+    {{ else }}
+            {{template "protocol2" . }}
+    {{ end }}
+            <h4>Interface</h4>
+        {{ if eq .Interface 1 }}
+            {{template "queryvis" . }}
+    {{ else }}
+            {{template "pubmed" . }}
+    {{ end }}
+        </div>
+        <div class="divider"></div>
+        <form enctype="multipart/form-data" action="/plugin/iuserstudy?uid={{.UID}}" method="post">
+            <input type="hidden" name="step" value="7">
+            <label class="form-label" for="query">Paste completed query below</label>
+            <textarea required class="form-input" id="query" name="query" rows="14"></textarea>
+        {{ if eq .Interface 2 }}
+            <br/>
+            <label class="form-label" for="history">Upload PubMed search history below</label>
+            <input class="form-input" type="file" required id="history" name="history"/>
+        {{ end }}
+            <br/>
+            <input class="btn btn-primary btn-lg" value="Continue to next step" type="submit">
+        </form>
+    {{ end }}
+    {{ if eq .Step 7}}
+        <div class="info">
+            <h2>Post-Task 2 Questionnaire <span class="h3">(Step {{ .Step }})</span></h2>
+            <p><em>Please ensure the Google Form below has been completed in full before continuing to the next step in the study. The questionnaire will say "<b>Your response has been recorded.</b>" once completed.</em></p>
+            <form action="/plugin/iuserstudy?uid={{.UID}}" method="post">
+                <input type="hidden" name="step" value="8">
+                <input class="btn btn-primary btn-lg" value="Continue to next step" type="submit">
+            </form>
+        </div>
+        <div class="divider"></div>
+        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSe4qzij6W9Of9KKw2IupSX7ltcjFHsYWAhWavtMKVtlJiHTzQ/viewform?embedded=true" width="640" height="1240" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+    {{end}}
+    {{ if eq .Step 8}}
+        <div class="info">
+            <h2>Post-Study Questionnaire <span class="h3">(Step {{ .Step }})</span></h2>
+            <p>Thank you for participating in this user study. You have one last questionnaire to complete.</p>
+            <p><em>Please ensure the Google Form below has been completed in full before continuing to the next step in the study. The questionnaire will say "<b>Your response has been recorded.</b>" once completed.</em></p>
+        </div>
+        <div class="divider"></div>
+        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSeBAVFuCDhcaJAswsUaE-VdhvjTb4MvTnzaW-0NM8QAkxhuyg/viewform?embedded=true" width="640" height="600" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+    {{end}}
+    </section>
+</div>
 </body>
 </html>
