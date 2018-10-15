@@ -23,10 +23,6 @@
             height: 100%;
         }
 
-        .columns {
-            height: calc(100%);
-        }
-
         #tree-wrapper {
             background-color: #f9f9f9;
             height: 100%;
@@ -80,17 +76,29 @@
         <section class="navbar-section"><a href="?uid={{.UID}}"><i class="icon icon-arrow-left"></i>back</a></section>
         <section class="navbar-section">Participant ID:<span class="label label-primary mr-1 ml-1">{{.UID}}</span></section>
     </header>
-    <div class="columns">
-        <div class="column col-4">
+    <div class="columns" style="height: calc(100%);">
+        <div class="column col-6">
             <div class="form-group">
-                <textarea name="query" class="form-input" id="search-box" placeholder="Enter query here." rows="20" required v-model="textQuery" v-on:change="updateText"></textarea>
+                <textarea name="query" class="form-input" id="search-box" placeholder="Use the builder below to create your search" rows="4" required v-model="textQuery" v-on:change="updateText" disabled></textarea>
                 <input type="hidden" name="lang" value="pubmed">
             </div>
-            <button class="btn btn-primary text-error nav-height float-right" id="btn-update-tree" v-on:click="updateTree">
+        {{/*<a href="#">Edit</a>*/}}
+            <a href="#" style="float: right" v-on:click="clear">Clear</a>
+            <p><b>Builder</b></p>
+            <builder v-for="(query, index) in queries"
+                     :key="query.id"
+                     v-on:add="addQuery"
+                     v-on:remove="removeQuery"
+                     v-bind:query="query"
+                     v-bind:index="index"
+                     v-bind:last="index==queries.length-1"></builder>
+            <button class="btn btn-sm btn-primary text-error nav-height" id="btn-update-tree" v-on:click="updateTree">
                 <i class="icon icon-refresh"></i> Update Tree
             </button>
+        {{/*or*/}}
+        {{/*<a href="#">Add to history</a>*/}}
         </div>
-        <div class="column col-8">
+        <div class="column col-6">
             <div id="tree-wrapper">
                 <div id="tree-stats" v-if="numRet">
                     <div><strong>[[ numRet ]]</strong> citations retrieved</div>
@@ -106,6 +114,74 @@
     </div>
 </div>
 
+<script type="text/x-template" id="builder">
+    <div class="columns" style="padding-bottom: 0.3rem">
+        <div class="column col-2">
+            <select class="form-select select-sm" v-if="index>0" v-model="query.operator" v-bind:field="query.operator" v-on:change="updateCQR">
+                <option value="and">AND</option>
+                <option value="or">OR</option>
+                <option value="not">NOT</option>
+            </select>
+        </div>
+        <div class="column col-3">
+            <select class="form-select select-sm" v-model="query.field" v-bind:field="query.field" v-on:change="updateCQR">
+                <option value="Affiliation">Affiliation</option>
+                <option value="All Fields" selected="selected">All Fields</option>
+                <option value="Author">Author</option>
+                <option value="Author - Corporate">Author - Corporate</option>
+                <option value="Author - First">Author - First</option>
+                <option value="Author - Full">Author - Full</option>
+                <option value="Author - Identifier">Author - Identifier</option>
+                <option value="Author - Last">Author - Last</option>
+                <option value="Book">Book</option>
+                <option value="Conflict of Interest Statements">Conflict of Interest Statements</option>
+                <option value="Date - Completion">Date - Completion</option>
+                <option value="Date - Create">Date - Create</option>
+                <option value="Date - Entrez">Date - Entrez</option>
+                <option value="Date - MeSH">Date - MeSH</option>
+                <option value="Date - Modification">Date - Modification</option>
+                <option value="Date - Publication">Date - Publication</option>
+                <option value="EC/RN Number">EC/RN Number</option>
+                <option value="Editor">Editor</option>
+                <option value="Filter">Filter</option>
+                <option value="Grant Number">Grant Number</option>
+                <option value="ISBN">ISBN</option>
+                <option value="Investigator">Investigator</option>
+                <option value="Investigator - Full">Investigator - Full</option>
+                <option value="Issue">Issue</option>
+                <option value="Journal">Journal</option>
+                <option value="Language">Language</option>
+                <option value="Location ID">Location ID</option>
+                <option value="MeSH Major Topic">MeSH Major Topic</option>
+                <option value="MeSH Subheading">MeSH Subheading</option>
+                <option value="MeSH Terms">MeSH Terms</option>
+                <option value="Other Term">Other Term</option>
+                <option value="Pagination">Pagination</option>
+                <option value="Pharmacological Action">Pharmacological Action</option>
+                <option value="Publication Type">Publication Type</option>
+                <option value="Publisher">Publisher</option>
+                <option value="Secondary Source ID">Secondary Source ID</option>
+                <option value="Subject - Personal Name">Subject - Personal Name</option>
+                <option value="Supplementary Concept">Supplementary Concept</option>
+                <option value="Text Word">Text Word</option>
+                <option value="Title">Title</option>
+                <option value="Title/Abstract">Title/Abstract</option>
+                <option value="Transliterated Title">Transliterated Title</option>
+                <option value="Volume">Volume</option>
+            </select>
+        </div>
+        <div class="column col-5">
+            <input type="text" v-model="query.query" v-bind:query="query.query" v-on:keyup="updateCQR" class="form-input input-sm"/>
+        </div>
+        <div class="column col-2">
+            <div class="btn-group">
+                <a href="#" class="btn btn-action btn-sm" v-on:click="removeSelf"><i class="icon icon-minus"></i></a>
+                <a href="#" class="btn btn-action btn-sm" v-if="last" v-on:click="addQuery"><i class="icon icon-plus"></i></a>
+            </div>
+        </div>
+    </div>
+</script>
+
 <!-- Main app code. -->
 <script src="/static/vue.js" type="text/javascript"></script>
 <script type="text/javascript" src="/static/lodash.min.js"></script>
@@ -114,6 +190,56 @@
 <!--suppress JSUnusedGlobalSymbols -->
 <script>
     var structuredID = 0;
+    Vue.component("builder", {
+        delimiters: ["[[", "]]"],
+        template: "#builder",
+        props: ["index", "last", "query"],
+        data: function () {
+            return {
+                id: structuredID++,
+            }
+        },
+        beforeMount: function () {
+            this.updateCQR();
+        },
+        methods: {
+            removeSelf: function () {
+                this.$emit("remove", this.$props.index);
+            },
+            addQuery: function () {
+                this.$emit("add", {query: "", field: "All Fields", operator: "and", cqr: {}})
+            },
+            updateCQR: function () {
+                if (this.$props.query.query.length === 0) {
+                    this.$props.query.cqr = {query: this.$props.query.query, fields: this.$props.query.field}
+                    return
+                }
+                var self = this;
+                var request = new XMLHttpRequest();
+                request.addEventListener("load", function (ev) {
+                    if (ev.currentTarget.status === 200) {
+                        self.$props.query.cqr = JSON.parse(ev.currentTarget.responseText)
+                        self.$props.query.cqr = fixNilFields(self.$props.query.cqr, self.$props.query.field)
+                    }
+                });
+                request.open("POST", "/api/query2cqr");
+                request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                request.send("query=" + self.query.query + "&lang=pubmed");
+            }
+        }
+    });
+
+    fixNilFields = function (query, field) {
+        if (query.children !== undefined && query.children.length > 0) {
+            for (var i = 0; i < query.children.length; i++) {
+                query.children[i] = fixNilFields(query.children[i], field)
+            }
+        } else if (query.fields[0] === "nil") {
+            query.fields[0] = field
+        }
+        return query
+    }
+
     var vm = new Vue({
         delimiters: ["[[", "]]"],
         el: "#app",
@@ -125,7 +251,49 @@
             numRelRet: null,
             textQuery: "",
             queryLanguage: "{{.Language}}",
-            cqrQuery: {},
+            queries: [{query: "", field: "All Fields", operator: "", cqr: {}}, {query: "", field: "All Fields", operator: "and", cqr: {}}],
+        },
+        computed: {
+            cqrQuery() {
+                var q = {};
+                if (this.queries.length == 1) {
+                    q = {
+                        query: this.queries[0].query,
+                        fields: [this.queries[0].field],
+                    }
+                } else {
+                    for (var i = 0; i < this.queries.length; i++) {
+                        var child = {}
+                        if (!Object.keys(this.queries[i].cqr).length) {
+                            child = {
+                                query: this.queries[i].query,
+                                fields: [this.queries[i].field],
+                            }
+                        } else {
+                            child = this.queries[i].cqr;
+                            if (child === undefined || child.operator == "") {
+                                // console.log(JSON.stringify(child))
+                                child = {
+                                    query: this.queries[i].query,
+                                    fields: [this.queries[i].field],
+                                }
+                            }
+                        }
+                        if (!Object.keys(q).length) {
+                            q = child
+                        } else {
+                            q = {
+                                operator: this.queries[i].operator,
+                                children: [
+                                    child,
+                                    q
+                                ]
+                            }
+                        }
+                    }
+                }
+                return JSON.stringify(q)
+            }
         },
         methods: {
             updateTree: function (e) {
@@ -150,23 +318,32 @@
                 request.send("query=" + this.textQuery + "&lang=" + this.queryLanguage);
                 bb.log(e, "treesubmit", document.getElementById("search-box").value)
             },
+            removeQuery: function (index) {
+                this.queries.splice(index, 1)
+                if (this.queries.length == 0) {
+                    this.queries.push({query: ""})
+                }
+            },
+            addQuery: function (query) {
+                this.queries.push(query)
+            },
             updateText: _.debounce(function () {
                 var self = this;
                 var request = new XMLHttpRequest();
                 request.addEventListener("load", function (ev) {
                     if (ev.currentTarget.status === 200) {
-                        self.cqrQuery = JSON.parse(ev.currentTarget.responseText)
+                        self.textQuery = ev.currentTarget.responseText
                     }
                 });
-                request.open("POST", "/api/query2cqr");
+                request.open("POST", "/api/cqr2query");
                 request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                request.send("query=" + self.textQuery + "&lang=" + self.queryLanguage);
-            }, 300)
+                request.send("query=" + self.cqrQuery + "&lang=" + self.queryLanguage);
+            }, 300),
+            clear: function () {
+                this.queries = [{query: "", field: "All Fields", operator: "", cqr: {}}, {query: "", field: "All Fields", operator: "and", cqr: {}}];
+            }
         },
         watch: {
-            vennSelected: function () {
-                console.log(this.vennSelected)
-            },
             // Do not continue to update the log when we are not in the console tab.
             tabVisualise: function (val) {
                 if (val === 2) {
@@ -174,6 +351,9 @@
                 } else {
                     clearTimeout(ConsoleInitial)
                 }
+            },
+            cqrQuery: function () {
+                this.updateText()
             }
         }
     })
