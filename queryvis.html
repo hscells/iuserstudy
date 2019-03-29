@@ -82,7 +82,7 @@
                 <textarea name="query" class="form-input" id="search-box" placeholder="Use the builder below to create your search" rows="4" required v-model="textQuery" v-on:change="updateText" disabled></textarea>
                 <input type="hidden" name="lang" value="pubmed">
             </div>
-        {{/*<a href="#">Edit</a>*/}}
+            {{/*<a href="#">Edit</a>*/}}
             <a href="#" style="float: right" v-on:click="clear">Clear</a>
             <p><b>Builder</b></p>
             <builder v-for="(query, index) in queries"
@@ -95,19 +95,19 @@
             <button class="btn btn-sm btn-primary text-error nav-height" id="btn-update-tree" v-on:click="updateTree">
                 <i class="icon icon-refresh"></i> Update Tree
             </button>
-        {{/*or*/}}
-        {{/*<a href="#">Add to history</a>*/}}
+            {{/*or*/}}
+            {{/*<a href="#">Add to history</a>*/}}
         </div>
         <div class="column col-6">
+            <div id="tree-stats">
+                <div><strong>[[ numRet ]]</strong> citations retrieved</div>
+                <div><strong>[[ numRel ]]</strong> citations relevant</div>
+                <div><strong>[[ numRelRet ]]</strong> citations relevant retrieved</div>
+                <a href="/help#LoadingPMIDs">
+                    <small>help?</small>
+                </a>
+            </div>
             <div id="tree-wrapper">
-                <div id="tree-stats" v-if="numRet">
-                    <div><strong>[[ numRet ]]</strong> citations retrieved</div>
-                    <div><strong>[[ numRel ]]</strong> citations relevant</div>
-                    <div><strong>[[ numRelRet ]]</strong> citations relevant retrieved</div>
-                    <a href="/help#LoadingPMIDs">
-                        <small>help?</small>
-                    </a>
-                </div>
                 <div id="tree" class="c-move"></div>
             </div>
         </div>
@@ -207,11 +207,11 @@
                 this.$emit("remove", this.$props.index);
             },
             addQuery: function () {
-                this.$emit("add", {query: "", field: "All Fields", operator: "and", cqr: {}})
+                this.$emit("add", {query: "", fields: ["All Fields"], operator: "and", cqr: {}})
             },
             updateCQR: function () {
                 if (this.$props.query.query.length === 0) {
-                    this.$props.query.cqr = {query: this.$props.query.query, fields: this.$props.query.field}
+                    this.$props.query.cqr = {query: this.$props.query.query, fields: [this.$props.query.field]}
                     return
                 }
                 var self = this;
@@ -224,7 +224,7 @@
                 });
                 request.open("POST", "/api/query2cqr");
                 request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                request.send("query=" + self.query.query + "&lang=pubmed");
+                request.send("query=" + self.query.query + "[" + self.query.field + "]" + "&lang=pubmed");
             }
         }
     });
@@ -246,9 +246,9 @@
         data: {
             tabEditor: 0,
             tabVisualise: 0,
-            numRet: null,
-            numRel: null,
-            numRelRet: null,
+            numRet: 0,
+            numRel: 0,
+            numRelRet: 0,
             textQuery: "",
             queryLanguage: "{{.Language}}",
             queries: [{query: "", field: "All Fields", operator: "", cqr: {}}, {query: "", field: "All Fields", operator: "and", cqr: {}}],
@@ -303,6 +303,7 @@
                 var request = new XMLHttpRequest();
                 request.addEventListener("load", function (ev) {
                     el.classList.remove("loading");
+                    console.log(ev.target.responseText)
                     var resp = JSON.parse(ev.target.responseText);
                     network.setData(resp);
                     for (var i = 0; i < resp.nodes.length; i++) {
@@ -313,7 +314,7 @@
                     self.numRel = resp.NumRel;
                     self.numRelRet = resp.NumRelRet;
                 });
-                request.open("POST", "/api/tree", true);
+                request.open("POST", "/plugin/queryvis", true);
                 request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
                 request.send("query=" + this.textQuery + "&lang=" + this.queryLanguage);
                 bb.log(e, "treesubmit", document.getElementById("search-box").value)
