@@ -20,7 +20,7 @@
         }
 
         #tree {
-            height: 100%;
+            height: calc(100% - 36px);
         }
 
         #tree-wrapper {
@@ -56,12 +56,37 @@
 
         #tree-stats {
             position: absolute;
-            top: 64px;
-            right: 32px;
+            top: 32px;
+            right: 8px;
             background-color: #ffffff;
             padding: 8px;
             z-index: 99999999999;
             border: 1px solid #1c1c1c;
+        }
+
+        .vis-button {
+            -webkit-border-radius: 0 !important;
+            -moz-border-radius: 0 !important;
+            border-radius: 0 !important;
+            background-position: 0 0 !important;
+            background-size: contain;
+        }
+
+        .vis-up, .vis-down, .vis-left, .vis-right {
+            display: none !important;
+        }
+
+        .vis-zoomExtends {
+            bottom: 90px !important;
+        }
+
+        .vis-zoomOut {
+            bottom: 10px !important;
+            right: 15px !important;
+        }
+
+        .vis-zoomIn {
+            bottom: 46px !important;
         }
     </style>
 </head>
@@ -77,24 +102,53 @@
         <section class="navbar-section">Participant ID:<span class="label label-primary mr-1 ml-1">{{.UID}}</span></section>
     </header>
     <div class="columns" style="height: calc(100%);">
-        <div class="column col-6">
+        <div class="column col-6" style="padding-left: 20px !important; height: calc(100% - 36px);overflow-y: scroll">
             <div class="form-group">
-                <textarea name="query" class="form-input" id="search-box" placeholder="Use the builder below to create your search" rows="4" required v-model="textQuery" v-on:change="updateText" disabled></textarea>
+                <pre name="query" class="code" id="search-box">[[ textQuery ]]</pre>
                 <input type="hidden" name="lang" value="pubmed">
             </div>
             {{/*<a href="#">Edit</a>*/}}
-            <a href="#" style="float: right" v-on:click="clear">Clear</a>
-            <p><b>Builder</b></p>
-            <builder v-for="(query, index) in queries"
-                     :key="query.id"
-                     v-on:add="addQuery"
-                     v-on:remove="removeQuery"
-                     v-bind:query="query"
-                     v-bind:index="index"
-                     v-bind:last="index==queries.length-1"></builder>
-            <button class="btn btn-sm btn-primary text-error nav-height" id="btn-update-tree" v-on:click="updateTree">
-                <i class="icon icon-refresh"></i> Update Tree
-            </button>
+            <div class="panel p-2">
+                <div class="panel-header">
+                    <b>Query Builder</b>
+                </div>
+                <div class="panel-body" style="overflow: hidden;">
+                    <builder v-for="(query, index) in queries"
+                             :key="query.id"
+                             v-on:add="addQuery"
+                             v-on:remove="removeQuery"
+                             v-bind:query="query"
+                             v-bind:index="index"
+                             v-bind:last="index==queries.length-1"></builder>
+                    <a href="#" v-on:click="clear">Clear</a>
+                </div>
+                <div class="panel-footer">
+                    <button class="btn btn-primary nav-height" id="btn-update-tree" v-on:click="updateTree">
+                        <i class="icon icon-refresh"></i> Visualise
+                    </button>
+                </div>
+            </div>
+            <div class="panel p-2 mt-2">
+                <div class="panel-header">
+                    <b>History</b>
+                </div>
+                <div class="panel-body container">
+                    <div class="columns">
+                        <div class="column col-8 text-italic">Query</div>
+                        <div class="column col-2 text-italic">Items found</div>
+                        <div class="column col-2 text-italic">Relevant items found</div>
+                    </div>
+                    <div class="divider"></div>
+                    <div v-for="query in history">
+                        <div class="columns">
+                            <div class="column col-8">[[ query.QueryString ]]</div>
+                            <div class="column col-2">[[ query.NumRet ]]</div>
+                            <div class="column col-2">[[ query.NumRelRet ]]</div>
+                        </div>
+                        <div class="divider"></div>
+                    </div>
+                </div>
+            </div>
             {{/*or*/}}
             {{/*<a href="#">Add to history</a>*/}}
         </div>
@@ -103,9 +157,6 @@
                 <div><strong>[[ numRet ]]</strong> citations retrieved</div>
                 <div><strong>[[ numRel ]]</strong> citations relevant</div>
                 <div><strong>[[ numRelRet ]]</strong> citations relevant retrieved</div>
-                <a href="/help#LoadingPMIDs">
-                    <small>help?</small>
-                </a>
             </div>
             <div id="tree-wrapper">
                 <div id="tree" class="c-move"></div>
@@ -115,7 +166,7 @@
 </div>
 
 <script type="text/x-template" id="builder">
-    <div class="columns" style="padding-bottom: 0.3rem">
+    <div class="columns">
         <div class="column col-2">
             <select class="form-select select-sm" v-if="index>0" v-model="query.operator" v-bind:field="query.operator" v-on:change="updateCQR">
                 <option value="and">AND</option>
@@ -207,7 +258,7 @@
                 this.$emit("remove", this.$props.index);
             },
             addQuery: function () {
-                this.$emit("add", {query: "", fields: ["All Fields"], operator: "and", cqr: {}})
+                this.$emit("add", {query: "", fields: ["All Fields"], operator: "and", cqr: {}, field: "All Fields"})
             },
             updateCQR: function () {
                 if (this.$props.query.query.length === 0) {
@@ -219,12 +270,13 @@
                 request.addEventListener("load", function (ev) {
                     if (ev.currentTarget.status === 200) {
                         self.$props.query.cqr = JSON.parse(ev.currentTarget.responseText)
+                        console.log(self.$props.query.cqr)
                         self.$props.query.cqr = fixNilFields(self.$props.query.cqr, self.$props.query.field)
                     }
                 });
                 request.open("POST", "/api/query2cqr");
                 request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                request.send("query=" + self.query.query + "[" + self.query.field + "]" + "&lang=pubmed");
+                request.send("query=" + self.query.query + "&lang=pubmed&field=" + self.query.field);
             }
         }
     });
@@ -249,9 +301,10 @@
             numRet: 0,
             numRel: 0,
             numRelRet: 0,
-            textQuery: "",
+            textQuery: "Use the Query Builder below to formulate your query. It will show here afterwards for you to copy.",
             queryLanguage: "{{.Language}}",
             queries: [{query: "", field: "All Fields", operator: "", cqr: {}}, {query: "", field: "All Fields", operator: "and", cqr: {}}],
+            history: [],
         },
         computed: {
             cqrQuery() {
@@ -300,23 +353,29 @@
                 var self = this
                 var el = document.getElementById("btn-update-tree");
                 el.classList.add("loading");
-                var request = new XMLHttpRequest();
-                request.addEventListener("load", function (ev) {
-                    el.classList.remove("loading");
-                    console.log(ev.target.responseText)
-                    var resp = JSON.parse(ev.target.responseText);
-                    network.setData(resp);
-                    for (var i = 0; i < resp.nodes.length; i++) {
-                        if (resp.nodes[i].id == 1) {
-                            self.numRet = resp.nodes[i].value
+
+                {
+                    var request = new XMLHttpRequest();
+                    request.addEventListener("load", function (ev) {
+                        el.classList.remove("loading");
+                        console.log(ev.target.responseText)
+                        var resp = JSON.parse(ev.target.responseText);
+                        network.setData(resp);
+                        for (var i = 0; i < resp.nodes.length; i++) {
+                            if (resp.nodes[i].id == 1) {
+                                self.numRet = resp.nodes[i].value
+                            }
                         }
-                    }
-                    self.numRel = resp.NumRel;
-                    self.numRelRet = resp.NumRelRet;
-                });
-                request.open("POST", "/plugin/queryvis", true);
-                request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                request.send("query=" + this.textQuery + "&lang=" + this.queryLanguage);
+                        self.numRel = resp.NumRel;
+                        self.numRelRet = resp.NumRelRet;
+                    });
+                    request.open("POST", "/plugin/queryvis?tree=y", true);
+                    request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                    request.send("query=" + this.textQuery + "&lang=" + this.queryLanguage);
+                }
+
+                self.getHistory();
+
                 bb.log(e, "treesubmit", document.getElementById("search-box").value)
             },
             removeQuery: function (index) {
@@ -327,6 +386,15 @@
             },
             addQuery: function (query) {
                 this.queries.push(query)
+            },
+            getHistory: function () {
+                var self = this;
+                request = new XMLHttpRequest();
+                request.addEventListener("load", function (ev) {
+                    self.history = JSON.parse(ev.target.responseText);
+                })
+                request.open("GET", "/api/history", true);
+                request.send()
             },
             updateText: _.debounce(function () {
                 var self = this;
@@ -344,15 +412,11 @@
                 this.queries = [{query: "", field: "All Fields", operator: "", cqr: {}}, {query: "", field: "All Fields", operator: "and", cqr: {}}];
             }
         },
+        beforeMount: function () {
+            this.getHistory()
+        },
         watch: {
             // Do not continue to update the log when we are not in the console tab.
-            tabVisualise: function (val) {
-                if (val === 2) {
-                    ConsoleInitial = setTimeout(GetLog, ConsolePoll)
-                } else {
-                    clearTimeout(ConsoleInitial)
-                }
-            },
             cqrQuery: function () {
                 this.updateText()
             }
@@ -378,11 +442,29 @@
         edges: edges
     };
     var options = {
+        interaction: {
+            navigationButtons: true
+        },
         physics: {
             enabled: true,
             hierarchicalRepulsion: {
-                nodeDistance: 200
-            }
+                nodeDistance: 300,
+            },
+            repulsion: {
+                nodeDistance: 800,
+                springLength: 200,
+                centralGravity: 0.01,
+                springConstant: 0.1,
+                damping: 0.2
+            },
+            barnesHut: {
+                gravitationalConstant: -80000,
+                springLength: 100,
+                springConstant: 0.01,
+                centralGravity: 0.2,
+                damping: 1,
+            },
+            solver: 'barnesHut'
         },
         edges: {
             font: {

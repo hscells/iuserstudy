@@ -101,11 +101,13 @@ TODO Automatically fill in the participant ID in the Google Form.
             <h2>Welcome</h2>
             <p>
                 You are invited to participate in a user study about query visualisation in the context of systematic review query formulation.
+                Please note that you are allowed to return to this page at any time, your progress will be saved automatically when you complete a step.
+                Please bookmark this page for convenience.
             </p>
             <p>
                 This study comprises eight steps in total for you to complete.
                 Steps 3 and 6 will have you formulating queries in <b>PubMed syntax</b> for real systematic reviews.
-                The other steps involve answering short questionnaires about your knowledge about of formulation and the tasks.
+                The other steps involve answering short questionnaires about your knowledge about query formulation and the tasks.
             </p>
             <p>
                 Please ensure that each step has been completed before moving to the next step in the study.
@@ -113,13 +115,12 @@ TODO Automatically fill in the participant ID in the Google Form.
             </p>
             <h2>Pre-Study Questionnaire <span class="h3">(Step {{ .Step }})</span></h2>
             <p><em>Please ensure the Google Form below has been completed in full before continuing to the next step in the study. The questionnaire will say "<b>Your response has been recorded.</b>" once completed.</em></p>
-            <form action="/plugin/iuserstudy?uid={{.UID}}" method="post">
-                <input type="hidden" name="step" value="2">
-                <input class="btn btn-primary btn-lg" value="Continue to next step" type="submit">
-            </form>
         </div>
-        <div class="divider"></div>
-        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdI1fNGuoZZ5RmVnzIw-xAICgw7OA0Gtta-lQvjF1hTIfmlqA/viewform?embedded=true" width="640" height="600" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdI1fNGuoZZ5RmVnzIw-xAICgw7OA0Gtta-lQvjF1hTIfmlqA/viewform?embedded=true&entry.1631433243={{.UID}}" width="640" height="600" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+        <form action="/plugin/iuserstudy?uid={{.UID}}" method="post">
+            <input type="hidden" name="step" value="2">
+            <input class="btn btn-primary btn-lg" value="Continue to next step" type="submit">
+        </form>
     {{end}}
     {{ if eq .Step 2}}
         <div class="info">
@@ -135,13 +136,12 @@ TODO Automatically fill in the participant ID in the Google Form.
                 Before you begin, please complete the following questionnaire.
             </p>
             <p><em>Please ensure the Google Form below has been completed in full before continuing to the next step in the study. The questionnaire will say "<b>Your response has been recorded.</b>" once completed.</em></p>
-            <form action="/plugin/iuserstudy?uid={{.UID}}" method="post">
-                <input type="hidden" name="step" value="3">
-                <input class="btn btn-primary btn-lg" value="Continue to next step" type="submit">
-            </form>
         </div>
-        <div class="divider"></div>
-        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSe4qzij6W9Of9KKw2IupSX7ltcjFHsYWAhWavtMKVtlJiHTzQ/viewform?embedded=true" width="640" height="1240" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSe4qzij6W9Of9KKw2IupSX7ltcjFHsYWAhWavtMKVtlJiHTzQ/viewform?embedded=true&entry.1631433243={{.UID}}" width="640" height="1240" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+        <form action="/plugin/iuserstudy?uid={{.UID}}" method="post">
+            <input type="hidden" name="step" value="3">
+            <input class="btn btn-primary btn-lg" value="Continue to next step" type="submit">
+        </form>
     {{end}}
     {{ if eq .Step 3}}
         <div class="info">
@@ -179,13 +179,12 @@ TODO Automatically fill in the participant ID in the Google Form.
         <div class="info">
             <h2>Post-Task 1 Questionnaire <span class="h3">(Step {{ .Step }})</span></h2>
             <p><em>Please ensure the Google Form below has been completed in full before continuing to the next step in the study. The questionnaire will say "<b>Your response has been recorded.</b>" once completed.</em></p>
-            <form action="/plugin/iuserstudy?uid={{.UID}}" method="post">
-                <input type="hidden" name="step" value="5">
-                <input class="btn btn-primary btn-lg" value="Continue to next step" type="submit">
-            </form>
         </div>
-        <div class="divider"></div>
-        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSe4qzij6W9Of9KKw2IupSX7ltcjFHsYWAhWavtMKVtlJiHTzQ/viewform?embedded=true" width="640" height="1240" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScVIiTT3r0So3SH4liBwg3qnhWk4NcKgjfPIsb2HMcE26siYw/viewform?embedded=true&entry.693976222={{.UID}}" width="640" height="1240" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+        <form action="/plugin/iuserstudy?uid={{.UID}}" method="post">
+            <input type="hidden" name="step" value="5">
+            <input class="btn btn-primary btn-lg" value="Continue to next step" type="submit">
+        </form>
     {{end}}
     {{ if eq .Step 5}}
         <div class="info">
@@ -198,13 +197,12 @@ TODO Automatically fill in the participant ID in the Google Form.
     {{ end }}
             <p>You are now tasked with formulating a query that will be used to screen studies for inclusion in the systematic review.</p>
             <p><em>Please ensure the Google Form below has been completed in full before continuing to the next step in the study. The questionnaire will say "<b>Your response has been recorded.</b>" once completed.</em></p>
-            <form action="/plugin/iuserstudy?uid={{.UID}}" method="post">
-                <input type="hidden" name="step" value="6">
-                <input class="btn btn-primary btn-lg" value="Continue to next step" type="submit">
-            </form>
         </div>
-        <div class="divider"></div>
-        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSe4qzij6W9Of9KKw2IupSX7ltcjFHsYWAhWavtMKVtlJiHTzQ/viewform?embedded=true" width="640" height="1240" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSe4qzij6W9Of9KKw2IupSX7ltcjFHsYWAhWavtMKVtlJiHTzQ/viewform?embedded=true&entry.1631433243={{.UID}}" width="640" height="1240" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+        <form action="/plugin/iuserstudy?uid={{.UID}}" method="post">
+            <input type="hidden" name="step" value="6">
+            <input class="btn btn-primary btn-lg" value="Continue to next step" type="submit">
+        </form>
     {{end}}
     {{ if eq .Step 6}}
         <div class="info">
@@ -235,20 +233,22 @@ TODO Automatically fill in the participant ID in the Google Form.
             <input class="form-input" type="file" required id="history" name="history"/>
         {{ end }}
             <br/>
-            <input class="btn btn-primary btn-lg" value="Continue to next step" type="submit">
+            <form action="/plugin/iuserstudy?uid={{.UID}}" method="post">
+                <input type="hidden" name="step" value="7">
+                <input class="btn btn-primary btn-lg" value="Continue to next step" type="submit">
+            </form>
         </form>
     {{ end }}
     {{ if eq .Step 7}}
         <div class="info">
             <h2>Post-Task 2 Questionnaire <span class="h3">(Step {{ .Step }})</span></h2>
             <p><em>Please ensure the Google Form below has been completed in full before continuing to the next step in the study. The questionnaire will say "<b>Your response has been recorded.</b>" once completed.</em></p>
-            <form action="/plugin/iuserstudy?uid={{.UID}}" method="post">
-                <input type="hidden" name="step" value="8">
-                <input class="btn btn-primary btn-lg" value="Continue to next step" type="submit">
-            </form>
         </div>
-        <div class="divider"></div>
-        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSe4qzij6W9Of9KKw2IupSX7ltcjFHsYWAhWavtMKVtlJiHTzQ/viewform?embedded=true" width="640" height="1240" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScVIiTT3r0So3SH4liBwg3qnhWk4NcKgjfPIsb2HMcE26siYw/viewform?embedded=true&entry.693976222={{.UID}}" width="640" height="1240" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+        <form action="/plugin/iuserstudy?uid={{.UID}}" method="post">
+            <input type="hidden" name="step" value="8">
+            <input class="btn btn-primary btn-lg" value="Continue to next step" type="submit">
+        </form>
     {{end}}
     {{ if eq .Step 8}}
         <div class="info">
@@ -257,7 +257,7 @@ TODO Automatically fill in the participant ID in the Google Form.
             <p><em>Please ensure the Google Form below has been completed in full before continuing to the next step in the study. The questionnaire will say "<b>Your response has been recorded.</b>" once completed.</em></p>
         </div>
         <div class="divider"></div>
-        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSeBAVFuCDhcaJAswsUaE-VdhvjTb4MvTnzaW-0NM8QAkxhuyg/viewform?embedded=true" width="640" height="600" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSeBAVFuCDhcaJAswsUaE-VdhvjTb4MvTnzaW-0NM8QAkxhuyg/viewform?embedded=true&entry.1631433243={{.UID}}" width="640" height="600" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
     {{end}}
     </section>
 </div>
