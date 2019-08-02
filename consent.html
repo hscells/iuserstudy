@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Study Home</title>
+    <link rel="icon" href="/static/favicon.png" type="image/x-png">
+    <link rel="stylesheet" href="/static/spectre.min.css" type="text/css">
+    <link rel="stylesheet" href="/static/spectre-icons.min.css" type="text/css">
+    <link rel="stylesheet" href="/static/spectre-exp.min.css" type="text/css">
+    <link rel="stylesheet" href="/static/vis.min.css" type="text/css">
+    <link rel="stylesheet" href="/static/vue-multiselect.min.css" type="text/css">
+    <link rel="stylesheet" href="/static/logtail.css" type="text/css">
+    <link rel="stylesheet" href="/static/searchrefiner.css" type="text/css">
+</head>
+<body>
+<script src="/static/vue.js" type="text/javascript"></script>
+<script type="text/javascript" src="/static/bigbro.js"></script>
+<script type="text/javascript">
+    let bb = BigBro.init({{.UID}}, window.location.host+"/plugin/iuserstudy?bigbro");
+    window.addEventListener("load", function (e) {
+        bb.log(e, "pageload", "{{.UID}}")
+    })
+</script>
+<div class="container" id="app">
+    <header class="navbar bg-secondary nav-height">
+        <section class="navbar-section">Participant ID:<span class="label label-primary mr-1 ml-1">{{.UID}}</span></section>
+    </header>
+    <section class="container" style="padding: 0 5em 5em 5em;">
+        <h1><img src="/static/favicon.png" height="22px"> searchrefiner User Study</h1>
+        <div class="panel">
+            <div class="panel-header">
+                <h2>Consent & Your Information</h2>
+            </div>
+            <div class="panel-body">
+                <p>TODO: in this section we will have a blurb of text regarding your consent to participate in the user study.</p>
+            </div>
+            <div class="panel-footer column col-4">
+                <div class="panel">
+                    <div class="panel-header">
+                        <p>Please complete the following details about yourself and mark if you agree to consent to participate in this user study.</p>
+                    </div>
+                    <div class="panel-body">
+                        <form method="post" action="/plugin/iuserstudy?consent">
+                            <div class="form-group">
+                                <label class="form-label">Gender
+                                    <select class="form-select" name="gender">
+                                        <option value="" selected="selected" disabled="disabled">-- select one --</option>
+                                        <option>male</option>
+                                        <option>female</option>
+                                        <option>other</option>
+                                        <option>prefer not to say</option>
+                                    </select>
+                                </label>
+                                <label class="form-label">Age
+                                    <input type="number" class="form-input" name="age">
+                                </label>
+                                <label class="form-label">Highest form of education
+                                    <select class="form-select" name="education">
+                                        <option value="" selected="selected" disabled="disabled">-- select one --</option>
+                                        <option value="No formal education">No formal education</option>
+                                        <option value="Primary education">Primary education</option>
+                                        <option value="Secondary education">Secondary education or high school</option>
+                                        <option value="Vocational qualification">Vocational qualification</option>
+                                        <option value="Bachelor's degree">Bachelor's degree</option>
+                                        <option value="Master's/Honours degree">Master's degree/Honours degree</option>
+                                        <option value="Doctorate or higher">Doctorate or higher</option>
+                                    </select>
+                                </label>
+                                <label class="form-label">Number of years experience as an information specialist
+                                    <input type="number" class="form-input" name="years">
+                                </label>
+                                <div class="form-group">
+                                    <label class="form-checkbox">
+                                        <input type="checkbox" name="agree">
+                                        <i class="form-icon"></i> I consent to participate in this study
+                                    </label>
+                                </div>
+                                <input type="submit" class="btn btn-primary" value="Continue">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="panel-footer"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+</body>
+</html>

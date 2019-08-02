@@ -1,34 +1,139 @@
 {{/*
 TODO Automatically fill in the participant ID in the Google Form.
 */}}
+{{define "seed"}}
+    <ul>
+        {{range . }}
+            <li><a href="https://www.ncbi.nlm.nih.gov/pubmed/{{ . }}" target="_blank">{{ . }}</a></li>
+        {{end}}
+    </ul>
+{{end}}
 {{define "queryvis"}}
-<p>
-    Please use the searchrefiner query visualiser to complete this task.
-    At the end of the task please paste the <b>completed query</b> into the textarea below.
-</p>
-<a href="?uid={{.UID}}&tree" class="btn btn-link">Open Visualisation<i class="icon icon-arrow-right"></i></a>
-<p><em>A number of seed studies have been loaded into this interface automatically:</em></p>
-<ul>
-    <li>TODO</li>
-</ul>
+    <p>
+        Please use the searchrefiner query visualiser to complete this task.
+        At the end of the task please select from your query history below the query you think satisfies the search criteria.
+    </p>
+    <a href="?uid={{.UID}}&tree" class="btn btn-link">Open Visualisation<i class="icon icon-arrow-right"></i></a>
+    <p><em>A number of seed studies have been loaded into this interface automatically:</em></p>
+    {{template "seed" .Seed}}
 {{end}}
 {{define "pubmed"}}
-<p>
-    Please use PubMed to complete this task.
-    At the end of this task please paste the <b>completed query</b> into the textarea below and upload the <b>PubMed history file</b> into the upload space below.
-</p>
-<a href="https://www.ncbi.nlm.nih.gov/pubmed" target="_blank" class="btn btn-link">Open PubMed<i class="icon icon-arrow-right"></i></a>
-<p><em>A number of seed studies have been identified to assist with query formulation:</em></p>
-<ul>
-    <li>TODO</li>
-</ul>
+    <p>
+        Please use PubMed to complete this task.
+        At the end of the task please select from your query history below the query you think satisfies the search criteria.
+    </p>
+    <a href="?uid={{.UID}}&pubmed" class="btn btn-link">Open PubMed<i class="icon icon-arrow-right"></i></a>
+    <p><em>A number of seed studies have been identified to assist with query formulation:</em></p>
+    {{template "seed" .Seed}}
+{{end}}
+{{define "history"}}
+    <div class="panel p-2 mt-2">
+        <div class="panel-header">
+            <p>Choose a query from your history below as the one which satisfies this task.</p>
+        </div>
+        <div class="panel-body container">
+            <div class="columns">
+                <div class="column col-7 text-italic">Query</div>
+                <div class="column col-2 text-italic">Items found</div>
+                <div class="column col-2 text-italic">Relevant items found</div>
+                <div class="column col-1 text-italic">Choice</div>
+            </div>
+            <div class="divider"></div>
+            <div v-for="query in history">
+                <div class="columns">
+                    <div class="column col-7">[[ query.QueryString ]]</div>
+                    <div class="column col-2">[[ query.NumRet ]]</div>
+                    <div class="column col-2">[[ query.NumRelRet ]]</div>
+                    <div class="column col-1">
+                        <form method="post" action="/plugin/iuserstudy">
+                            <!--suppress XmlUnboundNsPrefix -->
+                            <input type="hidden" name="query" v-bind:value="[[ query.QueryString ]]">
+                            <button type="submit" class="btn btn-action"><i class="icon icon-check"></i></button>
+                        </form>
+                    </div>
+                </div>
+                <div class="divider"></div>
+            </div>
+        </div>
+    </div>
 {{end}}
 {{define "protocol1"}}
-<p>This will eventually contain a description of the first systematic review protocol.</p>
+    <h5>Title</h5>
+
+    <p>Development of type 2 diabetes mellitus in people with intermediate hyperglycaemia</p>
+
+    <h5>Criteria for considering studies for this review</h5>
+
+    <h6>Study design</h6>
+    <p>Prospective cohort studies investigating either the overall prognosis of people with IH for developing T2DM or IH versus normoglycaemia as a prognostic factor for developing T2DM (Altman 2001).</p>
+
+    <h6>Inclusion criteria</h6>
+    <p>Types of participants:</p>
+    <p>To study the overall prognosis of people with IH and regression from IH to normoglycaemia, we included cohort studies in people with IH at baseline, defined by impaired fasting glucose (IFG), impaired glucose tolerance (IGT), elevated glycosylated haemoglobin A1c (HbA1c) or any combination of these. IH had to be established by standard cut‐off values for IFG, IGT or elevated HbA1c, as defined by ADA or WHO (ADA 1997; ADA 2003; ADA 2010; ICH 1997; IEC 2009; WHO 1998; WHO/IDF 2006).</p>
+    <p>To study whether IH compared to normoglycaemia is a prognostic factor for developing T2DM, we included cohort studies in people with IH and normoglycaemia at baseline.</p>
+
+    <h6>Definition of IH</h6>
+    <p>We define IH according to ADA and WHO descriptions.</p>
+    <ul>
+        <li>IFG5.6 threshold, usually defined as a fasting plasma glucose level between 5.6 mmol/L and 6.9 mmol/L at baseline.</li>
+        <li>IFG6.1 threshold, usually defined as a fasting plasma glucose level between 6.1 mmol/L and 6.9 mmol/L at baseline.</li>
+        <li>IGT, usually defined as a plasma glucose level between 7.8 mmol/L and 11.1 mmol/L two hours after a 75 g OGTT at baseline.</li>
+        <li>Isolated IFG was defined as IFG5.6 or IFG6.1 only (without IGT), and isolated IGT was defined as IGT only (without IFG5.6 or IFG6.1).</li>
+        <li>HbA1c5.7 threshold, usually defined as HbA1c measurement between 5.7% and 6.4% at baseline.</li>
+        <li>HbA1c6.0 threshold, usually defined as HbA1c measurement between 6.0% and 6.4% at baseline.</li>
+    </ul>
+
+    <h6>Types of outcome measures</h6>
+    <p>Our outcome of primary interest is the diagnosis of newly developed T2DM (T2DM incidence). T2DM incidence should be diagnosed by blood glucose measurements such as fasting plasma glucose (FPG), two‐hour postload glucose (PG) or HbA1c. Diagnosis could be combined with self‐reported diabetes, physician‐diagnosed diabetes or use of antihyperglycaemic medications such as oral hypoglycaemic drugs, insulin or both.</p>
+
+    <h6>Exclusion criteria</h6>
+    <ul>
+        <li>Intervention trials and study designs other than prospective cohort studies.</li>
+        <li>People with comorbidities at baseline (e.g. people with coronary heart disease and IGT).</li>
+        <li>Missing data on transition from IH to T2DM.
+        <li>Follow‐up period after baseline assessment not specified (not possible to associate T2DM incidence with length of follow‐up).</li>
+        <li>T2DM incidence evaluated by documents (e.g. hospital records, retrospective use of registers) or self‐report only.</li>
+    </ul>
 {{end}}
 {{define "protocol2"}}
-<p>This will eventually contain a description of the second systematic review protocol.</p>
+    <h5>Title</h5>
+
+    <p>Development of type 2 diabetes mellitus in people with intermediate hyperglycaemia</p>
+
+    <h5>Criteria for considering studies for this review</h5>
+
+    <h6>Study design</h6>
+    <p>Prospective cohort studies investigating either the overall prognosis of people with IH for developing T2DM or IH versus normoglycaemia as a prognostic factor for developing T2DM (Altman 2001).</p>
+
+    <h6>Inclusion criteria</h6>
+    <p>Types of participants:</p>
+    <p>To study the overall prognosis of people with IH and regression from IH to normoglycaemia, we included cohort studies in people with IH at baseline, defined by impaired fasting glucose (IFG), impaired glucose tolerance (IGT), elevated glycosylated haemoglobin A1c (HbA1c) or any combination of these. IH had to be established by standard cut‐off values for IFG, IGT or elevated HbA1c, as defined by ADA or WHO (ADA 1997; ADA 2003; ADA 2010; ICH 1997; IEC 2009; WHO 1998; WHO/IDF 2006).</p>
+    <p>To study whether IH compared to normoglycaemia is a prognostic factor for developing T2DM, we included cohort studies in people with IH and normoglycaemia at baseline.</p>
+
+    <h6>Definition of IH</h6>
+    <p>We define IH according to ADA and WHO descriptions.</p>
+    <ul>
+        <li>IFG5.6 threshold, usually defined as a fasting plasma glucose level between 5.6 mmol/L and 6.9 mmol/L at baseline.</li>
+        <li>IFG6.1 threshold, usually defined as a fasting plasma glucose level between 6.1 mmol/L and 6.9 mmol/L at baseline.</li>
+        <li>IGT, usually defined as a plasma glucose level between 7.8 mmol/L and 11.1 mmol/L two hours after a 75 g OGTT at baseline.</li>
+        <li>Isolated IFG was defined as IFG5.6 or IFG6.1 only (without IGT), and isolated IGT was defined as IGT only (without IFG5.6 or IFG6.1).</li>
+        <li>HbA1c5.7 threshold, usually defined as HbA1c measurement between 5.7% and 6.4% at baseline.</li>
+        <li>HbA1c6.0 threshold, usually defined as HbA1c measurement between 6.0% and 6.4% at baseline.</li>
+    </ul>
+
+    <h6>Types of outcome measures</h6>
+    <p>Our outcome of primary interest is the diagnosis of newly developed T2DM (T2DM incidence). T2DM incidence should be diagnosed by blood glucose measurements such as fasting plasma glucose (FPG), two‐hour postload glucose (PG) or HbA1c. Diagnosis could be combined with self‐reported diabetes, physician‐diagnosed diabetes or use of antihyperglycaemic medications such as oral hypoglycaemic drugs, insulin or both.</p>
+
+    <h6>Exclusion criteria</h6>
+    <ul>
+        <li>Intervention trials and study designs other than prospective cohort studies.</li>
+        <li>People with comorbidities at baseline (e.g. people with coronary heart disease and IGT).</li>
+        <li>Missing data on transition from IH to T2DM.
+        <li>Follow‐up period after baseline assessment not specified (not possible to associate T2DM incidence with length of follow‐up).</li>
+        <li>T2DM incidence evaluated by documents (e.g. hospital records, retrospective use of registers) or self‐report only.</li>
+    </ul>
 {{end}}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -44,11 +149,6 @@ TODO Automatically fill in the participant ID in the Google Form.
     <link rel="stylesheet" href="/static/searchrefiner.css" type="text/css">
     <!--suppress CssUnknownTarget -->
     <style>
-        body {
-            background: url("/static/searchrefiner.png") no-repeat fixed bottom right;
-            background-size: 25%;
-        }
-
         p {
             text-align: left;
         }
@@ -59,10 +159,13 @@ TODO Automatically fill in the participant ID in the Google Form.
     </style>
 </head>
 <body>
+<script src="/static/vue.js" type="text/javascript"></script>
 <script type="text/javascript" src="/static/bigbro.js"></script>
 <script type="text/javascript">
-    let events = ["click", "dblclick", "submit", "cut", "copy", "paste", "select"];
-    let bb = BigBro.init({{.UID}}, "43.240.96.223:1984", events);
+    let bb = BigBro.init({{.UID}}, window.location.host + "/plugin/iuserstudy?bigbro");
+    window.addEventListener("load", function (e) {
+        bb.log(e, "pageload", "{{.UID}}")
+    })
 </script>
 <div class="container" id="app">
     <header class="navbar bg-secondary nav-height">
@@ -96,170 +199,168 @@ TODO Automatically fill in the participant ID in the Google Form.
                 <a href="#" class="tooltip" data-tooltip="Post-Study Questionnaire">Step 8</a>
             </li>
         </ul>
-    {{ if eq .Step 1}}
-        <div class="info">
-            <h2>Welcome</h2>
-            <p>
-                You are invited to participate in a user study about query visualisation in the context of systematic review query formulation.
-                Please note that you are allowed to return to this page at any time, your progress will be saved automatically when you complete a step.
-                Please bookmark this page for convenience.
-            </p>
-            <p>
-                This study comprises eight steps in total for you to complete.
-                Steps 3 and 6 will have you formulating queries in <b>PubMed syntax</b> for real systematic reviews.
-                The other steps involve answering short questionnaires about your knowledge about query formulation and the tasks.
-            </p>
-            <p>
-                Please ensure that each step has been completed before moving to the next step in the study.
-                For example, the questionnaires will say "<b>Your response has been recorded.</b>" once completed.
-            </p>
-            <h2>Pre-Study Questionnaire <span class="h3">(Step {{ .Step }})</span></h2>
-            <p><em>Please ensure the Google Form below has been completed in full before continuing to the next step in the study. The questionnaire will say "<b>Your response has been recorded.</b>" once completed.</em></p>
-        </div>
-        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdI1fNGuoZZ5RmVnzIw-xAICgw7OA0Gtta-lQvjF1hTIfmlqA/viewform?embedded=true&entry.1631433243={{.UID}}" width="640" height="600" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
-        <form action="/plugin/iuserstudy?uid={{.UID}}" method="post">
-            <input type="hidden" name="step" value="2">
-            <input class="btn btn-primary btn-lg" value="Continue to next step" type="submit">
-        </form>
-    {{end}}
-    {{ if eq .Step 2}}
-        <div class="info">
-            <h2>Pre-Task 1 Questionnaire <span class="h3">(Step {{ .Step }})</span></h2>
-            <p><b>Task</b>: You have been provided with the following protocol for a systematic review:</p>
-        {{ if eq .Protocol 1 }}
-            {{template "protocol1" . }}
-        {{ else }}
-            {{template "protocol2" . }}
-        {{ end }}
-            <p>
-                Your task is to formulate a query that will be used to screen studies for inclusion in the systematic review.
-                Before you begin, please complete the following questionnaire.
-            </p>
-            <p><em>Please ensure the Google Form below has been completed in full before continuing to the next step in the study. The questionnaire will say "<b>Your response has been recorded.</b>" once completed.</em></p>
-        </div>
-        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSe4qzij6W9Of9KKw2IupSX7ltcjFHsYWAhWavtMKVtlJiHTzQ/viewform?embedded=true&entry.1631433243={{.UID}}" width="640" height="1240" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
-        <form action="/plugin/iuserstudy?uid={{.UID}}" method="post">
-            <input type="hidden" name="step" value="3">
-            <input class="btn btn-primary btn-lg" value="Continue to next step" type="submit">
-        </form>
-    {{end}}
-    {{ if eq .Step 3}}
-        <div class="info">
-            <h2>Task 1 <span class="h3">(Step {{ .Step }})</span></h2>
-            <p>Please complete the first task required of the study. Below is a <b>protocol</b> for a systematic review and an <b>interface</b> for you to formulate a query to that will be used to screen studies to include in the review.</p>
-            <p>When formulating a query, please <b>do not use any other systems</b> other than the one prescribed below.</p>
-            <h4>Protocol</h4>
-        {{ if eq .Protocol 1 }}
-            {{template "protocol1" . }}
-    {{ else }}
-            {{template "protocol2" . }}
-    {{ end }}
-            <h4>Interface</h4>
-        {{ if eq .Interface 1 }}
-            {{template "queryvis" . }}
-    {{ else }}
-            {{template "pubmed" . }}
-    {{ end }}
-        </div>
-        <div class="divider"></div>
-        <form enctype="multipart/form-data" action="/plugin/iuserstudy?uid={{.UID}}" method="post">
-            <input type="hidden" name="step" value="7">
-            <label class="form-label" for="query">Paste completed query below</label>
-            <textarea required class="form-input" id="query" name="query" rows="14"></textarea>
-        {{ if eq .Interface 2 }}
-            <br/>
-            <label class="form-label" for="history">Upload PubMed search history below</label>
-            <input class="form-input" type="file" required id="history" name="history"/>
-        {{ end }}
-            <br/>
-            <input class="btn btn-primary btn-lg" value="Continue to next step" type="submit">
-        </form>
-    {{end}}
-    {{ if eq .Step 4}}
-        <div class="info">
-            <h2>Post-Task 1 Questionnaire <span class="h3">(Step {{ .Step }})</span></h2>
-            <p><em>Please ensure the Google Form below has been completed in full before continuing to the next step in the study. The questionnaire will say "<b>Your response has been recorded.</b>" once completed.</em></p>
-        </div>
-        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScVIiTT3r0So3SH4liBwg3qnhWk4NcKgjfPIsb2HMcE26siYw/viewform?embedded=true&entry.693976222={{.UID}}" width="640" height="1240" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
-        <form action="/plugin/iuserstudy?uid={{.UID}}" method="post">
-            <input type="hidden" name="step" value="5">
-            <input class="btn btn-primary btn-lg" value="Continue to next step" type="submit">
-        </form>
-    {{end}}
-    {{ if eq .Step 5}}
-        <div class="info">
-            <h2>Pre-Task 2 Questionnaire <span class="h3">(Step {{ .Step }})</span></h2>
-            <p>Task: You have been provided with the following protocol for a systematic review.</p>
-        {{ if eq .Protocol 1 }}
-            {{template "protocol1" . }}
-    {{ else }}
-            {{template "protocol2" . }}
-    {{ end }}
-            <p>You are now tasked with formulating a query that will be used to screen studies for inclusion in the systematic review.</p>
-            <p><em>Please ensure the Google Form below has been completed in full before continuing to the next step in the study. The questionnaire will say "<b>Your response has been recorded.</b>" once completed.</em></p>
-        </div>
-        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSe4qzij6W9Of9KKw2IupSX7ltcjFHsYWAhWavtMKVtlJiHTzQ/viewform?embedded=true&entry.1631433243={{.UID}}" width="640" height="1240" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
-        <form action="/plugin/iuserstudy?uid={{.UID}}" method="post">
-            <input type="hidden" name="step" value="6">
-            <input class="btn btn-primary btn-lg" value="Continue to next step" type="submit">
-        </form>
-    {{end}}
-    {{ if eq .Step 6}}
-        <div class="info">
-            <h2>Task 2 <span class="h3">(Step {{ .Step }})</span></h2>
-            <p>Please complete the second task required of the study. Below is a <b>protocol</b> for a systematic review and an <b>interface</b> for you to formulate a query to that will be used to screen studies to include in the review.</p>
-            <p>When formulating a query, please <b>do not use any other systems</b> other than the one prescribed below.</p>
-            <h4>Protocol</h4>
-        {{ if eq .Protocol 1 }}
-            {{template "protocol1" . }}
-    {{ else }}
-            {{template "protocol2" . }}
-    {{ end }}
-            <h4>Interface</h4>
-        {{ if eq .Interface 1 }}
-            {{template "queryvis" . }}
-    {{ else }}
-            {{template "pubmed" . }}
-    {{ end }}
-        </div>
-        <div class="divider"></div>
-        <form enctype="multipart/form-data" action="/plugin/iuserstudy?uid={{.UID}}" method="post">
-            <input type="hidden" name="step" value="7">
-            <label class="form-label" for="query">Paste completed query below</label>
-            <textarea required class="form-input" id="query" name="query" rows="14"></textarea>
-        {{ if eq .Interface 2 }}
-            <br/>
-            <label class="form-label" for="history">Upload PubMed search history below</label>
-            <input class="form-input" type="file" required id="history" name="history"/>
-        {{ end }}
-            <br/>
+        {{ if eq .Step 1}}
+            <div class="info">
+                <h2>Welcome</h2>
+                <p>
+                    You are invited to participate in a user study about query visualisation in the context of systematic review query formulation.
+                    Please note that you are allowed to return to this page at any time, your progress will be saved automatically when you complete a step.
+                    Please bookmark this page for convenience.
+                </p>
+                <p>
+                    This study comprises eight steps in total for you to complete.
+                    Steps 3 and 6 will have you formulating queries in <b>PubMed syntax</b> for real systematic reviews.
+                    The other steps involve answering short questionnaires about your knowledge about query formulation and the tasks.
+                </p>
+                <p>
+                    Please ensure that each step has been completed before moving to the next step in the study.
+                    For example, the questionnaires will say "<b>Your response has been recorded.</b>" once completed.
+                </p>
+                <h2>Pre-Study Questionnaire <span class="h3">(Step {{ .Step }})</span></h2>
+                <p><em>Please ensure the Google Form below has been completed in full before continuing to the next step in the study. The questionnaire will say "<b>Your response has been recorded.</b>" once completed.</em></p>
+            </div>
+            <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdI1fNGuoZZ5RmVnzIw-xAICgw7OA0Gtta-lQvjF1hTIfmlqA/viewform?embedded=true&entry.1631433243={{.UID}}" width="640" height="600" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
             <form action="/plugin/iuserstudy?uid={{.UID}}" method="post">
-                <input type="hidden" name="step" value="7">
+                <input type="hidden" name="step" value="2">
                 <input class="btn btn-primary btn-lg" value="Continue to next step" type="submit">
             </form>
-        </form>
-    {{ end }}
-    {{ if eq .Step 7}}
-        <div class="info">
-            <h2>Post-Task 2 Questionnaire <span class="h3">(Step {{ .Step }})</span></h2>
-            <p><em>Please ensure the Google Form below has been completed in full before continuing to the next step in the study. The questionnaire will say "<b>Your response has been recorded.</b>" once completed.</em></p>
-        </div>
-        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScVIiTT3r0So3SH4liBwg3qnhWk4NcKgjfPIsb2HMcE26siYw/viewform?embedded=true&entry.693976222={{.UID}}" width="640" height="1240" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
-        <form action="/plugin/iuserstudy?uid={{.UID}}" method="post">
-            <input type="hidden" name="step" value="8">
-            <input class="btn btn-primary btn-lg" value="Continue to next step" type="submit">
-        </form>
-    {{end}}
-    {{ if eq .Step 8}}
-        <div class="info">
-            <h2>Post-Study Questionnaire <span class="h3">(Step {{ .Step }})</span></h2>
-            <p>Thank you for participating in this user study. You have one last questionnaire to complete.</p>
-            <p><em>Please ensure the Google Form below has been completed in full before continuing to the next step in the study. The questionnaire will say "<b>Your response has been recorded.</b>" once completed.</em></p>
-        </div>
-        <div class="divider"></div>
-        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSeBAVFuCDhcaJAswsUaE-VdhvjTb4MvTnzaW-0NM8QAkxhuyg/viewform?embedded=true&entry.1631433243={{.UID}}" width="640" height="600" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
-    {{end}}
+        {{end}}
+        {{ if eq .Step 2}}
+            <div class="info">
+                <h2>Pre-Task 1 Questionnaire <span class="h3">(Step {{ .Step }})</span></h2>
+                <p><b>Task</b>: You have been provided with the following protocol for a systematic review:</p>
+                {{ if eq .Protocol 1 }}
+                    {{template "protocol1" . }}
+                {{ else }}
+                    {{template "protocol2" . }}
+                {{ end }}
+                <p>
+                    Your task is to formulate a query that will be used to screen studies for inclusion in the systematic review.
+                    Before you begin, please complete the following questionnaire.
+                </p>
+                <p><em>Please ensure the Google Form below has been completed in full before continuing to the next step in the study. The questionnaire will say "<b>Your response has been recorded.</b>" once completed.</em></p>
+            </div>
+            <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSe4qzij6W9Of9KKw2IupSX7ltcjFHsYWAhWavtMKVtlJiHTzQ/viewform?embedded=true&entry.1631433243={{.UID}}" width="640" height="1240" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+            <form action="/plugin/iuserstudy?uid={{.UID}}" method="post">
+                <input type="hidden" name="step" value="3">
+                <input class="btn btn-primary btn-lg" value="Continue to next step" type="submit">
+            </form>
+        {{end}}
+        {{ if eq .Step 3}}
+            <div class="info">
+                <h2>Task 1 <span class="h3">(Step {{ .Step }})</span></h2>
+                <p>Please complete the first task required of the study. Below is a <b>protocol</b> for a systematic review and an <b>interface</b> for you to formulate a query to that will be used to screen studies to include in the review.</p>
+                <p>When formulating a query, please <b>do not use any other systems</b> other than the one prescribed below.</p>
+                <h4>Protocol</h4>
+                {{ if eq .Protocol 1 }}
+                    {{template "protocol1" . }}
+                {{ else }}
+                    {{template "protocol2" . }}
+                {{ end }}
+                <h4>Interface</h4>
+                {{ if eq .Interface 1 }}
+                    {{template "queryvis" . }}
+                {{ else }}
+                    {{template "pubmed" . }}
+                {{ end }}
+            </div>
+            <div class="divider"></div>
+            {{template "history"}}
+        {{end}}
+        {{ if eq .Step 4}}
+            <div class="info">
+                <h2>Post-Task 1 Questionnaire <span class="h3">(Step {{ .Step }})</span></h2>
+                <p><em>Please ensure the Google Form below has been completed in full before continuing to the next step in the study. The questionnaire will say "<b>Your response has been recorded.</b>" once completed.</em></p>
+            </div>
+            <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScVIiTT3r0So3SH4liBwg3qnhWk4NcKgjfPIsb2HMcE26siYw/viewform?embedded=true&entry.693976222={{.UID}}" width="640" height="1240" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+            <form action="/plugin/iuserstudy?uid={{.UID}}" method="post">
+                <input type="hidden" name="step" value="5">
+                <input class="btn btn-primary btn-lg" value="Continue to next step" type="submit">
+            </form>
+        {{end}}
+        {{ if eq .Step 5}}
+            <div class="info">
+                <h2>Pre-Task 2 Questionnaire <span class="h3">(Step {{ .Step }})</span></h2>
+                <p>Task: You have been prosvided with the following protocol for a systematic review.</p>
+                {{ if eq .Protocol 1 }}
+                    {{template "protocol1" . }}
+                {{ else }}
+                    {{template "protocol2" . }}
+                {{ end }}
+                <p>You are now tasked with formulating a query that will be used to screen studies for inclusion in the systematic review.</p>
+                <p><em>Please ensure the Google Form below has been completed in full before continuing to the next step in the study. The questionnaire will say "<b>Your response has been recorded.</b>" once completed.</em></p>
+            </div>
+            <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSe4qzij6W9Of9KKw2IupSX7ltcjFHsYWAhWavtMKVtlJiHTzQ/viewform?embedded=true&entry.1631433243={{.UID}}" width="640" height="1240" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+            <form action="/plugin/iuserstudy?uid={{.UID}}" method="post">
+                <input type="hidden" name="step" value="6">
+                <input class="btn btn-primary btn-lg" value="Continue to next step" type="submit">
+            </form>
+        {{end}}
+        {{ if eq .Step 6}}
+            <div class="info">
+                <h2>Task 2 <span class="h3">(Step {{ .Step }})</span></h2>
+                <p>Please complete the second task required of the study. Below is a <b>protocol</b> for a systematic review and an <b>interface</b> for you to formulate a query to that will be used to screen studies to include in the review.</p>
+                <p>When formulating a query, please <b>do not use any other systems</b> other than the one prescribed below.</p>
+                <h4>Protocol</h4>
+                {{ if eq .Protocol 1 }}
+                    {{template "protocol1" . }}
+                {{ else }}
+                    {{template "protocol2" . }}
+                {{ end }}
+                <h4>Interface</h4>
+                {{ if eq .Interface 1 }}
+                    {{template "queryvis" . }}
+                {{ else }}
+                    {{template "pubmed" . }}
+                {{ end }}
+            </div>
+            <div class="divider"></div>
+            {{template "history"}}
+        {{ end }}
+        {{ if eq .Step 7}}
+            <div class="info">
+                <h2>Post-Task 2 Questionnaire <span class="h3">(Step {{ .Step }})</span></h2>
+                <p><em>Please ensure the Google Form below has been completed in full before continuing to the next step in the study. The questionnaire will say "<b>Your response has been recorded.</b>" once completed.</em></p>
+            </div>
+            <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScVIiTT3r0So3SH4liBwg3qnhWk4NcKgjfPIsb2HMcE26siYw/viewform?embedded=true&entry.693976222={{.UID}}" width="640" height="1240" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+            <form action="/plugin/iuserstudy?uid={{.UID}}" method="post">
+                <input type="hidden" name="step" value="8">
+                <input class="btn btn-primary btn-lg" value="Continue to next step" type="submit">
+            </form>
+        {{end}}
+        {{ if eq .Step 8}}
+            <div class="info">
+                <h2>Post-Study Questionnaire <span class="h3">(Step {{ .Step }})</span></h2>
+                <p>Thank you for participating in this user study. You have one last questionnaire to complete.</p>
+                <p><em>Please ensure the Google Form below has been completed in full before continuing to the next step in the study. The questionnaire will say "<b>Your response has been recorded.</b>" once completed.</em></p>
+            </div>
+            <div class="divider"></div>
+            <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSeBAVFuCDhcaJAswsUaE-VdhvjTb4MvTnzaW-0NM8QAkxhuyg/viewform?embedded=true&entry.1631433243={{.UID}}" width="640" height="600" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+        {{end}}
     </section>
 </div>
+<script>
+    var vm = new Vue({
+        delimiters: ["[[", "]]"],
+        el: "#app",
+        data: {
+            history: [],
+        },
+        methods: {
+            getHistory: function () {
+                var self = this;
+                request = new XMLHttpRequest();
+                request.addEventListener("load", function (ev) {
+                    self.history = JSON.parse(ev.target.responseText);
+                });
+                request.open("GET", "/api/history", true);
+                request.send()
+            },
+        },
+        beforeMount: function () {
+            this.getHistory()
+        }
+    })
+</script>
 </body>
 </html>

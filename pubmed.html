@@ -12,83 +12,6 @@
     <link rel="stylesheet" href="/static/vue-multiselect.min.css" type="text/css">
     <link rel="stylesheet" href="/static/logtail.css" type="text/css">
     <link rel="stylesheet" href="/static/searchrefiner.css" type="text/css">
-    <style>
-        body, html, .container {
-            height: 100%;
-            max-height: 100%;
-            overflow: hidden;
-        }
-
-        #tree {
-            height: calc(100% - 36px);
-        }
-
-        #tree-wrapper {
-            background-color: #f9f9f9;
-            height: 100%;
-        }
-
-        textarea {
-            padding: 0;
-            margin: 0;
-        }
-
-        .tab-block {
-            margin: 0;
-        }
-
-        .panel-header, .panel-body, .panel-footer {
-            padding: 0 !important;
-        }
-
-        .panel {
-            padding-left: 12px !important;
-        }
-
-        #console {
-            margin: 0;
-            overflow-y: scroll;
-            height: 100%;
-            background-color: #1c1c1c;
-            color: #f9f9f9;
-            font-size: 12px;
-        }
-
-        #tree-stats {
-            position: absolute;
-            top: 32px;
-            right: 8px;
-            background-color: #ffffff;
-            padding: 8px;
-            z-index: 99999999999;
-            border: 1px solid #1c1c1c;
-        }
-
-        .vis-button {
-            -webkit-border-radius: 0 !important;
-            -moz-border-radius: 0 !important;
-            border-radius: 0 !important;
-            background-position: 0 0 !important;
-            background-size: contain;
-        }
-
-        .vis-up, .vis-down, .vis-left, .vis-right {
-            display: none !important;
-        }
-
-        .vis-zoomExtends {
-            bottom: 90px !important;
-        }
-
-        .vis-zoomOut {
-            bottom: 10px !important;
-            right: 15px !important;
-        }
-
-        .vis-zoomIn {
-            bottom: 46px !important;
-        }
-    </style>
 </head>
 <body>
 <script type="text/javascript" src="/static/bigbro.js"></script>
@@ -103,8 +26,9 @@
         <section class="navbar-section"><a href="?uid={{.UID}}"><i class="icon icon-arrow-left"></i>back</a></section>
         <section class="navbar-section">Participant ID:<span class="label label-primary mr-1 ml-1">{{.UID}}</span></section>
     </header>
-    <div class="columns" style="height: calc(100%);">
-        <div class="column col-6" style="padding-left: 20px !important; height: calc(100% - 36px);overflow-y: scroll">
+    <div class="columns">
+        <div class="column col-1"></div>
+        <div class="column col-10">
             <div class="form-group">
                 <pre name="query" class="code" id="search-box">[[ textQuery ]]</pre>
                 <input type="hidden" name="lang" value="pubmed">
@@ -114,7 +38,7 @@
                 <div class="panel-header">
                     <b>Query Builder</b>
                 </div>
-                <div class="panel-body" style="overflow: hidden;">
+                <div class="panel-body">
                     <builder v-for="(query, index) in queries"
                              :key="query.id"
                              v-on:add="addQuery"
@@ -125,45 +49,72 @@
                     <a href="#" v-on:click="clear">Clear</a>
                 </div>
                 <div class="panel-footer">
-                    <button class="btn btn-primary nav-height" id="btn-update-tree" v-on:click="updateTree">
-                        <i class="icon icon-refresh"></i> Visualise
+                    <button class="btn btn-primary nav-height float-right" id="btn-update-tree" v-on:click="loadResults">
+                        <i class="icon icon-forward"></i> Results
                     </button>
                 </div>
             </div>
-            <div class="panel p-2 mt-2">
-                <div class="panel-header">
-                    <b>History</b>
-                </div>
-                <div class="panel-body container">
-                    <div class="columns">
-                        <div class="column col-8 text-italic">Query</div>
-                        <div class="column col-2 text-italic">Items found</div>
-                        <div class="column col-2 text-italic">Relevant items found</div>
-                    </div>
-                    <div class="divider"></div>
-                    <div v-for="query in history">
-                        <div class="columns">
-                            <div class="column col-8">[[ query.QueryString ]]</div>
-                            <div class="column col-2">[[ query.NumRet ]]</div>
-                            <div class="column col-2">[[ query.NumRelRet ]]</div>
+            <div class="columns">
+                <div class="column col-6">
+                    <div class="panel p-2 mt-2">
+                        <div class="panel-header">
+                            <b>Seed documents</b>
                         </div>
-                        <div class="divider"></div>
+                        <div class="panel-body">
+                            <ul>
+                                {{range .Seed }}
+                                    <li><a href="https://www.ncbi.nlm.nih.gov/pubmed/{{ . }}" target="_blank">{{ . }}</a></li>
+                                {{end}}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="panel p-2 mt-2">
+                        <div class="panel-header">
+                            <b>History</b>
+                        </div>
+                        <div class="panel-body container">
+                            <div class="columns">
+                                <div class="column col-8 text-italic">Query</div>
+                                <div class="column col-2 text-italic">Items found</div>
+                            </div>
+                            <div class="divider"></div>
+                            <div v-for="query in history">
+                                <div class="columns">
+                                    <div class="column col-8">[[ query.QueryString ]]</div>
+                                    <div class="column col-2">[[ query.NumRet ]]</div>
+                                </div>
+                                <div class="divider"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="column col-6">
+                    <div class="panel p-2 mt-2">
+                        <div class="panel-header">
+                            <b>Results: </b><span>([[ total ]])</span>
+                        </div>
+                        <div class="panel-body" style="overflow: hidden">
+                            <div v-if="busy && !ready" class="loading loading-lg"></div>
+                            <p v-if="!init">Results will show here once you click the button above.</p>
+                            <ol v-infinite-scroll="loadNextResults" infinite-scroll-disabled="busy" infinite-scroll-distance="10">
+                                <li v-for="c in results" class="pb-2">
+                                    <a v-bind:href="'https://www.ncbi.nlm.nih.gov/pubmed/' + c.PMID">[[c.TI]]</a>
+                                    <div class="text-left text-sm">
+                                        <a v-for="author in c.AU" class="text-success author-sm"
+                                           v-bind:href="'https://www.ncbi.nlm.nih.gov/pubmed/?term=%22' + author + '%22[Author]'">[[author]]</a>&nbsp;
+                                    </div>
+                                    <div class="text-left text-sm text-gray">
+                                        <span class="span-sm"><strong>PMID</strong>: [[ c.PMID ]]</span>
+                                    </div>
+                                </li>
+                            </ol>
+                            <div v-if="busy && ready" class="loading loading-lg"></div>
+                        </div>
                     </div>
                 </div>
             </div>
-            {{/*or*/}}
-            {{/*<a href="#">Add to history</a>*/}}
         </div>
-        <div class="column col-6">
-            <div id="tree-stats">
-                <div><strong>[[ numRet ]]</strong> citations retrieved</div>
-                <div><strong>[[ numRel ]]</strong> citations relevant</div>
-                <div><strong>[[ numRelRet ]]</strong> citations relevant retrieved</div>
-            </div>
-            <div id="tree-wrapper">
-                <div id="tree" class="c-move"></div>
-            </div>
-        </div>
+        <div class="column col-1"></div>
     </div>
 </div>
 
@@ -237,6 +188,7 @@
 
 <!-- Main app code. -->
 <script src="/static/vue.js" type="text/javascript"></script>
+<script src="/static/vue-infinite-scroll.js" type="text/javascript"></script>
 <script type="text/javascript" src="/static/lodash.min.js"></script>
 <script src="/static/Sortable.min.js"></script>
 <script src="/static/vuedraggable.min.js"></script>
@@ -264,7 +216,7 @@
             },
             updateCQR: function () {
                 if (this.$props.query.query.length === 0) {
-                    this.$props.query.cqr = {query: this.$props.query.query, fields: [this.$props.query.field]}
+                    this.$props.query.cqr = {query: "", fields: [this.$props.query.field]}
                     return
                 }
                 var self = this;
@@ -272,7 +224,6 @@
                 request.addEventListener("load", function (ev) {
                     if (ev.currentTarget.status === 200) {
                         self.$props.query.cqr = JSON.parse(ev.currentTarget.responseText)
-                        console.log(self.$props.query.cqr)
                         self.$props.query.cqr = fixNilFields(self.$props.query.cqr, self.$props.query.field)
                     }
                 });
@@ -298,8 +249,14 @@
         delimiters: ["[[", "]]"],
         el: "#app",
         data: {
-            tabEditor: 0,
-            tabVisualise: 0,
+            results: [],
+            total: 0,
+            busy: false,
+            ready: false,
+            finished: false,
+            init: false,
+            start: 0,
+
             numRet: 0,
             numRel: 0,
             numRelRet: 0,
@@ -350,35 +307,6 @@
             }
         },
         methods: {
-            updateTree: function (e) {
-                var self = this
-                var el = document.getElementById("btn-update-tree");
-                el.classList.add("loading");
-
-                {
-                    var request = new XMLHttpRequest();
-                    request.addEventListener("load", function (ev) {
-                        el.classList.remove("loading");
-                        console.log(ev.target.responseText)
-                        var resp = JSON.parse(ev.target.responseText);
-                        network.setData(resp);
-                        for (var i = 0; i < resp.nodes.length; i++) {
-                            if (resp.nodes[i].id == 1) {
-                                self.numRet = resp.nodes[i].value
-                            }
-                        }
-                        self.numRel = resp.NumRel;
-                        self.numRelRet = resp.NumRelRet;
-                    });
-                    request.open("POST", "/plugin/queryvis?tree=y", true);
-                    request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                    request.send("query=" + this.textQuery + "&lang=" + this.queryLanguage);
-                }
-
-                self.getHistory();
-
-                bb.log(e, "treesubmit", document.getElementById("search-box").value)
-            },
             removeQuery: function (index) {
                 this.queries.splice(index, 1)
                 if (this.queries.length == 0) {
@@ -389,13 +317,15 @@
                 this.queries.push(query)
             },
             getHistory: function () {
-                var self = this;
-                request = new XMLHttpRequest();
-                request.addEventListener("load", function (ev) {
-                    self.history = JSON.parse(ev.target.responseText);
-                })
-                request.open("GET", "/api/history", true);
-                request.send()
+                {
+                    var self = this;
+                    var request = new XMLHttpRequest();
+                    request.addEventListener("load", function (ev) {
+                        self.history = JSON.parse(ev.target.responseText);
+                    });
+                    request.open("GET", "/api/history", true);
+                    request.send()
+                }
             },
             updateText: _.debounce(function () {
                 var self = this;
@@ -403,7 +333,6 @@
                 request.addEventListener("load", function (ev) {
                     if (ev.currentTarget.status === 200) {
                         self.textQuery = ev.currentTarget.responseText
-                        bb.log(ev, "query", self.textQuery)
                     }
                 });
                 request.open("POST", "/api/cqr2query");
@@ -412,6 +341,62 @@
             }, 300),
             clear: function () {
                 this.queries = [{query: "", field: "All Fields", operator: "", cqr: {}}, {query: "", field: "All Fields", operator: "and", cqr: {}}];
+            },
+            loadNextResults: function () {
+                let self = this;
+                if (!self.busy && !self.finished && self.ready) {
+                    self.busy = true;
+                    let request = new XMLHttpRequest();
+                    request.addEventListener("load", function (ev) {
+                        if (ev.currentTarget.status === 200) {
+                            let resp = JSON.parse(ev.currentTarget.responseText);
+                            for (let i = 0; i < resp.Documents.length; i++) {
+                                self.results.push(resp.Documents[i]);
+                            }
+                            self.start = self.start + resp.Documents.length;
+                            self.busy = false;
+                        }
+                    });
+                    request.open("POST", "/api/scroll");
+                    request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                    request.send("start=" + self.start + "&query=" + self.textQuery + "&lang=" + self.queryLanguage);
+                }
+            },
+            loadResults: function () {
+                let self = this;
+                let request1 = new XMLHttpRequest();
+                let request = new XMLHttpRequest();
+                self.ready = false;
+                if (!self.busy) {
+                    request1.addEventListener("load", function (ev) {
+                        if (ev.currentTarget.status === 200) {
+                            self.getHistory();
+                        }
+                    });
+                    request1.open("POST", "/api/history");
+                    request1.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                    request1.send("query=" + self.textQuery + "&lang=" + self.queryLanguage);
+
+                    self.busy = true;
+                    request.addEventListener("load", function (ev) {
+                        if (ev.currentTarget.status === 200) {
+                            let resp = JSON.parse(ev.currentTarget.responseText);
+                            if (resp.Finished) {
+                                self.finished = true;
+                            }
+                            self.busy = false;
+                            self.ready = true;
+                            self.init = true;
+                            self.results = resp.Documents;
+                            self.start = resp.Documents.length;
+                            self.total = resp.Total;
+                            bb.log(ev, "query", self.textQuery)
+                        }
+                    });
+                    request.open("POST", "/api/scroll");
+                    request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                    request.send("start=" + 0 + "&query=" + self.textQuery + "&lang=" + self.queryLanguage);
+                }
             }
         },
         beforeMount: function () {
@@ -424,100 +409,6 @@
             }
         }
     })
-</script>
-
-<!-- Tree view. -->
-<script src="/static/vis.min.js" type="text/javascript"></script>
-<script type="text/javascript">
-    // create an array with nodes
-    var nodes = new vis.DataSet([]);
-
-    // create an array with edges
-    var edges = new vis.DataSet([]);
-
-    // create a network
-    var container = document.getElementById('tree');
-
-    // provide the data in the vis format
-    var data = {
-        nodes: nodes,
-        edges: edges
-    };
-    var options = {
-        interaction: {
-            navigationButtons: true
-        },
-        physics: {
-            enabled: true,
-            hierarchicalRepulsion: {
-                nodeDistance: 300,
-            },
-            repulsion: {
-                nodeDistance: 800,
-                springLength: 200,
-                centralGravity: 0.01,
-                springConstant: 0.1,
-                damping: 0.2
-            },
-            barnesHut: {
-                gravitationalConstant: -80000,
-                springLength: 100,
-                springConstant: 0.01,
-                centralGravity: 0.2,
-                damping: 1,
-            },
-            solver: 'barnesHut'
-        },
-        edges: {
-            font: {
-                align: "top"
-            },
-            smooth: {
-                enabled: true,
-                type: "dynamic"
-            },
-            scaling: {
-                label: {
-                    enabled: true,
-                    min: 25,
-                    max: 30
-                }
-            }
-        },
-        nodes: {
-            shape: "box",
-            color: "#CED2FF",
-            font: {
-                color: "#333333"
-            },
-            scaling: {
-                customScalingFunction: function (min, max, total, value) {
-                    return value / total;
-                },
-                min: 60,
-                max: 100,
-                label: {
-                    enabled: true,
-                    min: 25,
-                    max: 30
-                }
-            },
-            widthConstraint: true
-        },
-        layout: {
-            hierarchical: {
-                enabled: true,
-                blockShifting: false,
-                edgeMinimization: true,
-                parentCentralization: true,
-                nodeSpacing: 10,
-                levelSeparation: 250
-            }
-        }
-    };
-
-    // initialize your network!
-    var network = new vis.Network(container, data, options);
 </script>
 </body>
 </html>
