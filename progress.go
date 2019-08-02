@@ -28,15 +28,17 @@ const (
 // 6. Interface 2 & Protocol 2
 // 7. Post-Task Questionnaire
 // 8. Post-Experiment Questionnaire
+// 9. Study Completed
 const (
-	preExperimentQuestionnaire  status = 1
-	preTaskQuestionnaire1              = 2
-	experiment1                        = 3
-	postTaskQuestionnaire1             = 4
-	preTaskQuestionnaire2              = 5
-	experiment2                        = 6
-	postTaskQuestionnaire2             = 7
-	postExperimentQuestionnaire        = 8
+	preExperimentQuestionnaire status = iota + 1
+	preTaskQuestionnaire1
+	experiment1
+	postTaskQuestionnaire1
+	preTaskQuestionnaire2
+	experiment2
+	postTaskQuestionnaire2
+	postExperimentQuestionnaire
+	studyComplete
 )
 
 var steps = []status{
@@ -48,6 +50,7 @@ var steps = []status{
 	experiment2,
 	postTaskQuestionnaire2,
 	postExperimentQuestionnaire,
+	studyComplete,
 }
 
 const protocols = 2
@@ -65,7 +68,10 @@ func newProgress(db *bolt.DB) (progress, error) {
 		} else {
 			b1 = []byte{byte(queryvis)}
 		}
-		i.Put([]byte(bucketInterface), b1)
+		err := i.Put([]byte(bucketInterface), b1)
+		if err != nil {
+			return err
+		}
 
 		// Get and update the protocol.
 		// First byte contains the protocol,
@@ -99,7 +105,7 @@ func (p progress) Update(user []byte) error {
 
 func (p progress) Step(user []byte, db *bolt.DB) (progress, error) {
 	// Do not progress if the experiments are complete.
-	if status(p[0]) == postExperimentQuestionnaire {
+	if status(p[0]) == studyComplete {
 		return p, errors.New("cannot progress past completion of study")
 	}
 

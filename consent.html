@@ -16,7 +16,7 @@
 <script src="/static/vue.js" type="text/javascript"></script>
 <script type="text/javascript" src="/static/bigbro.js"></script>
 <script type="text/javascript">
-    let bb = BigBro.init({{.UID}}, window.location.host+"/plugin/iuserstudy?bigbro");
+    let bb = BigBro.init({{.UID}}, window.location.host + "/plugin/iuserstudy?bigbro");
     window.addEventListener("load", function (e) {
         bb.log(e, "pageload", "{{.UID}}")
     })
@@ -37,7 +37,7 @@
             <div class="panel-footer column col-4">
                 <div class="panel">
                     <div class="panel-header">
-                        <p>Please complete the following details about yourself and mark if you agree to consent to participate in this user study.</p>
+                        <p>Please provide the following details about yourself and tick the box to consent to acknowledge yourself to be a part of this study.</p>
                     </div>
                     <div class="panel-body">
                         <form method="post" action="/plugin/iuserstudy?consent">
@@ -66,7 +66,7 @@
                                         <option value="Doctorate or higher">Doctorate or higher</option>
                                     </select>
                                 </label>
-                                <label class="form-label">Number of years experience as an information specialist
+                                <label class="form-label">Number of years of experience as an information specialist
                                     <input type="number" class="form-input" name="years">
                                 </label>
                                 <div class="form-group">

@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/csv"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/boltdb/bolt"
@@ -227,47 +228,74 @@ func (IUserStudyPlugin) Serve(s searchrefiner.Server, c *gin.Context) {
 			dir := path.Join("data", fmt.Sprint(i), fmt.Sprint(p))
 			err := os.MkdirAll(dir, os.ModePerm)
 			if err != nil {
-				c.HTML(http.StatusInternalServerError, "error.html", searchrefiner.ErrorPage{Error: err.Error(), BackLink: "/"})
+				c.HTML(http.StatusInternalServerError, "error.html", searchrefiner.ErrorPage{Error: err.Error(), BackLink: "/plugin/iuserstudy"})
 				return
 			}
 			err = ioutil.WriteFile(path.Join(dir, uid), []byte(query), os.ModePerm)
 			if err != nil {
-				c.HTML(http.StatusInternalServerError, "error.html", searchrefiner.ErrorPage{Error: err.Error(), BackLink: "/"})
+				c.HTML(http.StatusInternalServerError, "error.html", searchrefiner.ErrorPage{Error: err.Error(), BackLink: "/plugin/iuserstudy"})
 				return
 			}
 
 			if queries, ok := s.Queries[username]; ok {
 				f, err := os.OpenFile(path.Join(dir, fmt.Sprintf("%s_history.csv", uid)), os.O_CREATE|os.O_WRONLY, 0664)
 				if err != nil {
-					c.HTML(http.StatusInternalServerError, "error.html", searchrefiner.ErrorPage{Error: err.Error(), BackLink: "/"})
+					c.HTML(http.StatusInternalServerError, "error.html", searchrefiner.ErrorPage{Error: err.Error(), BackLink: "/plugin/iuserstudy"})
 					return
 				}
 				w := csv.NewWriter(f)
 				for _, q := range queries {
 					err := w.Write([]string{q.Time.String(), q.QueryString, q.Language, strconv.Itoa(int(q.NumRet)), strconv.Itoa(len(q.Relevant)), strconv.Itoa(int(q.NumRelRet))})
 					if err != nil {
-						c.HTML(http.StatusInternalServerError, "error.html", searchrefiner.ErrorPage{Error: err.Error(), BackLink: "/"})
+						c.HTML(http.StatusInternalServerError, "error.html", searchrefiner.ErrorPage{Error: err.Error(), BackLink: "/plugin/iuserstudy"})
 						return
 					}
 				}
 				w.Flush()
 				if w.Error() != nil {
-					c.HTML(http.StatusInternalServerError, "error.html", searchrefiner.ErrorPage{Error: w.Error().Error(), BackLink: "/"})
+					c.HTML(http.StatusInternalServerError, "error.html", searchrefiner.ErrorPage{Error: w.Error().Error(), BackLink: "/plugin/iuserstudy"})
 					return
 				}
 			} else {
-				c.HTML(http.StatusInternalServerError, "error.html", searchrefiner.ErrorPage{Error: "no history found", BackLink: "/"})
+				c.HTML(http.StatusInternalServerError, "error.html", searchrefiner.ErrorPage{Error: "no history found", BackLink: "/plugin/iuserstudy"})
 				return
 			}
 
 			// Remove the history from the user.
 			delete(s.Queries, username)
+		} else {
+			err = c.Request.ParseForm()
+			if err != nil {
+				c.HTML(http.StatusInternalServerError, "error.html", searchrefiner.ErrorPage{Error: err.Error(), BackLink: "/plugin/iuserstudy"})
+				return
+			}
+
+			responses := make(map[string]string)
+			// Record the participants answers in storage.
+			for key, value := range c.Request.Form {
+				if len(value) > 0 {
+					responses[key] = value[0]
+				} else {
+					responses[key] = "NULL"
+				}
+			}
+			v, err := json.Marshal(responses)
+			if err != nil {
+				c.HTML(http.StatusInternalServerError, "error.html", searchrefiner.ErrorPage{Error: err.Error(), BackLink: "/plugin/iuserstudy"})
+				return
+			}
+
+			err = storage.PutValue("step_"+responses["step"], responses["uid"], string(v))
+			if err != nil {
+				c.HTML(http.StatusInternalServerError, "error.html", searchrefiner.ErrorPage{Error: err.Error(), BackLink: "/plugin/iuserstudy"})
+				return
+			}
 		}
 
 		// Update the participant's interface and protocol.
 		_, err := step.Step([]byte(uid), db)
 		if err != nil {
-			c.HTML(http.StatusInternalServerError, "error.html", searchrefiner.ErrorPage{Error: err.Error(), BackLink: "/"})
+			c.HTML(http.StatusInternalServerError, "error.html", searchrefiner.ErrorPage{Error: err.Error(), BackLink: "/plugin/iuserstudy"})
 			return
 		}
 

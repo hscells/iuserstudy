@@ -1,0 +1,84 @@
+{{define "form_scale"}}
+    <p>{{.}}</p>
+    <div class="form-group">
+        <label class="form-radio form-inline">
+            <input required type="radio" name="{{.}}" value="1"><i class="form-icon"></i>1 (not very)
+        </label>
+        <label class="form-radio form-inline">
+            <input required type="radio" name="{{.}}" value="2"><i class="form-icon"></i>2
+        </label>
+        <label class="form-radio form-inline">
+            <input required type="radio" name="{{.}}" value="3"><i class="form-icon"></i>3
+        </label>
+        <label class="form-radio form-inline">
+            <input required type="radio" name="{{.}}" value="4"><i class="form-icon"></i>4
+        </label>
+        <label class="form-radio form-inline">
+            <input required type="radio" name="{{.}}" value="5"><i class="form-icon"></i>5 (very)
+        </label>
+    </div>
+    <div class="divider"></div>
+{{end}}
+
+{{define "form_short"}}
+    <div class="form-group">
+        <label class="form-label" for="input-example-1">{{.}}
+            <input type="text" class="form-input" name="{{.}}" required>
+        </label>
+    </div>
+    <div class="divider"></div>
+{{end}}
+
+{{define "form_long"}}
+    <div class="form-group">
+        <label class="form-label" for="input-example-1">{{.}}
+            <textarea class="form-input" name="{{.}}" required rows="3"></textarea>
+        </label>
+    </div>
+    <div class="divider"></div>
+{{end}}
+
+{{define "form_submit"}}
+    <input class="btn btn-primary btn-lg" value="Complete Step" type="submit">
+{{end}}
+
+{{define "form_time"}}
+    <p>{{.}}</p>
+    <div class="form-group">
+        <label class="form-radio">
+            <input required type="radio" name="{{.}}" value="1 hour"><i class="form-icon"></i>1 hour
+        </label>
+        <label class="form-radio">
+            <input required type="radio" name="{{.}}" value="8 hours"><i class="form-icon"></i>8 hours (about 1 working day)
+        </label>
+        <label class="form-radio">
+            <input required type="radio" name="{{.}}" value="20 hours"><i class="form-icon"></i>20 hours (about half a working week)
+        </label>
+        <label class="form-radio">
+            <input required type="radio" name="{{.}}" value="40 hours"><i class="form-icon"></i>40 hours (about 1 working week)
+        </label>
+        <label class="form-radio">
+            <input required type="radio" name="{{.}}" value="80 hours"><i class="form-icon"></i>80 hours (about 2 working weeks)
+        </label>
+        <label class="form-radio">
+            <input required type="radio" name="{{.}}" value="160 hours"><i class="form-icon"></i>160 hours hours (about 1 working month)
+        </label>
+        <label class="form-radio">
+            <input required type="radio" name="{{.}}" value="more than 160 hours"><i class="form-icon"></i>more than 160 hours (more than 1 working month)
+        </label>
+    </div>
+    <div class="divider"></div>
+{{end}}
+
+{{define "form_interface"}}
+    <p>{{.}}</p>
+    <div class="form-group">
+        <label class="form-radio form-inline">
+            <input required type="radio" name="{{.}}" value="searchrefiner"><i class="form-icon"></i>Interface with visualisation (searchrefiner)
+        </label>
+        <label class="form-radio form-inline">
+            <input required type="radio" name="{{.}}" value="pubmed"><i class="form-icon"></i>Interface without visualisation (PubMed)
+        </label>
+    </div>
+    <div class="divider"></div>
+{{end}}

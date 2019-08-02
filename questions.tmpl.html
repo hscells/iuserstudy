@@ -1,0 +1,62 @@
+{{define "prestudy_questions"}}
+    <form action="/plugin/iuserstudy?uid={{.UID}}" method="post">
+        <input type="hidden" name="uid" value="{{.UID}}">
+        <input type="hidden" name="protocol" value="{{.Protocol}}">
+        <input type="hidden" name="interface" value="{{.Interface}}">
+        <input type="hidden" name="step" value="{{.Step}}">
+        {{template "form_scale" "How experienced do you believe you are at formulating queries for systematic review search?"}}
+        {{template "form_scale" "How much experience do you believe you have at formulating queries for systematic review search in the PubMed interface?"}}
+        {{template "form_short" "How much experience do you believe you have at formulating queries for systematic review search in the PubMed interface?"}}
+        {{template "form_time" "Approximately how long do you spend, on average, formulating queries for systematic review search?"}}
+        {{template "form_short" "What areas of health do you have the most experience formulating queries for systematic review search?"}}
+        {{template "form_long" "If you were to think of one challenging part of how you currently formulate queries for systematic review search, what would it be and how would you like to see it changed?"}}
+        {{template "form_submit"}}
+    </form>
+{{end}}
+
+{{define "pretask_questions"}}
+    <form action="/plugin/iuserstudy?uid={{.UID}}" method="post">
+        <input type="hidden" name="uid" value="{{.UID}}">
+        <input type="hidden" name="protocol" value="{{.Protocol}}">
+        <input type="hidden" name="interface" value="{{.Interface}}">
+        <input type="hidden" name="step" value="{{.Step}}">
+        {{template "form_scale" "How much do you know about the topic of the task?"}}
+        {{template "form_scale" "How defined is this task in terms of the types of information needed to complete it?"}}
+        {{template "form_scale" "How difficult do you think it will be to search for information for this task?"}}
+        {{template "form_scale" "How difficult do you think it will be to determine when you have a good enough query to complete this task?"}}
+        {{template "form_submit"}}
+    </form>
+{{end}}
+
+{{define "posttask_questions"}}
+    <form action="/plugin/iuserstudy?uid={{.UID}}" method="post">
+        <input type="hidden" name="uid" value="{{.UID}}">
+        <input type="hidden" name="protocol" value="{{.Protocol}}">
+        <input type="hidden" name="interface" value="{{.Interface}}">
+        <input type="hidden" name="step" value="{{.Step}}">
+        {{template "form_scale" "How much did your knowledge of the task increase as you searched?"}}
+        {{template "form_scale" "Overall, how difficult was this task?"}}
+        {{template "form_scale" "How difficult was it for you to construct a query  for this task?"}}
+        {{template "form_scale" "How difficult was it to determine when you have a good enough query to finish the task?"}}
+        {{template "form_scale" "Overall, how satisfied are you with your query for this task?"}}
+        {{template "form_scale" "Overall, how satisfied are you with the interface used to assist you formulating the query for this task?"}}
+        {{template "form_submit"}}
+    </form>
+{{end}}
+
+{{define "poststudy_questions"}}
+    <form action="/plugin/iuserstudy?uid={{.UID}}" method="post">
+        <input type="hidden" name="uid" value="{{.UID}}">
+        <input type="hidden" name="protocol" value="{{.Protocol}}">
+        <input type="hidden" name="interface" value="{{.Interface}}">
+        <input type="hidden" name="step" value="{{.Step}}">
+        {{template "form_interface" "Which interface did you find it easier to formulate queries in?"}}
+        {{template "form_short" "Why did you find it easier?"}}
+        {{template "form_interface" "Which interface do you think was most helpful in assisting you to formulate queries?"}}
+        {{template "form_short" "Why did you find it more helpful?"}}
+        {{template "form_interface" "Which interface do you think you formulated the best query in?"}}
+        {{template "form_short" "Why do you think you formulated the best query in the interface you chose?"}}
+        {{template "form_long" "Please provide detailed feedback on your experience using both of the interfaces, including any problems you had (if any)."}}
+        {{template "form_submit"}}
+    </form>
+{{end}}
