@@ -5,23 +5,22 @@
         {{end}}
     </ul>
 {{end}}
+{{define "task_blurb"}}
+    <p>At the end of the task please select from your query history below the query you think satisfies the search criteria (your search history will contain all the queries you formulate while completing the task).</p>
+    <b>Date restrictions</b>
+    <p>A date range filter will automatically be applied to your query. This is because the query you are formulating is for an already completed systematic review. To make a fair comparison between the query you formulate and the query reported in the systematic review, both searches must be run within the same time period.</p>
+    <div class="divider"></div>
+    <p>Use the following link to open the interface you must use to complete this task:</p>
+{{end}}
 {{define "queryvis"}}
-    <p>
-        Please use the searchrefiner query visualiser to complete this task.
-        At the end of the task please select from your query history below the query you think satisfies the search criteria.
-    </p>
-    <a href="?uid={{.UID}}&tree" class="btn btn-link">Open Visualisation<i class="icon icon-arrow-right"></i></a>
-    <p><em>A number of seed studies have been loaded into this interface automatically:</em></p>
-    {{template "seed" .Seed}}
+    <p>Please use the <b>searchrefiner</b> query visualiser to complete this task.</p>
+    {{template "task_blurb" .}}
+    <a href="?uid={{.UID}}&tree" class="btn btn-primary">Open Interface<i class="icon icon-arrow-right"></i></a>
 {{end}}
 {{define "pubmed"}}
-    <p>
-        Please use PubMed to complete this task.
-        At the end of the task please select from your query history below the query you think satisfies the search criteria.
-    </p>
-    <a href="?uid={{.UID}}&pubmed" class="btn btn-link">Open PubMed<i class="icon icon-arrow-right"></i></a>
-    <p><em>A number of seed studies have been identified to assist with query formulation:</em></p>
-    {{template "seed" .Seed}}
+    <p>Please use <b>PubMed</b> to complete this task.</p>
+    {{template "task_blurb" .}}
+    <a href="?uid={{.UID}}&pubmed" class="btn btn-primary">Open PubMed<i class="icon icon-arrow-right"></i></a>
 {{end}}
 {{define "history"}}
     <div class="panel p-2 mt-2">
@@ -108,14 +107,10 @@
     <div class="info">
         <h2>Task <span class="h3">(Step {{ .Step }})</span></h2>
         <p>Please complete the first task required by the study.</p>
-        <p>We repeat the criteria for considering studies for inclusion inside the interface for your convenience.</p>
-        <p>Below, we provide you with a link to the interface that you have to us to formulat the query that will be used to screen documents for inclusion in the review.</p>
+        <p>We repeat the criteria for considering studies for inclusion inside the interface for your convenience. We also provide a number of "seed" studies that are known-to-be-relevant for this task.</p>
+        <p>Below, we provide you with a link to the interface that you have to us to formulate the query that will be used to screen documents for inclusion in the review.</p>
         <p>When formulating a query, please <b>do not use any other system</b> other than the one prescribed below.</p>
-        {{ if eq .Protocol 1 }}
-            {{template "protocol1" . }}
-        {{ else }}
-            {{template "protocol2" . }}
-        {{ end }}
+        <p>There is a link in the top left of the interface to return back to this page when you are satisfied with the query you have formulated.</p>
         <h4>Interface</h4>
         {{ if eq .Interface 1 }}
             {{template "queryvis" . }}
@@ -153,82 +148,6 @@
             <div class="panel-footer"></div>
         </div>
     </div>
-{{end}}
-{{define "protocol1"}}
-    <h5>Title</h5>
-
-    <p>Development of type 2 diabetes mellitus in people with intermediate hyperglycaemia</p>
-
-    <h5>Criteria for considering studies for this review</h5>
-
-    <h6>Study design</h6>
-    <p>Prospective cohort studies investigating either the overall prognosis of people with IH for developing T2DM or IH versus normoglycaemia as a prognostic factor for developing T2DM (Altman 2001).</p>
-
-    <h6>Inclusion criteria</h6>
-    <p>Types of participants:</p>
-    <p>To study the overall prognosis of people with IH and regression from IH to normoglycaemia, we included cohort studies in people with IH at baseline, defined by impaired fasting glucose (IFG), impaired glucose tolerance (IGT), elevated glycosylated haemoglobin A1c (HbA1c) or any combination of these. IH had to be established by standard cut‐off values for IFG, IGT or elevated HbA1c, as defined by ADA or WHO (ADA 1997; ADA 2003; ADA 2010; ICH 1997; IEC 2009; WHO 1998; WHO/IDF 2006).</p>
-    <p>To study whether IH compared to normoglycaemia is a prognostic factor for developing T2DM, we included cohort studies in people with IH and normoglycaemia at baseline.</p>
-
-    <h6>Definition of IH</h6>
-    <p>We define IH according to ADA and WHO descriptions.</p>
-    <ul>
-        <li>IFG5.6 threshold, usually defined as a fasting plasma glucose level between 5.6 mmol/L and 6.9 mmol/L at baseline.</li>
-        <li>IFG6.1 threshold, usually defined as a fasting plasma glucose level between 6.1 mmol/L and 6.9 mmol/L at baseline.</li>
-        <li>IGT, usually defined as a plasma glucose level between 7.8 mmol/L and 11.1 mmol/L two hours after a 75 g OGTT at baseline.</li>
-        <li>Isolated IFG was defined as IFG5.6 or IFG6.1 only (without IGT), and isolated IGT was defined as IGT only (without IFG5.6 or IFG6.1).</li>
-        <li>HbA1c5.7 threshold, usually defined as HbA1c measurement between 5.7% and 6.4% at baseline.</li>
-        <li>HbA1c6.0 threshold, usually defined as HbA1c measurement between 6.0% and 6.4% at baseline.</li>
-    </ul>
-
-    <h6>Types of outcome measures</h6>
-    <p>Our outcome of primary interest is the diagnosis of newly developed T2DM (T2DM incidence). T2DM incidence should be diagnosed by blood glucose measurements such as fasting plasma glucose (FPG), two‐hour postload glucose (PG) or HbA1c. Diagnosis could be combined with self‐reported diabetes, physician‐diagnosed diabetes or use of antihyperglycaemic medications such as oral hypoglycaemic drugs, insulin or both.</p>
-
-    <h6>Exclusion criteria</h6>
-    <ul>
-        <li>Intervention trials and study designs other than prospective cohort studies.</li>
-        <li>People with comorbidities at baseline (e.g. people with coronary heart disease and IGT).</li>
-        <li>Missing data on transition from IH to T2DM.
-        <li>Follow‐up period after baseline assessment not specified (not possible to associate T2DM incidence with length of follow‐up).</li>
-        <li>T2DM incidence evaluated by documents (e.g. hospital records, retrospective use of registers) or self‐report only.</li>
-    </ul>
-{{end}}
-{{define "protocol2"}}
-    <h5>Title</h5>
-
-    <p>Development of type 2 diabetes mellitus in people with intermediate hyperglycaemia</p>
-
-    <h5>Criteria for considering studies for this review</h5>
-
-    <h6>Study design</h6>
-    <p>Prospective cohort studies investigating either the overall prognosis of people with IH for developing T2DM or IH versus normoglycaemia as a prognostic factor for developing T2DM (Altman 2001).</p>
-
-    <h6>Inclusion criteria</h6>
-    <p>Types of participants:</p>
-    <p>To study the overall prognosis of people with IH and regression from IH to normoglycaemia, we included cohort studies in people with IH at baseline, defined by impaired fasting glucose (IFG), impaired glucose tolerance (IGT), elevated glycosylated haemoglobin A1c (HbA1c) or any combination of these. IH had to be established by standard cut‐off values for IFG, IGT or elevated HbA1c, as defined by ADA or WHO (ADA 1997; ADA 2003; ADA 2010; ICH 1997; IEC 2009; WHO 1998; WHO/IDF 2006).</p>
-    <p>To study whether IH compared to normoglycaemia is a prognostic factor for developing T2DM, we included cohort studies in people with IH and normoglycaemia at baseline.</p>
-
-    <h6>Definition of IH</h6>
-    <p>We define IH according to ADA and WHO descriptions.</p>
-    <ul>
-        <li>IFG5.6 threshold, usually defined as a fasting plasma glucose level between 5.6 mmol/L and 6.9 mmol/L at baseline.</li>
-        <li>IFG6.1 threshold, usually defined as a fasting plasma glucose level between 6.1 mmol/L and 6.9 mmol/L at baseline.</li>
-        <li>IGT, usually defined as a plasma glucose level between 7.8 mmol/L and 11.1 mmol/L two hours after a 75 g OGTT at baseline.</li>
-        <li>Isolated IFG was defined as IFG5.6 or IFG6.1 only (without IGT), and isolated IGT was defined as IGT only (without IFG5.6 or IFG6.1).</li>
-        <li>HbA1c5.7 threshold, usually defined as HbA1c measurement between 5.7% and 6.4% at baseline.</li>
-        <li>HbA1c6.0 threshold, usually defined as HbA1c measurement between 6.0% and 6.4% at baseline.</li>
-    </ul>
-
-    <h6>Types of outcome measures</h6>
-    <p>Our outcome of primary interest is the diagnosis of newly developed T2DM (T2DM incidence). T2DM incidence should be diagnosed by blood glucose measurements such as fasting plasma glucose (FPG), two‐hour postload glucose (PG) or HbA1c. Diagnosis could be combined with self‐reported diabetes, physician‐diagnosed diabetes or use of antihyperglycaemic medications such as oral hypoglycaemic drugs, insulin or both.</p>
-
-    <h6>Exclusion criteria</h6>
-    <ul>
-        <li>Intervention trials and study designs other than prospective cohort studies.</li>
-        <li>People with comorbidities at baseline (e.g. people with coronary heart disease and IGT).</li>
-        <li>Missing data on transition from IH to T2DM.
-        <li>Follow‐up period after baseline assessment not specified (not possible to associate T2DM incidence with length of follow‐up).</li>
-        <li>T2DM incidence evaluated by documents (e.g. hospital records, retrospective use of registers) or self‐report only.</li>
-    </ul>
 {{end}}
 
 <!DOCTYPE html>
@@ -269,7 +188,7 @@
         <section class="navbar-section">Participant ID:<span class="label label-primary mr-1 ml-1">{{.UID}}</span></section>
     </header>
     <section class="container" style="padding: 0 5em 5em 5em;">
-        <h1><img src="/static/favicon.png" height="22px"> searchrefiner User Study</h1>
+        {{template "qvus_header"}}
         <ul class="step">
             <li class="step-item {{ if eq .Step 1}}active{{end}}">
                 <a href="#" class="tooltip" data-tooltip="Pre-Study Questionnaire">Step 1</a>
@@ -305,7 +224,15 @@
         {{ if eq .Step 7}}{{template "posttask" .}}{{end}}
         {{ if eq .Step 8}}{{template "poststudy" .}}{{end}}
         {{ if eq .Step 9}}
-            <h2>Thank-you for participating in this study!</h2>
+            <div class="panel col-6" style="margin: 5rem auto auto;">
+                <div class="panel-header">
+                    <h3>Thank-you for participating in this study! 😎</h3>
+                </div>
+                <div class="panel-body">
+                    You can now close this window. Your answers to the questionnaires and the queries you formulated have been recorded.
+                </div>
+                <div class="panel-footer"></div>
+            </div>
         {{end}}
     </section>
 </div>

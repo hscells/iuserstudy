@@ -26,13 +26,17 @@
         <section class="navbar-section">Participant ID:<span class="label label-primary mr-1 ml-1">{{.UID}}</span></section>
     </header>
     <section class="container" style="padding: 0 5em 5em 5em;">
-        <h1><img src="/static/favicon.png" height="22px"> searchrefiner User Study</h1>
+        {{template "qvus_header"}}
         <div class="panel">
             <div class="panel-header">
                 <h2>Consent & Your Information</h2>
             </div>
             <div class="panel-body">
                 <p>TODO: in this section we will have a blurb of text regarding your consent to participate in the user study.</p>
+                <div class="toast toast-warning">
+                    <h5>Notice:</h5>
+                    <p>You are not looking at the real version of the study (what you enter into forms while this message is here will be thrown in the trash <i class="icon icon-delete"></i>).</p>
+                </div>
             </div>
             <div class="panel-footer column col-4">
                 <div class="panel">
