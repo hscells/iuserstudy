@@ -265,6 +265,21 @@ func (IUserStudyPlugin) Serve(s searchrefiner.Server, c *gin.Context) {
 		return
 	}
 
+	// Initialise the participant with default values and commit them to the database.
+	if len(step) == 0 {
+		p, err := newProgress(db)
+		if err != nil {
+			c.HTML(http.StatusUnauthorized, "error.html", searchrefiner.ErrorPage{Error: err.Error(), BackLink: "/"})
+			return
+		}
+		err = p.Update([]byte(uid))
+		if err != nil {
+			c.HTML(http.StatusNotFound, "error.html", searchrefiner.ErrorPage{Error: err.Error(), BackLink: "/"})
+			return
+		}
+		step = p
+	}
+
 	stat, i, p := step.Get()
 	var seed []combinator.Document
 	var date string
@@ -385,21 +400,6 @@ func (IUserStudyPlugin) Serve(s searchrefiner.Server, c *gin.Context) {
 
 		c.Redirect(http.StatusFound, fmt.Sprintf("/plugin/iuserstudy?uid=%s", uid))
 		return
-	}
-
-	// Initialise the participant with default values and commit them to the database.
-	if len(step) == 0 {
-		p, err := newProgress(db)
-		if err != nil {
-			c.HTML(http.StatusUnauthorized, "error.html", searchrefiner.ErrorPage{Error: err.Error(), BackLink: "/"})
-			return
-		}
-		err = p.Update([]byte(uid))
-		if err != nil {
-			c.HTML(http.StatusNotFound, "error.html", searchrefiner.ErrorPage{Error: err.Error(), BackLink: "/"})
-			return
-		}
-		step = p
 	}
 
 	s.Settings[username] = searchrefiner.Settings{
