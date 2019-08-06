@@ -61,6 +61,7 @@
             Please note that you are allowed to return to this page at any time, your progress will be saved automatically when you complete a step.
             Please bookmark this page for convenience.
         </p>
+        <p>TODO: Completion of this study will take approximately XXXXX.</p>
         <p>
             This study comprises eight steps in total for you to complete.
             Steps 3 and 6 will have you formulating queries in <b>PubMed syntax</b> for real systematic reviews.
@@ -127,7 +128,7 @@
         <div class="panel">
             <div class="panel-header"></div>
             <div class="panel-body">
-                {{template "pretask_questions" .}}
+                {{template "posttask_questions" .}}
             </div>
             <div class="panel-footer"></div>
         </div>
@@ -154,7 +155,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>User Study Home</title>
+    <title>Query Visualisation User Study</title>
     <link rel="icon" href="/static/favicon.png" type="image/x-png">
     <link rel="stylesheet" href="/static/spectre.min.css" type="text/css">
     <link rel="stylesheet" href="/static/spectre-icons.min.css" type="text/css">
@@ -171,6 +172,40 @@
 
         .info {
             max-width: 640px;
+        }
+
+        body {
+            counter-reset: question-counter;
+        }
+
+        .question::before {
+            counter-increment: question-counter;
+            content: "Q" counter(question-counter);
+
+        }
+
+        .question {
+            margin-right: 8px;
+            margin-top: 32px;
+        }
+
+        .flex-group {
+            display: flex;
+        }
+
+        .form-radio {
+            border: 1px solid #bbb;
+        }
+
+        .form-flex {
+            margin: 1px;
+            flex: 1;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-top: 32px;
+            margin-bottom: 32px !important;
         }
     </style>
 </head>
