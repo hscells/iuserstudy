@@ -25,7 +25,7 @@
 {{define "history"}}
     <div class="panel p-2 mt-2">
         <div class="panel-header">
-            <p>Choose a query from your history below as the one which satisfies this task.</p>
+            <p>Choose a query (using one of the <i class="btn btn-action btn-sm icon icon-forward"></i> buttons) from your history below as the one which you are most confident as being the most effective for this task.</p>
         </div>
         <div class="panel-body container">
             <div class="columns">
@@ -44,7 +44,7 @@
                         <form method="post" action="/plugin/iuserstudy">
                             <!--suppress XmlUnboundNsPrefix -->
                             <input type="hidden" name="query" v-bind:value="[[ query.QueryString ]]">
-                            <button type="submit" class="btn btn-action"><i class="icon icon-check"></i></button>
+                            <button type="submit" class="btn btn-action"><i class="icon icon-forward"></i></button>
                         </form>
                     </div>
                 </div>

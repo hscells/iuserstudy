@@ -495,6 +495,9 @@
                     request.addEventListener("load", function (ev) {
                         if (ev.currentTarget.status === 200) {
                             let resp = JSON.parse(ev.currentTarget.responseText);
+                            if (resp.Finished) {
+                                self.finished = true;
+                            }
                             for (let i = 0; i < resp.Documents.length; i++) {
                                 self.results.push(resp.Documents[i]);
                             }

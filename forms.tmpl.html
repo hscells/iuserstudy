@@ -1,3 +1,9 @@
+{{define "hidden_form_fields"}}
+    <input type="hidden" name="uid" value="{{.UID}}">
+    <input type="hidden" name="protocol" value="{{.Protocol}}">
+    <input type="hidden" name="interface" value="{{.Interface}}">
+    <input type="hidden" name="step" value="{{.Step}}">
+{{end}}
 {{define "question_label"}}
     <span class="question label label-rounded bg-secondary"></span>
 {{end}}

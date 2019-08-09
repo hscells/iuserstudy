@@ -321,10 +321,10 @@ func (IUserStudyPlugin) Serve(s searchrefiner.Server, c *gin.Context) {
 	// Handle what happens when the participant "completes" a step.
 	if c.Request.Method == "POST" {
 		stat, i, p := step.Get()
+		dir := path.Join("data", fmt.Sprint(i), fmt.Sprint(p))
 		// Write the participants submitted query to the disk.
 		if stat == experiment1 || stat == experiment2 {
 			query := c.PostForm("query")
-			dir := path.Join("data", fmt.Sprint(i), fmt.Sprint(p))
 			err := os.MkdirAll(dir, os.ModePerm)
 			if err != nil {
 				c.HTML(http.StatusInternalServerError, "error.html", searchrefiner.ErrorPage{Error: err.Error(), BackLink: "/plugin/iuserstudy"})
@@ -378,6 +378,7 @@ func (IUserStudyPlugin) Serve(s searchrefiner.Server, c *gin.Context) {
 					responses[key] = "NULL"
 				}
 			}
+			responses["time"] = time.Now().String()
 			v, err := json.Marshal(responses)
 			if err != nil {
 				c.HTML(http.StatusInternalServerError, "error.html", searchrefiner.ErrorPage{Error: err.Error(), BackLink: "/plugin/iuserstudy"})
@@ -385,6 +386,18 @@ func (IUserStudyPlugin) Serve(s searchrefiner.Server, c *gin.Context) {
 			}
 
 			err = storage.PutValue("step_"+responses["step"], responses["uid"], string(v))
+			if err != nil {
+				c.HTML(http.StatusInternalServerError, "error.html", searchrefiner.ErrorPage{Error: err.Error(), BackLink: "/plugin/iuserstudy"})
+				return
+			}
+
+			respDir := path.Join("data", "responses", fmt.Sprint(stat))
+			err = os.MkdirAll(respDir, 0777)
+			if err != nil {
+				c.HTML(http.StatusInternalServerError, "error.html", searchrefiner.ErrorPage{Error: err.Error(), BackLink: "/plugin/iuserstudy"})
+				return
+			}
+			err = ioutil.WriteFile(path.Join(respDir, fmt.Sprintf("%s.json", uid)), v, 0664)
 			if err != nil {
 				c.HTML(http.StatusInternalServerError, "error.html", searchrefiner.ErrorPage{Error: err.Error(), BackLink: "/plugin/iuserstudy"})
 				return
