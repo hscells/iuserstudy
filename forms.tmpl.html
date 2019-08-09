@@ -9,44 +9,22 @@
 {{end}}
 {{define "form_scale"}}
     {{template "question_label"}}
-    <span>{{.}}</span>
+    <span>{{.Question}}</span>
     <div class="form-group flex-group form-flex bg-secondary">
         <label class="form-radio form-inline form-flex bg-secondary">
-            <input required type="radio" name="{{.}}" value="1"><i class="form-icon"></i>1 (not very)
+            <input required type="radio" name="{{.Question}}" value="1"><i class="form-icon"></i>1 ({{.Low}})
         </label>
         <label class="form-radio form-inline form-flex bg-secondary">
-            <input required type="radio" name="{{.}}" value="2"><i class="form-icon"></i>2
+            <input required type="radio" name="{{.Question}}" value="2"><i class="form-icon"></i>2
         </label>
         <label class="form-radio form-inline form-flex bg-secondary">
-            <input required type="radio" name="{{.}}" value="3"><i class="form-icon"></i>3
+            <input required type="radio" name="{{.Question}}" value="3"><i class="form-icon"></i>3
         </label>
         <label class="form-radio form-inline form-flex bg-secondary">
-            <input required type="radio" name="{{.}}" value="4"><i class="form-icon"></i>4
+            <input required type="radio" name="{{.Question}}" value="4"><i class="form-icon"></i>4
         </label>
         <label class="form-radio form-inline form-flex bg-secondary">
-            <input required type="radio" name="{{.}}" value="5"><i class="form-icon"></i>5 (very)
-        </label>
-    </div>
-    <div class="divider"></div>
-{{end}}
-{{define "form_scale_experience"}}
-    {{template "question_label"}}
-    <span>{{.}}</span>
-    <div class="form-group flex-group">
-        <label class="form-radio form-inline form-flex bg-secondary">
-            <input required type="radio" name="{{.}}" value="1"><i class="form-icon"></i>1 (novice)
-        </label>
-        <label class="form-radio form-inline form-flex bg-secondary">
-            <input required type="radio" name="{{.}}" value="2"><i class="form-icon"></i>2
-        </label>
-        <label class="form-radio form-inline form-flex bg-secondary">
-            <input required type="radio" name="{{.}}" value="3"><i class="form-icon"></i>3
-        </label>
-        <label class="form-radio form-inline form-flex bg-secondary">
-            <input required type="radio" name="{{.}}" value="4"><i class="form-icon"></i>4
-        </label>
-        <label class="form-radio form-inline form-flex bg-secondary">
-            <input required type="radio" name="{{.}}" value="5"><i class="form-icon"></i>5 (expert)
+            <input required type="radio" name="{{.Question}}" value="5"><i class="form-icon"></i>5 ({{.High}})
         </label>
     </div>
     <div class="divider"></div>
@@ -54,10 +32,10 @@
 
 {{define "form_short"}}
     {{template "question_label"}}
-    <span>{{.}}</span>
+    <span>{{.Question}}</span>
     <div class="form-group">
         <label class="form-label" for="input-example-1">
-            <input type="text" class="form-input" name="{{.}}" required>
+            <input type="text" class="form-input" name="{{.Question}}" required>
         </label>
     </div>
     <div class="divider"></div>
@@ -65,10 +43,10 @@
 
 {{define "form_long"}}
     {{template "question_label"}}
-    <span>{{.}}</span>
+    <span>{{.Question}}</span>
     <div class="form-group">
         <label class="form-label" for="input-example-1">
-            <textarea class="form-input" name="{{.}}" required rows="3"></textarea>
+            <textarea class="form-input" name="{{.Question}}" required rows="3"></textarea>
         </label>
     </div>
     <div class="divider"></div>
@@ -83,7 +61,7 @@
     <span>{{.}}</span>
     <div class="form-group">
         <label class="form-radio bg-secondary">
-            <input required type="radio" name="{{.}}" value="1 hour"><i class="form-icon"></i>1 hour
+            <input required type="radio" name="{{.}}" value="1 hour"><i class="form-icon"></i>less than 1 day (a few hours)
         </label>
         <label class="form-radio bg-secondary">
             <input required type="radio" name="{{.}}" value="8 hours"><i class="form-icon"></i>8 hours (about 1 working day)

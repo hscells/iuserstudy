@@ -12,6 +12,40 @@
     <link rel="stylesheet" href="/static/vue-multiselect.min.css" type="text/css">
     <link rel="stylesheet" href="/static/logtail.css" type="text/css">
     <link rel="stylesheet" href="/static/searchrefiner.css" type="text/css">
+    <style>
+        .text-sm {
+            line-height: 0.9rem;
+        }
+
+        .span-sm,
+        .a-sm {
+            font-size: 10px;
+            line-height: 0.0rem;
+        }
+
+        .author-sm {
+            line-height: 0.0rem;
+            font-size: 12px;
+            margin: 0 0 0 0;
+            padding: 0;
+            text-align: left;
+        }
+
+        .author-sm:after {
+            content: ",";
+            margin-right: 6px;
+        }
+
+        .a-sm:after {
+            content: ';';
+            margin-right: 6px;
+        }
+
+        .author-sm:last-child:after,
+        .a-sm:last-child:after {
+            content: none;
+        }
+    </style>
 </head>
 <body>
 <script type="text/javascript" src="/static/bigbro.js"></script>
@@ -49,9 +83,11 @@
                     <a href="#" v-on:click="clear">Clear</a>
                 </div>
                 <div class="panel-footer">
-                    <button class="btn btn-primary nav-height float-right" id="btn-update-tree" v-on:click="loadResults">
+                    <button class="btn btn-primary" id="btn-update-tree" v-on:click="loadResults">
                         <i class="icon icon-forward"></i> Results
                     </button>
+                    <div class="divider"></div>
+                    <p>Use the query builder above to formulate your query. Click the back link in the top left corner of the interface to return to the study.</p>
                 </div>
             </div>
             <div class="panel p-2 mt-2">
@@ -90,10 +126,11 @@
                     <p v-if="!init">Results will show here once you click the Results button above.</p>
                     <ol v-infinite-scroll="loadNextResults" infinite-scroll-disabled="busy" infinite-scroll-distance="10">
                         <li v-for="c in results" class="pb-2">
-                            <a v-bind:href="'https://www.ncbi.nlm.nih.gov/pubmed/' + c.PMID">[[c.TI]]</a>
+                            <a v-bind:href="'https://www.ncbi.nlm.nih.gov/pubmed/' + c.PMID" target="_blank">[[c.TI]]</a>
+                            <a v-bind:href="'https://www.ncbi.nlm.nih.gov/pubmed/' + c.PMID" target="_blank" v-show="!c.TI">[no title] [[c.PMID]]</a>
                             <div class="text-left text-sm">
                                 <a v-for="author in c.AU" class="text-success author-sm"
-                                   v-bind:href="'https://www.ncbi.nlm.nih.gov/pubmed/?term=%22' + author + '%22[Author]'">[[author]]</a>&nbsp;
+                                   v-bind:href="'https://www.ncbi.nlm.nih.gov/pubmed/?term=%22' + author + '%22[Author]'">[[author]]</a>
                             </div>
                             <div class="text-left text-sm text-gray">
                                 <span class="span-sm"><strong>PMID</strong>: [[ c.PMID ]]</span>
@@ -266,7 +303,7 @@
             numRet: 0,
             numRel: 0,
             numRelRet: 0,
-            textQuery: "Use the Query Builder below to formulate your query. It will show here afterwards.",
+            textQuery: "",
             textQueryDate: "",
             queryLanguage: "{{.Language}}",
             queries: [{query: "", field: "All Fields", operator: "", cqr: {}}, {query: "", field: "All Fields", operator: "and", cqr: {}}],
@@ -439,11 +476,11 @@
             cqrQuery: function () {
                 this.updateText()
             },
-            tabState: function () {
-                if (this.tabState === "results") {
-                    this.loadNextResults();
-                }
-            }
+            // tabState: function () {
+            //     if (this.tabState === "results") {
+            //         this.loadNextResults();
+            //     }
+            // }
         }
     })
 </script>

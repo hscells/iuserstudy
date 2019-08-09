@@ -2,12 +2,12 @@
     <form action="/plugin/iuserstudy?uid={{.UID}}" method="post">
         {{template "hidden_form_fields" .}}
         <!---->
-        {{template "form_scale_experience" "How much experience do have at formulating queries for systematic review search?"}}
-        {{template "form_scale_experience" "How much experience do you believe you have at formulating queries for systematic review search in the PubMed interface?"}}
+        {{template "form_scale" dict "Question" "How much experience do you believe you have at formulating queries for systematic review search?" "Low" "a little" "High" "a lot"}}
+        {{template "form_scale" dict "Question" "How much experience do you believe you have at formulating queries for systematic review search in the PubMed interface?" "Low" "a little" "High" "a lot" }}
         {{template "form_time" "Approximately how long do you spend, on average, formulating queries for systematic review search (per systematic review)?"}}
-        {{template "form_short" "What areas of health do you have the most experience formulating queries for systematic review search? e.g., particular populations/conditions/interventions"}}
-        {{template "form_long" "If you were to think of one challenging part of how you currently formulate queries for systematic review search, what would it be?"}}
-        {{template "form_long" "If you were to think of one challenging part of how you currently formulate queries for systematic review search, how would you like to see it changed?"}}
+        {{template "form_short" dict "Question" "What areas of health do you have the most experience formulating queries for systematic review search? e.g., particular populations/conditions/interventions"}}
+        {{template "form_long" dict "Question" "If you were to think of one challenging part of how you currently formulate queries for systematic review search, <b>what would it be?</b>"}}
+        {{template "form_long" dict "Question" "If you were to think of one challenging part of how you currently formulate queries for systematic review search, <b>how would you like to see it changed?<b>"}}
         {{template "form_submit"}}
     </form>
 {{end}}
@@ -16,12 +16,12 @@
     <form action="/plugin/iuserstudy?uid={{.UID}}" method="post">
         {{template "hidden_form_fields" .}}
         <!---->
-        {{template "form_scale" "How much do you know about the topic of the task?"}}
-        {{template "form_scale" "How defined is this task in terms of the types of information needed to complete it?"}}
-        {{template "form_scale" "How difficult do you think it will be to search for information for this task?"}}
-        {{template "form_scale" "How difficult do you think it will be to determine when you have a good enough query to complete this task?"}}
+        {{template "form_scale" dict "Question" "How much do you know about the topic of the task?" "Low" "no idea" "High" "a lot"}}
+        {{template "form_scale" dict "Question" "How defined is this task in terms of the types of information needed to complete it?" "Low" "unclear" "High" "well-defined"}}
+        {{template "form_scale" dict "Question" "How difficult do you think it will be to formulate an effective query for this task?" "Low" "challenging" "High" "very easy"}}
+        {{template "form_scale" dict "Question" "How difficult do you think it will be to determine when you have an effective query to complete this task?" "Low" "challenging" "High" "very easy"}}
         <!-- Added from advice from Anton. -->
-        {{template "form_scale" "How confident are you that you can formulate an effective query for the topic of this task?"}}
+        {{template "form_scale" dict "Question" "How confident are you that you can formulate an effective query for the topic of this task?" "Low" "not at all" "High" "very confident"}}
         {{template "form_submit"}}
     </form>
 {{end}}
@@ -30,14 +30,14 @@
     <form action="/plugin/iuserstudy?uid={{.UID}}" method="post">
         {{template "hidden_form_fields" .}}
         <!---->
-        {{template "form_scale" "How much did your knowledge of the task increase as you searched?"}}
-        {{template "form_scale" "Overall, how difficult was this task?"}}
-        {{template "form_scale" "How difficult was it for you to construct a query  for this task?"}}
-        {{template "form_scale" "How difficult was it to determine when you have a good enough query to finish the task?"}}
-        {{template "form_scale" "Overall, how satisfied are you with your query for this task?"}}
-        {{template "form_scale" "Overall, how satisfied are you with the interface used to assist you formulating the query for this task?"}}
+        {{template "form_scale" dict "Question" "How much did your knowledge of the task increase as you searched?" "Low" "no increase" "High" "a lot"}}
+        {{template "form_scale" dict "Question" "How difficult was it for you to formulate an effective query for this task?" "Low" "challenging" "High" "very easy"}}
+        {{template "form_scale" dict "Question" "How difficult was it for you to determine when you have an effective query to finish the task?" "Low" "challenging" "High" "very easy"}}
+        {{template "form_scale" dict "Question" "Overall, how satisfied are you with your query for this task?" "Low" "not satisfied" "High" "very satisfied"}}
+        {{template "form_scale" dict "Question" "Overall, how satisfied are you with the interface used to assist you formulating the query for this task?" "Low" "not satisfied" "High" "very satisfied"}}
         <!-- Added from advice from Anton. -->
-        {{template "form_scale" "How confident are you about the effectiveness of the query you formulated for the topic of the task?"}}
+        {{template "form_scale" dict "Question" "How effective do you believe the query you selected to complete task is?" "Low" "not effective" "High" "very effective"}}
+        {{template "form_scale" dict "Question" "How confident are you about the effectiveness of the query you selected to complete this task?" "Low" "not at all" "High" "very confident"}}
         {{template "form_submit"}}
     </form>
 {{end}}
@@ -47,32 +47,31 @@
         {{template "hidden_form_fields" .}}
         <!---->
         {{template "form_interface" "Which interface did you find it easier to formulate queries in?"}}
-        {{template "form_short" "Why did you find it easier?"}}
+        {{template "form_short" dict "Question" "Why did you find it easier?"}}
         {{template "form_interface" "Which interface do you think was most helpful in assisting you to formulate queries?"}}
-        {{template "form_short" "Why did you find it more helpful?"}}
+        {{template "form_short" dict "Question" "Why did you find it more helpful?"}}
         {{template "form_interface" "Which interface do you think you formulated the best query in?"}}
-        {{template "form_short" "Why do you think you formulated the best query in the interface you chose?"}}
-        {{template "form_long" "Please provide detailed feedback on your experience using both of the interfaces, including any problems you had (if any)."}}
+        {{template "form_short" dict "Question" "Why do you think you formulated the best query in the interface you chose?"}}
+        {{template "form_long" dict "Question" "Please provide detailed feedback on your experience using both of the interfaces, including any problems you had (if any)."}}
         {{template "form_submit"}}
     </form>
 {{end}}
 
 {{define "protocol1"}}
-    <h5>Title</h5>
 
-    <p>Development of type 2 diabetes mellitus in people with intermediate hyperglycaemia</p>
+    <p><b>Title:</b> Development of type 2 diabetes mellitus in people with intermediate hyperglycaemia</p>
 
-    <h5>Criteria for considering studies for this review</h5>
+    <b>Criteria for considering studies for this review</b>
 
-    <h6>Study design</h6>
+    <h5>Study design</h5>
     <p>Prospective cohort studies investigating either the overall prognosis of people with IH for developing T2DM or IH versus normoglycaemia as a prognostic factor for developing T2DM (Altman 2001).</p>
 
-    <h6>Inclusion criteria</h6>
-    <p>Types of participants:</p>
+    <h5>Inclusion criteria</h5>
+    <h6>Types of participants:</h6>
     <p>To study the overall prognosis of people with IH and regression from IH to normoglycaemia, we included cohort studies in people with IH at baseline, defined by impaired fasting glucose (IFG), impaired glucose tolerance (IGT), elevated glycosylated haemoglobin A1c (HbA1c) or any combination of these. IH had to be established by standard cut‐off values for IFG, IGT or elevated HbA1c, as defined by ADA or WHO (ADA 1997; ADA 2003; ADA 2010; ICH 1997; IEC 2009; WHO 1998; WHO/IDF 2006).</p>
     <p>To study whether IH compared to normoglycaemia is a prognostic factor for developing T2DM, we included cohort studies in people with IH and normoglycaemia at baseline.</p>
 
-    <h6>Definition of IH</h6>
+    <h5>Definition of IH</h5>
     <p>We define IH according to ADA and WHO descriptions.</p>
     <ul>
         <li>IFG5.6 threshold, usually defined as a fasting plasma glucose level between 5.6 mmol/L and 6.9 mmol/L at baseline.</li>
@@ -83,10 +82,10 @@
         <li>HbA1c6.0 threshold, usually defined as HbA1c measurement between 6.0% and 6.4% at baseline.</li>
     </ul>
 
-    <h6>Types of outcome measures</h6>
+    <h5>Types of outcome measures</h5>
     <p>Our outcome of primary interest is the diagnosis of newly developed T2DM (T2DM incidence). T2DM incidence should be diagnosed by blood glucose measurements such as fasting plasma glucose (FPG), two‐hour postload glucose (PG) or HbA1c. Diagnosis could be combined with self‐reported diabetes, physician‐diagnosed diabetes or use of antihyperglycaemic medications such as oral hypoglycaemic drugs, insulin or both.</p>
 
-    <h6>Exclusion criteria</h6>
+    <h5>Exclusion criteria</h5>
     <ul>
         <li>Intervention trials and study designs other than prospective cohort studies.</li>
         <li>People with comorbidities at baseline (e.g. people with coronary heart disease and IGT).</li>

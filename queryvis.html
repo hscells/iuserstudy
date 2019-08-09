@@ -88,6 +88,39 @@
         .vis-zoomIn {
             bottom: 46px !important;
         }
+
+        .text-sm {
+            line-height: 0.9rem;
+        }
+
+        .span-sm,
+        .a-sm {
+            font-size: 10px;
+            line-height: 0.0rem;
+        }
+
+        .author-sm {
+            line-height: 0.0rem;
+            font-size: 12px;
+            margin: 0 0 0 0;
+            padding: 0;
+            text-align: left;
+        }
+
+        .author-sm:after {
+            content: ",";
+            margin-right: 6px;
+        }
+
+        .a-sm:after {
+            content: ';';
+            margin-right: 6px;
+        }
+
+        .author-sm:last-child:after,
+        .a-sm:last-child:after {
+            content: none;
+        }
     </style>
 </head>
 <body>
@@ -128,6 +161,8 @@
                     <button class="btn btn-primary nav-height" id="btn-update-tree" v-on:click="updateTree">
                         <i class="icon icon-refresh"></i> Visualise
                     </button>
+                    <div class="divider"></div>
+                    <p>Use the query builder above to formulate your query. Click the back link in the top left corner of the interface to return to the study.</p>
                 </div>
             </div>
             <div class="panel p-2 mt-2">
@@ -147,7 +182,7 @@
                         </li>
                     </ul>
                 </div>
-                <div class="panel-body container" v-if="tabState==='history'">
+                <div class="panel-body container" v-show="tabState==='history'">
                     <div class="columns">
                         <div class="column col-8 text-italic">Query</div>
                         <div class="column col-2 text-italic">Items found</div>
@@ -168,7 +203,8 @@
                     <p v-if="!init">Results will show here once you click the Visualise button above.</p>
                     <ol v-infinite-scroll="loadNextResults" infinite-scroll-disabled="busy" infinite-scroll-distance="10">
                         <li v-for="c in results" class="pb-2">
-                            <a v-bind:href="'https://www.ncbi.nlm.nih.gov/pubmed/' + c.PMID">[[c.TI]]</a>
+                            <a v-bind:href="'https://www.ncbi.nlm.nih.gov/pubmed/' + c.PMID" target="_blank">[[c.TI]]</a>
+                            <a v-bind:href="'https://www.ncbi.nlm.nih.gov/pubmed/' + c.PMID" target="_blank" v-show="!c.TI">[no title] [[c.PMID]]</a>
                             <div class="text-left text-sm">
                                 <a v-for="author in c.AU" class="text-success author-sm"
                                    v-bind:href="'https://www.ncbi.nlm.nih.gov/pubmed/?term=%22' + author + '%22[Author]'">[[author]]</a>&nbsp;
@@ -180,14 +216,14 @@
                     </ol>
                     <div v-if="busy && ready" class="loading loading-lg"></div>
                 </div>
-                <div class="panel-body container" v-if="tabState==='seed'">
+                <div class="panel-body container" v-show="tabState==='seed'">
                     <ul>
                         {{range .Seed }}
                             <li><a href="https://www.ncbi.nlm.nih.gov/pubmed/{{ . }}" target="_blank">{{ . }}</a></li>
                         {{end}}
                     </ul>
                 </div>
-                <div class="panel-body container" v-if="tabState==='criteria'">
+                <div class="panel-body container" v-show="tabState==='criteria'">
                     {{if eq .Protocol 1}}
                         {{template "protocol1"}}
                     {{else}}
@@ -345,7 +381,7 @@
             numRet: 0,
             numRel: 0,
             numRelRet: 0,
-            textQuery: "Use the Query Builder below to formulate your query. It will show here afterwards.",
+            textQuery: "",
             textQueryDate: "",
             queryLanguage: "{{.Language}}",
             queries: [{query: "", field: "All Fields", operator: "", cqr: {}}, {query: "", field: "All Fields", operator: "and", cqr: {}}],

@@ -5,33 +5,31 @@
         {{end}}
     </ul>
 {{end}}
-{{define "task_blurb"}}
-    <p>At the end of the task please select from your query history below the query you think satisfies the search criteria (your search history will contain all the queries you formulate while completing the task).</p>
-    <b>Date restrictions</b>
-    <p>A date range filter will automatically be applied to your query. This is because the query you are formulating is for an already completed systematic review. To make a fair comparison between the query you formulate and the query reported in the systematic review, both searches must be run within the same time period.</p>
-    <div class="divider"></div>
-    <p>Use the following link to open the interface you must use to complete this task:</p>
-{{end}}
 {{define "queryvis"}}
-    <p>Please use the <b>searchrefiner</b> query visualiser to complete this task.</p>
-    {{template "task_blurb" .}}
+    <ol>
+        <li>Use the <b>searchrefiner</b> query visualiser to formulate an effective query for this task.</li>
+        <li>Choose what you believe to be the most effective query using one of the <i class="btn btn-action btn-sm icon icon-forward"></i> buttons from your history below.</li>
+    </ol>
     <a href="?uid={{.UID}}&tree" class="btn btn-primary">Open Interface<i class="icon icon-arrow-right"></i></a>
 {{end}}
 {{define "pubmed"}}
-    <p>Please use <b>PubMed</b> to complete this task.</p>
-    {{template "task_blurb" .}}
+    <ol>
+        <li>Use the <b>PubMed</b> interface to formulate an effective query for this task.</li>
+        <li>Choose what you believe to be the most effective query using one of the <i class="btn btn-action btn-sm icon icon-forward"></i> buttons from your history below.</li>
+    </ol>
     <a href="?uid={{.UID}}&pubmed" class="btn btn-primary">Open PubMed<i class="icon icon-arrow-right"></i></a>
 {{end}}
 {{define "history"}}
     <div class="panel p-2 mt-2">
         <div class="panel-header">
-            <p>Choose a query (using one of the <i class="btn btn-action btn-sm icon icon-forward"></i> buttons) from your history below as the one which you are most confident as being the most effective for this task.</p>
         </div>
         <div class="panel-body container">
             <div class="columns">
                 <div class="column col-7 text-italic">Query</div>
                 <div class="column col-2 text-italic">Items found</div>
-                <div class="column col-2 text-italic">Relevant items found</div>
+                {{ if eq .Interface 1 }}
+                    <div class="column col-2 text-italic">Relevant items found</div>
+                {{ end }}
                 <div class="column col-1 text-italic">Choice</div>
             </div>
             <div class="divider"></div>
@@ -39,7 +37,9 @@
                 <div class="columns">
                     <div class="column col-7">[[ query.QueryString ]]</div>
                     <div class="column col-2">[[ query.NumRet ]]</div>
-                    <div class="column col-2">[[ query.NumRelRet ]]</div>
+                    {{ if eq .Interface 1 }}
+                        <div class="column col-2">[[ query.NumRelRet ]]</div>
+                    {{ end }}
                     <div class="column col-1">
                         <form method="post" action="/plugin/iuserstudy">
                             <!--suppress XmlUnboundNsPrefix -->
@@ -61,13 +61,14 @@
             Please note that you are allowed to return to this page at any time, your progress will be saved automatically when you complete a step.
             Please bookmark this page for convenience.
         </p>
-        <p>TODO: Completion of this study will take approximately XXXXX.</p>
         <p>
             This study comprises eight steps in total for you to complete.
             Steps 3 and 6 will have you formulating queries in <b>PubMed syntax</b> for real systematic reviews.
             The other steps involve answering short questionnaires about your knowledge regarding the query formulation and the tasks and the information tasks.
+            The visualisation below presents the tasks you will be completing in more detail, with respect to the tasks you will be performing and the questionnaires to complete.
         </p>
-        <p>TODO: ADD IN AN IMAGE OF THIS PROCESS HERE.</p>
+        <img src="/plugin/iuserstudy/static/process.png" alt="process of the user study." style="max-width: 520px;">
+        <p>The first step in the study is the pre-study questionnaire, presented below.</p>
         <div class="panel">
             <div class="panel-header">
                 <h3>Pre-Study Questionnaire <span class="h3">(Step {{ .Step }})</span></h3>
@@ -120,7 +121,7 @@
         {{ end }}
     </div>
     <div class="divider"></div>
-    {{template "history"}}
+    {{template "history" .}}
 {{end}}
 {{define "posttask"}}
     <div class="info">
@@ -137,12 +138,8 @@
 {{define "poststudy"}}
     <div class="info">
         <h2>Post-Study Questionnaire <span class="h3">(Step {{ .Step }})</span></h2>
-        <p>Thank you for participating in this user study. You have one last questionnaire to complete.</p>
-        <p><em>Please ensure the Google Form below has been completed in full before continuing to the next step in the study. The questionnaire will say "<b>Your response has been recorded.</b>" once completed.</em></p>
         <div class="panel">
-            <div class="panel-header">
-                <h3>Post-Study Questionnaire</h3>
-            </div>
+            <div class="panel-header"></div>
             <div class="panel-body">
                 {{template "poststudy_questions" .}}
             </div>
@@ -171,7 +168,8 @@
         }
 
         .info {
-            max-width: 640px;
+            max-width: 960px;
+            margin: auto;
         }
 
         body {
@@ -195,6 +193,7 @@
 
         .form-radio {
             border: 1px solid #bbb;
+            cursor: pointer;
         }
 
         .form-flex {
@@ -218,58 +217,65 @@
         bb.log(e, "pageload", "{{.UID}}")
     })
 </script>
-<div class="container" id="app">
+<div id="app">
     <header class="navbar bg-secondary nav-height">
         <section class="navbar-section">Participant ID:<span class="label label-primary mr-1 ml-1">{{.UID}}</span></section>
     </header>
-    <section class="container" style="padding: 0 5em 5em 5em;">
-        {{template "qvus_header"}}
-        <ul class="step">
-            <li class="step-item {{ if eq .Step 1}}active{{end}}">
-                <a href="#" class="tooltip" data-tooltip="Pre-Study Questionnaire">Step 1</a>
-            </li>
-            <li class="step-item {{ if eq .Step 2}}active{{end}}">
-                <a href="#" class="tooltip" data-tooltip="Pre-Task 1 Questionnaire">Step 2</a>
-            </li>
-            <li class="step-item {{ if eq .Step 3}}active{{end}}">
-                <a href="#" class="tooltip" data-tooltip="Task 1">Step 3</a>
-            </li>
-            <li class="step-item {{ if eq .Step 4}}active{{end}}">
-                <a href="#" class="tooltip" data-tooltip="Post-Task 1 Questionnaire">Step 4</a>
-            </li>
-            <li class="step-item {{ if eq .Step 5}}active{{end}}">
-                <a href="#" class="tooltip" data-tooltip="Pre-Task 2 Questionnaire">Step 5</a>
-            </li>
-            <li class="step-item {{ if eq .Step 6}}active{{end}}">
-                <a href="#" class="tooltip" data-tooltip="Task 2">Step 6</a>
-            </li>
-            <li class="step-item {{ if eq .Step 7}}active{{end}}">
-                <a href="#" class="tooltip" data-tooltip="Post-Task 2 Questionnaire">Step 7</a>
-            </li>
-            <li class="step-item {{ if eq .Step 8}}active{{end}}">
-                <a href="#" class="tooltip" data-tooltip="Post-Study Questionnaire">Step 8</a>
-            </li>
-        </ul>
-        {{if eq .Step 1}}{{template "prestudy" .}}{{end}}
-        {{if eq .Step 2}}{{template "pretask" .}}{{end}}
-        {{if eq .Step 3}}{{template "task" .}}{{end}}
-        {{if eq .Step 4}}{{template "posttask" .}}{{end}}
-        {{ if eq .Step 5}}{{template "pretask" .}}{{end}}
-        {{ if eq .Step 6}}{{template "task" .}}{{ end }}
-        {{ if eq .Step 7}}{{template "posttask" .}}{{end}}
-        {{ if eq .Step 8}}{{template "poststudy" .}}{{end}}
-        {{ if eq .Step 9}}
-            <div class="panel col-6" style="margin: 5rem auto auto;">
-                <div class="panel-header">
-                    <h3>Thank-you for participating in this study! 😎</h3>
+    <div class="panel info mt-2 mb-2">
+        <div class="panel-header">
+            <section class="container">
+                {{template "qvus_header"}}
+                <ul class="step">
+                    <li class="step-item {{ if eq .Step 1}}active{{end}}">
+                        <a href="#" class="tooltip" data-tooltip="Pre-Study Questionnaire">Step 1</a>
+                    </li>
+                    <li class="step-item {{ if eq .Step 2}}active{{end}}">
+                        <a href="#" class="tooltip" data-tooltip="Pre-Task 1 Questionnaire">Step 2</a>
+                    </li>
+                    <li class="step-item {{ if eq .Step 3}}active{{end}}">
+                        <a href="#" class="tooltip" data-tooltip="Task 1">Step 3</a>
+                    </li>
+                    <li class="step-item {{ if eq .Step 4}}active{{end}}">
+                        <a href="#" class="tooltip" data-tooltip="Post-Task 1 Questionnaire">Step 4</a>
+                    </li>
+                    <li class="step-item {{ if eq .Step 5}}active{{end}}">
+                        <a href="#" class="tooltip" data-tooltip="Pre-Task 2 Questionnaire">Step 5</a>
+                    </li>
+                    <li class="step-item {{ if eq .Step 6}}active{{end}}">
+                        <a href="#" class="tooltip" data-tooltip="Task 2">Step 6</a>
+                    </li>
+                    <li class="step-item {{ if eq .Step 7}}active{{end}}">
+                        <a href="#" class="tooltip" data-tooltip="Post-Task 2 Questionnaire">Step 7</a>
+                    </li>
+                    <li class="step-item {{ if eq .Step 8}}active{{end}}">
+                        <a href="#" class="tooltip" data-tooltip="Post-Study Questionnaire">Step 8</a>
+                    </li>
+                </ul>
+            </section>
+        </div>
+        <div class="panel-body">
+            {{if eq .Step 1}}{{template "prestudy" .}}{{end}}
+            {{if eq .Step 2}}{{template "pretask" .}}{{end}}
+            {{if eq .Step 3}}{{template "task" .}}{{end}}
+            {{if eq .Step 4}}{{template "posttask" .}}{{end}}
+            {{if eq .Step 5}}{{template "pretask" .}}{{end}}
+            {{if eq .Step 6}}{{template "task" .}}{{ end }}
+            {{if eq .Step 7}}{{template "posttask" .}}{{end}}
+            {{if eq .Step 8}}{{template "poststudy" .}}{{end}}
+            {{if eq .Step 9}}
+                <div class="panel col-8" style="margin: 1rem auto auto;">
+                    <div class="panel-header">
+                        <h3>Thank-you for participating in this study! 😎</h3>
+                    </div>
+                    <div class="panel-body">
+                        You can now close this window. Your answers to the questionnaires and the queries you formulated have been recorded.
+                    </div>
+                    <div class="panel-footer"></div>
                 </div>
-                <div class="panel-body">
-                    You can now close this window. Your answers to the questionnaires and the queries you formulated have been recorded.
-                </div>
-                <div class="panel-footer"></div>
-            </div>
-        {{end}}
-    </section>
+            {{end}}
+        </div>
+        <div class="panel-footer"></div>
+    </div>
 </div>
 <script>
     var vm = new Vue({
