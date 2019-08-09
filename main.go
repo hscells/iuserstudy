@@ -439,7 +439,7 @@ func (IUserStudyPlugin) Details() searchrefiner.PluginDetails {
 		Title:       "Query Visualisation User Study",
 		Description: "Interface for participants in the Query Visualisation User Study",
 		Author:      "Harry Scells",
-		Version:     "02.August.2019",
+		Version:     "09.August.2019",
 		ProjectURL:  "https://ielab.io/searchrefiner",
 	}
 }
