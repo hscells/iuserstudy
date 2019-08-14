@@ -58,7 +58,7 @@ const (
 
 var (
 	db        *bolt.DB
-	logger, _ = bigbro.NewCSVLogger("query_vis_study.csv")
+	logger, _ = bigbro.NewCSVLogger("logs/bb-query_vis_study.csv")
 )
 
 var (
@@ -84,8 +84,6 @@ func handleTree(s searchrefiner.Server, c *gin.Context, date string) {
 	} else {
 		lang = "medline"
 	}
-
-	fmt.Println(rawQuery)
 
 	cq, err := compiler.Execute(rawQuery)
 	if err != nil {
