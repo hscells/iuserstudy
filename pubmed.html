@@ -105,6 +105,9 @@
                         <li class="tab-item" v-bind:class="{active: tabState==='criteria'}" v-on:click="tabState='criteria'">
                             <a href="#">Search Criteria</a>
                         </li>
+                        <li class="tab-item" v-bind:class="{active: tabState==='mesh'}" v-on:click="tabState='mesh'">
+                            <a href="#">MeSH Browser</a>
+                        </li>
                     </ul>
                 </div>
                 <div class="panel-body container" v-if="tabState==='history'">
