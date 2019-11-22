@@ -146,14 +146,20 @@
                 <div class="panel-body container" v-show="tabState==='mesh'" style="overflow:hidden;">
                     <input class="panel-body" v-show="tabState==='mesh'" style="overflow:hidden;width:100%" v-model="meshTerm">
                     <div class="panel-footer">
-                        <button class="btn btn-primary" id="btn-update-tree" v-on:click="loadMeSH">
+                        <button class="btn btn-primary" id="btn-update-tree" v-on:click="loadMeSH()">
                             <i class="icon icon-forward"></i> Search
                         </button>
                         <div class="divider"></div>
-                        <p v-if="!init">Use the search box above to input your term. Click the back link in the top left corner of the interface to return to the study.</p>
+                        <div v-if="meshBusy && !meshReady" class="loading loading-lg"></div>
+                        <p v-if="!meshInit">Use the search box above to input your term. Click the back link in the top left corner of the interface to return to the study.</p>
                         <ol>
                             <li v-for="id in ids" class="pb-2">
-                                <a v-bind:href="'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=mesh&id=' + id" target="_blank">[[id]]</a>
+                                <a href="#" v-on:click="loadEntryTerm(id)">[[id]]</a>
+                                <ul v-if="termDoc.id == id">
+                                    <li v-for="term in termDoc.termEntry">
+                                        [[term]]
+                                    </li>
+                                </ul>
                             </li>
                         </ol>
                     </div>
@@ -322,7 +328,12 @@
 
             ids: [],
             meshTerm: "",
+            meshStart: 0,
             retMax: 0,
+            termDoc: {id: "", termEntry: []},
+            meshInit: false,
+            meshBusy: false,
+            meshReady: false,
 
             numRet: 0,
             numRel: 0,
@@ -454,6 +465,30 @@
                     request.send("start=" + self.start + "&query=" + self.textQueryDate + "&lang=" + self.queryLanguage);
                 }
             },
+            // TODO: THIS IS NOT WORKING
+            loadNextMeSH: function() {
+                let self = this;
+                if (!self.meshBusy && self.meshReady && self.tabState === 'mesh') {
+                    self.meshBusy = true;
+                    let request = new XMLHttpRequest();
+                    request.addEventListener("load", function(ev) {
+                        if (ev.currentTarget.status === 200) {
+                            var xmlDoc = ev.currentTarget.responseXML;
+                            let rawValues = xmlDoc.getElementsByTagName("Id");
+                            for (i = 0; i < rawValues.length; i++) {
+                                self.ids.push(rawValues[i].childNodes[0].nodeValue);
+                            }
+                            self.meshInit = true;
+                            self.meshBusy = false;
+                            self.meshStart += 20;
+                        }
+                        
+                    });
+                    request.open("POST", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?");
+                    request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                    request.send("db=mesh" + "&sort=relevance&term=" + self.meshTerm + "&retmax=20" + "&retStart=" + self.meshStart);
+                }
+            },
             loadResults: function () {
                 let self = this;
                 let request1 = new XMLHttpRequest();
@@ -491,10 +526,40 @@
                     request.send("start=" + 0 + "&query=" + self.textQueryDate + "&lang=" + self.queryLanguage);
                 }
             },
+            loadEntryTerm: function (id) {
+                let self = this;
+                let request = new XMLHttpRequest();
+                request.addEventListener("load", function(ev) {
+                    if (ev.currentTarget.status === 200) {
+                        var textDoc = ev.currentTarget.responseText;
+                        var textArray = textDoc
+                        .replace(/\n\r/g, "\n")
+                        .replace(/\r/g, "\n")
+                        .split(/\n{2,}/g);
+                        var index = 0;
+                        var termEntryPreProc = textArray[2].split("\n");
+                        for (i = 0; i < termEntryPreProc.length; i++) {
+                            if (termEntryPreProc[i].includes(":")) {
+                                index++;
+                            }
+                        }
+                        var termEntryProc = _.slice(termEntryPreProc, index);
+                        var termEntryArray = [];
+                        for (i = 0; i < termEntryProc.length; i++) {
+                            termEntryArray[i] = _.trim(termEntryProc[i]);
+                        }
+                        self.termDoc.id = id;
+                        self.termDoc.termEntry = termEntryArray;
+                        self.meshInit = true;
+                    }
+                });
+                request.open("POST", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?");
+                request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                request.send("db=mesh" + "&id=" + id);
+            },
             loadMeSH: function () {
                 let self = this;
                 let request = new XMLHttpRequest();
-
                 request.addEventListener("load", function(ev) {
                     let ids = [];
                     if (ev.currentTarget.status === 200) {
@@ -505,15 +570,16 @@
                         }
                         retMax = xmlDoc.getElementsByTagName("Count")[0].childNodes[0].nodeValue;
                         self.retMax = retMax;
+                        self.meshInit = true;
+                        self.meshStart = rawValues.length;
                     } else {
                         ids = [0];
                     }
                     self.ids = ids;
                 });
-
                 request.open("POST", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?");
                 request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                request.send("db=mesh" + "&term=" + self.meshTerm + "&retmax=" + self.retMax);
+                request.send("db=mesh" + "&sort=relevance&term=" + self.meshTerm + "&retmax=5000");
             }
         },
         beforeMount: function () {
