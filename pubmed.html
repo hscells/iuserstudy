@@ -153,7 +153,7 @@
                         <div v-if="meshBusy && !meshReady" class="loading loading-lg"></div>
                         <p v-if="!meshInit">Use the search box above to input your term. Click the back link in the top left corner of the interface to return to the study.</p>
                         <ol>
-                            <li v-for="id in ids" class="pb-2">
+                            <li v-for="id in displayedIds" class="pb-2">
                                 <a href="#" v-on:click="loadEntryTerm(id)">[[id]]</a>
                                 <ul v-if="termDoc.id == id">
                                     <li v-for="term in termDoc.termEntry">
@@ -162,6 +162,18 @@
                                 </ul>
                             </li>
                         </ol>
+                        <!--Thanks to https://vuejsexamples.com/pagination-in-vuejs-simple-way/-->
+                        <ul class="pagination" v-if="meshInit">
+                            <li class="page-item">
+                                <button type="button" class="btn btn-primary" v-on:click="page--"> Previous </button>
+                            </li>
+                            <li class="page-item">
+                                <button type="button" class="btn btn-primary"> [[page]] </button>
+                            </li>
+                            <li class="page-item">
+                                <button type="button" v-on:click="page++" class="btn btn-primary"> Next </button>
+                            </li>
+                        </ul>
                     </div>
                 </div>
 
@@ -335,6 +347,9 @@
             meshBusy: false,
             meshReady: false,
 
+			page: 1,
+			perPage: 20,	
+
             numRet: 0,
             numRel: 0,
             numRelRet: 0,
@@ -345,6 +360,9 @@
             history: [],
         },
         computed: {
+            displayedIds() {
+			    return this.paginate(this.ids);
+		    },
             cqrQuery() {
                 var q = {};
                 for (var i = 0; i < this.queries.length; i++) {
@@ -465,30 +483,6 @@
                     request.send("start=" + self.start + "&query=" + self.textQueryDate + "&lang=" + self.queryLanguage);
                 }
             },
-            // TODO: THIS IS NOT WORKING
-            loadNextMeSH: function() {
-                let self = this;
-                if (!self.meshBusy && self.meshReady && self.tabState === 'mesh') {
-                    self.meshBusy = true;
-                    let request = new XMLHttpRequest();
-                    request.addEventListener("load", function(ev) {
-                        if (ev.currentTarget.status === 200) {
-                            var xmlDoc = ev.currentTarget.responseXML;
-                            let rawValues = xmlDoc.getElementsByTagName("Id");
-                            for (i = 0; i < rawValues.length; i++) {
-                                self.ids.push(rawValues[i].childNodes[0].nodeValue);
-                            }
-                            self.meshInit = true;
-                            self.meshBusy = false;
-                            self.meshStart += 20;
-                        }
-                        
-                    });
-                    request.open("POST", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?");
-                    request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                    request.send("db=mesh" + "&sort=relevance&term=" + self.meshTerm + "&retmax=20" + "&retStart=" + self.meshStart);
-                }
-            },
             loadResults: function () {
                 let self = this;
                 let request1 = new XMLHttpRequest();
@@ -536,8 +530,17 @@
                         .replace(/\n\r/g, "\n")
                         .replace(/\r/g, "\n")
                         .split(/\n{2,}/g);
+                        var piece = 0;
+                        var selected = 0;
+                        for (j = 0; j < textArray.length; j++) {
+                            if (!textArray[j].includes("Entry Terms:")) {
+                                piece++;
+                            } else {
+                                selected = piece;
+                            }
+                        }
                         var index = 0;
-                        var termEntryPreProc = textArray[2].split("\n");
+                        var termEntryPreProc = textArray[selected].split("\n");
                         for (i = 0; i < termEntryPreProc.length; i++) {
                             if (termEntryPreProc[i].includes(":")) {
                                 index++;
@@ -580,7 +583,14 @@
                 request.open("POST", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?");
                 request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                 request.send("db=mesh" + "&sort=relevance&term=" + self.meshTerm + "&retmax=5000");
-            }
+            },
+            paginate: function (ids) {
+                let page = this.page;
+                let perPage = this.perPage;
+                let from = (page * perPage) - perPage;
+                let to = (page * perPage);
+                return  ids.slice(from, to);
+		    },
         },
         beforeMount: function () {
             this.getHistory()
