@@ -146,16 +146,25 @@
                 <div class="panel-body container" v-show="tabState==='mesh'" style="overflow:hidden;">
                     <input class="panel-body" v-show="tabState==='mesh'" style="overflow:hidden;width:100%" v-model="meshTerm">
                     <div class="panel-footer">
-                        <button class="btn btn-primary" id="btn-update-tree" v-on:click="loadMeSH()">
+                        <button class="btn btn-primary" id="btn-update-tree" v-on:click="loadMeSH();loadMeSHTitles()">
                             <i class="icon icon-forward"></i> Search
                         </button>
                         <div class="divider"></div>
                         <div v-if="meshBusy && !meshReady" class="loading loading-lg"></div>
                         <p v-if="!meshInit">Use the search box above to input your term. Click the back link in the top left corner of the interface to return to the study.</p>
                         <ol>
-                            <li v-for="id in displayedIds" class="pb-2">
-                                <a href="#" v-on:click="loadEntryTerm(id)">[[id]]</a>
-                                <ul v-if="termDoc.id == id">
+                            <li v-if="meshInit" v-for="info in displayedMeSHInfos" class="pb-2">
+                                <a href="#" v-on:click="loadEntryTerm(info.id)">[[info.name]] ([[info.id]])</a></br>
+                                <div class="text-left text-sm">
+                                    <span><strong>Description:</strong> [[info.desc]]</span>
+                                    <span v-show="info.desc === ''"> No description.</span>
+                                </div>
+                                <div class="text-left text-sm text-gray">
+                                    <span class="span-sm" v-show="info.yIntroduced != ''"><strong>Year Introduced:</strong> [[ info.yIntroduced ]]</span>
+                                    <span class="span-sm" v-show="info.supDate != '1/01/01' && info.yIntroduced === ''"><strong>Year Introduced:</strong> [[ info.supDate ]]</span>
+                                    <span class="span-sm" v-show="info.yIntroduced === '' && info.supDate === '1/01/01'"><strong>Year Introduced:</strong> None</span>
+                                </div>
+                                <ul v-if="termDoc.id == info.id">
                                     <li v-for="term in termDoc.termEntry">
                                         [[term]]
                                     </li>
@@ -165,13 +174,13 @@
                         <!--Thanks to https://vuejsexamples.com/pagination-in-vuejs-simple-way/-->
                         <ul class="pagination" v-if="meshInit">
                             <li class="page-item">
-                                <button type="button" class="btn btn-primary" v-on:click="page--"> Previous </button>
+                                <button v-if="page > 1" type="button" class="btn btn-primary" v-on:click="page--"> Previous </button>
                             </li>
                             <li class="page-item">
                                 <button type="button" class="btn btn-primary"> [[page]] </button>
                             </li>
                             <li class="page-item">
-                                <button type="button" v-on:click="page++" class="btn btn-primary"> Next </button>
+                                <button v-if="page < meshInfo.length/20" type="button" v-on:click="page++" class="btn btn-primary"> Next </button>
                             </li>
                         </ul>
                     </div>
@@ -339,9 +348,8 @@
             date: "{{.Date}}",
 
             ids: [],
+            meshInfo: [{id:"", name:"", desc:"", yIntroduced:"", supDate:""}],
             meshTerm: "",
-            meshStart: 0,
-            retMax: 0,
             termDoc: {id: "", termEntry: []},
             meshInit: false,
             meshBusy: false,
@@ -360,8 +368,8 @@
             history: [],
         },
         computed: {
-            displayedIds() {
-			    return this.paginate(this.ids);
+            displayedMeSHInfos() {
+			    return this.paginate(this.meshInfo);
 		    },
             cqrQuery() {
                 var q = {};
@@ -572,9 +580,6 @@
                             ids[i] = rawValues[i].childNodes[0].nodeValue;
                         }
                         retMax = xmlDoc.getElementsByTagName("Count")[0].childNodes[0].nodeValue;
-                        self.retMax = retMax;
-                        self.meshInit = true;
-                        self.meshStart = rawValues.length;
                     } else {
                         ids = [0];
                     }
@@ -585,12 +590,65 @@
                 // Set retmax to 99999 simply to avoid another unneccessary API call to get the correct count
                 request.send("db=mesh" + "&sort=relevance&term=" + self.meshTerm + "&retmax=99999");
             },
-            paginate: function (ids) {
+            loadMeSHTitles: _.debounce(function(){
+                let self = this;
+                let ids = self.ids;
+                let meshInfo = [];
+                let names = [];
+                let descs = [];
+                let yIntroduceds = [];
+                let supDates = [];
+                let request = new XMLHttpRequest();
+                request.addEventListener("load", function(ev) {
+                    if (ev.currentTarget.status === 200) {
+                        var xmlDoc = ev.currentTarget.responseXML;
+                        var rawValues = xmlDoc.querySelectorAll("Item");
+                        for (i = 0; i < rawValues.length; i++) {
+                            if (rawValues[i].getAttribute("Type") == "List" && rawValues[i].getAttribute("Name") == "DS_MeshTerms") {
+                                names.push(rawValues[i].childNodes[1].innerHTML);
+                            }
+                        }
+                        for (i = 0; i < rawValues.length; i++) {
+                            if (rawValues[i].getAttribute("Type") == "String" && rawValues[i].getAttribute("Name") == "DS_ScopeNote") {
+                                descs.push(rawValues[i].innerHTML);
+                            }
+                        }
+                        for (i = 0; i < rawValues.length; i++) {
+                            if (rawValues[i].getAttribute("Type") == "Date" && rawValues[i].getAttribute("Name") == "DS_EntryDate") {
+                                var tempStr = rawValues[i].innerHTML.toString()
+                                var splitStr = tempStr.split(" ")[0];
+                                supDates.push(splitStr);
+                            }
+                        }
+                        for (i = 0; i < rawValues.length; i++) {
+                            if (rawValues[i].getAttribute("Type") == "String" && rawValues[i].getAttribute("Name") == "DS_YearIntroduced") {
+                                yIntroduceds.push(rawValues[i].innerHTML);
+                            }
+                        }
+                        for (j = 0; j < ids.length; j++) {
+                            var temp = {
+                                id: ids[j],
+                                name: names[j],
+                                yIntroduced: yIntroduceds[j],
+                                desc: descs[j],
+                                supDate: supDates[j],
+                            };
+                            meshInfo.push(temp);
+                        }
+                        self.meshInfo = meshInfo;
+                    }
+                    self.meshInit = true;
+                });
+                request.open("POST", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?");
+                request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                request.send("db=mesh&sort=relevance" + "&id=" + self.ids.toString());
+            }, 2000),
+            paginate: function (meshInfo) {
                 let page = this.page;
                 let perPage = this.perPage;
                 let from = (page * perPage) - perPage;
                 let to = (page * perPage);
-                return  ids.slice(from, to);
+                return  meshInfo.slice(from, to);
 		    },
         },
         beforeMount: function () {
