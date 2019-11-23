@@ -582,7 +582,8 @@
                 });
                 request.open("POST", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?");
                 request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                request.send("db=mesh" + "&sort=relevance&term=" + self.meshTerm + "&retmax=5000");
+                // Set retmax to 99999 simply to avoid another unneccessary API call to get the correct count
+                request.send("db=mesh" + "&sort=relevance&term=" + self.meshTerm + "&retmax=99999");
             },
             paginate: function (ids) {
                 let page = this.page;
