@@ -231,7 +231,7 @@
                         <div v-if="meshBusy && !meshReady" class="loading loading-lg"></div>
                         <ul style="list-style-type:none">
                             <li v-if="meshInit" v-for="info in displayedMeSHInfos" class="pb-2"> [[ info.rank ]].
-                                <a href="#/" v-on:click="ctrlDiv(info.id);return false"> [[ info.name ]] </a></br>
+                                <a href="#/" v-on:click="ctrlDiv(info.id)"> [[ info.name ]] </a></br>
                                 <div class="text-left text-sm">
                                     <span><strong>Description:</strong> [[ info.desc ]] </span>
                                     <span v-show="info.desc === ''"> No description</span>
@@ -445,7 +445,6 @@
             ids: [],
             meshInfo: [{rank: 0, id:"", name:"", desc:"", yIntroduced:"", supDate:"", terms:[]}],
             meshTerm: "",
-            termDoc: {id: "", termEntry: []},
             meshInit: false,
             meshBusy: false,
             meshReady: false,
