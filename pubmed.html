@@ -152,8 +152,8 @@
                         <div class="divider"></div>
                         <p v-if="!meshInit">Use the search box above to input your term. Click the back link in the top left corner of the interface to return to the study.</p>
                         <div v-if="meshBusy && !meshReady" class="loading loading-lg"></div>
-                        <ol>
-                            <li v-if="meshInit" v-for="info in displayedMeSHInfos" class="pb-2">
+                        <ul style="list-style-type:none">
+                            <li v-if="meshInit" v-for="info in displayedMeSHInfos" class="pb-2"> [[ info.rank ]].
                                 <a href="#/" v-on:click="ctrlDiv(info.id);return false"> [[ info.name ]] </a></br>
                                 <div class="text-left text-sm">
                                     <span><strong>Description:</strong> [[ info.desc ]] </span>
@@ -164,28 +164,28 @@
                                     <span class="span-sm" v-show="info.supDate != '1/01/01' && info.yIntroduced === ''"><strong>Year Introduced:</strong> [[ info.supDate ]]</span>
                                     <span class="span-sm" v-show="info.yIntroduced === '' && info.supDate === '1/01/01'"><strong>Year Introduced:</strong> Not Provided </span>
                                 </div>
-                                <ul style="display:none" v-bind:id="info.id">
+                                <ul style="display:none" v-bind:id="info.id" class="infoBox">
                                     <li v-for="term in info.terms">
                                         [[ term ]]
                                     </li>
                                 </ul>
                             </li>
-                        </ol>
+                        </ul>
                         <!--Thanks to https://vuejsexamples.com/pagination-in-vuejs-simple-way/-->
                         <ul class="pagination" v-if="meshInit">
                             <li class="page-item">
-                                <button v-if="page > 1" type="button" class="btn btn-primary" v-on:click="page--"> Previous </button>
+                                <button v-if="page > 1" type="button" class="btn btn-primary" v-on:click="page--;resetDiv()"> Previous </button>
                             </li>
                             <li class="page-item">
-                                <button type="button" v-if="page <= totalPages" class="btn btn-primary"> [[page]] / [[totalPages]] </button>
+                                <button type="button" v-if="page <= totalPages" class="btn btn-primary"> [[ page ]] / [[ totalPages ]] </button>
                             </li>
                             <li class="page-item">
-                                <button v-if="page < totalPages" type="button" v-on:click="page++" class="btn btn-primary"> Next </button>
+                                <button v-if="page < totalPages" type="button" v-on:click="page++;resetDiv()" class="btn btn-primary"> Next </button>
                             </li>
                         </ul>
-                        <div v-if="meshInit">
+                        <div v-if="meshInit && totalPages > 0">
                             Number of MeSH Terms Per Page:
-                            <input type="number" class="panel-body" v-show="tabState==='mesh'" style="overflow:hidden;width:5%" v-model="userDefPerPage">
+                            <input type="number" class="panel-body" v-show="tabState==='mesh'" style="overflow:hidden;width:10%" v-model="userDefPerPage">
                             <button class="btn btn-primary" id="btn-update-tree" v-on:click="changeNumOfTermsPerPage()">
                                 Change
                             </button>
@@ -354,7 +354,7 @@
             date: "{{.Date}}",
 
             ids: [],
-            meshInfo: [{id:"", name:"", desc:"", yIntroduced:"", supDate:"", terms:[]}],
+            meshInfo: [{rank: 0, id:"", name:"", desc:"", yIntroduced:"", supDate:"", terms:[]}],
             meshTerm: "",
             termDoc: {id: "", termEntry: []},
             meshInit: false,
@@ -420,8 +420,20 @@
             }
         },
         methods: {
+            resetDiv: function () {
+                var div = document.getElementsByClassName("infoBox");
+                for (i = 0; i < div.length; i++) {
+                    div[i].style.display = "none";
+                }
+            },
             ctrlDiv: function (id) {
                 var div = document.getElementById(id);
+                var divs = document.getElementsByClassName("infoBox");
+                for (i = 0; i < divs.length; i++) {
+                    if (divs[i].id != id) {
+                        divs[i].style.display = "none";
+                    }
+                }
                 div.style.display = div.style.display === "block" ? "none" : "block";
             },
             removeQuery: function (index) {
@@ -576,6 +588,7 @@
                         }
                         for (j = 0; j < ids.length; j++) {
                             var temp = {
+                                rank: j + 1,
                                 id: ids[j],
                                 name: names[j],
                                 yIntroduced: yIntroduceds[j],
