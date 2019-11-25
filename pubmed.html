@@ -142,9 +142,9 @@
                     </ol>
                     <div v-if="busy && ready" class="loading loading-lg"></div>
                 </div>
-
                 <div class="panel-body container" v-show="tabState==='mesh'" style="overflow:hidden;">
                     <input class="panel-body" v-show="tabState==='mesh'" style="overflow:hidden;width:100%" v-model="meshTerm">
+                    <div class="divider"></div>
                     <div class="panel-footer">
                         <button class="btn btn-primary" id="btn-update-tree" v-on:click="loadMeSH();loadMeSHTitles()">
                             <i class="icon icon-forward"></i> Search
@@ -157,12 +157,12 @@
                                 <a href="#" v-on:click="loadEntryTerm(info.id)">[[info.name]] ([[info.id]])</a></br>
                                 <div class="text-left text-sm">
                                     <span><strong>Description:</strong> [[info.desc]]</span>
-                                    <span v-show="info.desc === ''"> No description.</span>
+                                    <span v-show="info.desc === ''"> No description</span>
                                 </div>
                                 <div class="text-left text-sm text-gray">
                                     <span class="span-sm" v-show="info.yIntroduced != ''"><strong>Year Introduced:</strong> [[ info.yIntroduced ]]</span>
                                     <span class="span-sm" v-show="info.supDate != '1/01/01' && info.yIntroduced === ''"><strong>Year Introduced:</strong> [[ info.supDate ]]</span>
-                                    <span class="span-sm" v-show="info.yIntroduced === '' && info.supDate === '1/01/01'"><strong>Year Introduced:</strong> None</span>
+                                    <span class="span-sm" v-show="info.yIntroduced === '' && info.supDate === '1/01/01'"><strong>Year Introduced:</strong> Not Provided</span>
                                 </div>
                                 <ul v-if="termDoc.id == info.id">
                                     <li v-for="term in termDoc.termEntry">
@@ -185,7 +185,6 @@
                         </ul>
                     </div>
                 </div>
-
                 <div class="panel-body container" v-if="tabState==='seed'">
                     <ul>
                         {{range .Seed }}
@@ -606,22 +605,13 @@
                         for (i = 0; i < rawValues.length; i++) {
                             if (rawValues[i].getAttribute("Type") == "List" && rawValues[i].getAttribute("Name") == "DS_MeshTerms") {
                                 names.push(rawValues[i].childNodes[1].innerHTML);
-                            }
-                        }
-                        for (i = 0; i < rawValues.length; i++) {
-                            if (rawValues[i].getAttribute("Type") == "String" && rawValues[i].getAttribute("Name") == "DS_ScopeNote") {
+                            } else if (rawValues[i].getAttribute("Type") == "String" && rawValues[i].getAttribute("Name") == "DS_ScopeNote") {
                                 descs.push(rawValues[i].innerHTML);
-                            }
-                        }
-                        for (i = 0; i < rawValues.length; i++) {
-                            if (rawValues[i].getAttribute("Type") == "Date" && rawValues[i].getAttribute("Name") == "DS_EntryDate") {
+                            } else if (rawValues[i].getAttribute("Type") == "Date" && rawValues[i].getAttribute("Name") == "DS_EntryDate") {
                                 var tempStr = rawValues[i].innerHTML.toString()
                                 var splitStr = tempStr.split(" ")[0];
                                 supDates.push(splitStr);
-                            }
-                        }
-                        for (i = 0; i < rawValues.length; i++) {
-                            if (rawValues[i].getAttribute("Type") == "String" && rawValues[i].getAttribute("Name") == "DS_YearIntroduced") {
+                            } else if (rawValues[i].getAttribute("Type") == "String" && rawValues[i].getAttribute("Name") == "DS_YearIntroduced") {
                                 yIntroduceds.push(rawValues[i].innerHTML);
                             }
                         }
@@ -642,10 +632,11 @@
                 request.open("POST", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?");
                 request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                 request.send("db=mesh&sort=relevance" + "&id=" + self.ids.toString());
-            }, 2000),
+            }, 1000),
             paginate: function (meshInfo) {
-                let page = this.page;
-                let perPage = this.perPage;
+                let self = this;
+                let page = self.page;
+                let perPage = self.perPage;
                 let from = (page * perPage) - perPage;
                 let to = (page * perPage);
                 return  meshInfo.slice(from, to);

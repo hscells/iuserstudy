@@ -219,6 +219,49 @@
                     </ol>
                     <div v-if="busy && ready" class="loading loading-lg"></div>
                 </div>
+                <div class="panel-body container" v-show="tabState==='mesh'" style="overflow:hidden;">
+                    <input class="panel-body" v-show="tabState==='mesh'" style="overflow:hidden;width:100%" v-model="meshTerm">
+                    <div class="divider"></div>
+                    <div class="panel-footer">
+                        <button class="btn btn-primary" id="btn-update-tree" v-on:click="loadMeSH();loadMeSHTitles()">
+                            <i class="icon icon-forward"></i> Search
+                        </button>
+                        <div class="divider"></div>
+                        <div v-if="meshBusy && !meshReady" class="loading loading-lg"></div>
+                        <p v-if="!meshInit">Use the search box above to input your term. Click the back link in the top left corner of the interface to return to the study.</p>
+                        <ol>
+                            <li v-if="meshInit" v-for="info in displayedMeSHInfos" class="pb-2">
+                                <a href="#" v-on:click="loadEntryTerm(info.id)">[[info.name]] ([[info.id]])</a></br>
+                                <div class="text-left text-sm">
+                                    <span><strong>Description:</strong> [[info.desc]]</span>
+                                    <span v-show="info.desc === ''"> No description</span>
+                                </div>
+                                <div class="text-left text-sm text-gray">
+                                    <span class="span-sm" v-show="info.yIntroduced != ''"><strong>Year Introduced:</strong> [[ info.yIntroduced ]]</span>
+                                    <span class="span-sm" v-show="info.supDate != '1/01/01' && info.yIntroduced === ''"><strong>Year Introduced:</strong> [[ info.supDate ]]</span>
+                                    <span class="span-sm" v-show="info.yIntroduced === '' && info.supDate === '1/01/01'"><strong>Year Introduced:</strong> Not Provided</span>
+                                </div>
+                                <ul v-if="termDoc.id == info.id">
+                                    <li v-for="term in termDoc.termEntry">
+                                        [[term]]
+                                    </li>
+                                </ul>
+                            </li>
+                        </ol>
+                        <!--Thanks to https://vuejsexamples.com/pagination-in-vuejs-simple-way/-->
+                        <ul class="pagination" v-if="meshInit">
+                            <li class="page-item">
+                                <button v-if="page > 1" type="button" class="btn btn-primary" v-on:click="page--"> Previous </button>
+                            </li>
+                            <li class="page-item">
+                                <button type="button" class="btn btn-primary"> [[page]] </button>
+                            </li>
+                            <li class="page-item">
+                                <button v-if="page < meshInfo.length/20" type="button" v-on:click="page++" class="btn btn-primary"> Next </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
                 <div class="panel-body container" v-show="tabState==='seed'">
                     <ul>
                         {{range .Seed }}
@@ -392,6 +435,17 @@
             tabState: "results",
             date: "{{.Date}}",
 
+            ids: [],
+            meshInfo: [{id:"", name:"", desc:"", yIntroduced:"", supDate:""}],
+            meshTerm: "",
+            termDoc: {id: "", termEntry: []},
+            meshInit: false,
+            meshBusy: false,
+            meshReady: false,
+
+			page: 1,
+			perPage: 20,	
+
             results: [],
             total: 0,
             busy: false,
@@ -401,6 +455,9 @@
             start: 0,
         },
         computed: {
+            displayedMeSHInfos() {
+			    return this.paginate(this.meshInfo);
+		    },
             cqrQuery() {
                 var q = {};
                 for (var i = 0; i < this.queries.length; i++) {
@@ -574,7 +631,121 @@
                     request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                     request.send("start=" + 0 + "&query=" + self.textQueryDate + "&lang=" + self.queryLanguage);
                 }
-            }
+            },
+            loadEntryTerm: function (id) {
+                let self = this;
+                let request = new XMLHttpRequest();
+                request.addEventListener("load", function(ev) {
+                    if (ev.currentTarget.status === 200) {
+                        var textDoc = ev.currentTarget.responseText;
+                        var textArray = textDoc
+                        .replace(/\n\r/g, "\n")
+                        .replace(/\r/g, "\n")
+                        .split(/\n{2,}/g);
+                        var piece = 0;
+                        var selected = 0;
+                        for (j = 0; j < textArray.length; j++) {
+                            if (!textArray[j].includes("Entry Terms:")) {
+                                piece++;
+                            } else {
+                                selected = piece;
+                            }
+                        }
+                        var index = 0;
+                        var termEntryPreProc = textArray[selected].split("\n");
+                        for (i = 0; i < termEntryPreProc.length; i++) {
+                            if (termEntryPreProc[i].includes(":")) {
+                                index++;
+                            }
+                        }
+                        var termEntryProc = _.slice(termEntryPreProc, index);
+                        var termEntryArray = [];
+                        for (i = 0; i < termEntryProc.length; i++) {
+                            termEntryArray[i] = _.trim(termEntryProc[i]);
+                        }
+                        self.termDoc.id = id;
+                        self.termDoc.termEntry = termEntryArray;
+                        self.meshInit = true;
+                    }
+                });
+                request.open("POST", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?");
+                request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                request.send("db=mesh" + "&id=" + id);
+            },
+            loadMeSH: function () {
+                let self = this;
+                let request = new XMLHttpRequest();
+                request.addEventListener("load", function(ev) {
+                    let ids = [];
+                    if (ev.currentTarget.status === 200) {
+                        var xmlDoc = ev.currentTarget.responseXML;
+                        let rawValues = xmlDoc.getElementsByTagName("Id");
+                        for (i = 0; i < rawValues.length; i++) {
+                            ids[i] = rawValues[i].childNodes[0].nodeValue;
+                        }
+                        retMax = xmlDoc.getElementsByTagName("Count")[0].childNodes[0].nodeValue;
+                    } else {
+                        ids = [0];
+                    }
+                    self.ids = ids;
+                });
+                request.open("POST", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?");
+                request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                // Set retmax to 99999 simply to avoid another unneccessary API call to get the correct count
+                request.send("db=mesh" + "&sort=relevance&term=" + self.meshTerm + "&retmax=99999");
+            },
+            loadMeSHTitles: _.debounce(function(){
+                let self = this;
+                let ids = self.ids;
+                let meshInfo = [];
+                let names = [];
+                let descs = [];
+                let yIntroduceds = [];
+                let supDates = [];
+                let request = new XMLHttpRequest();
+                request.addEventListener("load", function(ev) {
+                    if (ev.currentTarget.status === 200) {
+                        var xmlDoc = ev.currentTarget.responseXML;
+                        var rawValues = xmlDoc.querySelectorAll("Item");
+                        for (i = 0; i < rawValues.length; i++) {
+                            if (rawValues[i].getAttribute("Type") == "List" && rawValues[i].getAttribute("Name") == "DS_MeshTerms") {
+                                names.push(rawValues[i].childNodes[1].innerHTML);
+                            } else if (rawValues[i].getAttribute("Type") == "String" && rawValues[i].getAttribute("Name") == "DS_ScopeNote") {
+                                descs.push(rawValues[i].innerHTML);
+                            } else if (rawValues[i].getAttribute("Type") == "Date" && rawValues[i].getAttribute("Name") == "DS_EntryDate") {
+                                var tempStr = rawValues[i].innerHTML.toString()
+                                var splitStr = tempStr.split(" ")[0];
+                                supDates.push(splitStr);
+                            } else if (rawValues[i].getAttribute("Type") == "String" && rawValues[i].getAttribute("Name") == "DS_YearIntroduced") {
+                                yIntroduceds.push(rawValues[i].innerHTML);
+                            }
+                        }
+                        for (j = 0; j < ids.length; j++) {
+                            var temp = {
+                                id: ids[j],
+                                name: names[j],
+                                yIntroduced: yIntroduceds[j],
+                                desc: descs[j],
+                                supDate: supDates[j],
+                            };
+                            meshInfo.push(temp);
+                        }
+                        self.meshInfo = meshInfo;
+                    }
+                    self.meshInit = true;
+                });
+                request.open("POST", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?");
+                request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                request.send("db=mesh&sort=relevance" + "&id=" + self.ids.toString());
+            }, 1300),
+            paginate: function (meshInfo) {
+                let self = this;
+                let page = self.page;
+                let perPage = self.perPage;
+                let from = (page * perPage) - perPage;
+                let to = (page * perPage);
+                return  meshInfo.slice(from, to);
+		    }
         },
         beforeMount: function () {
             this.getHistory()
