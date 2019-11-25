@@ -718,6 +718,7 @@
                 let self = this;
                 let request = new XMLHttpRequest();
                 self.meshBusy = true;
+                self.meshReady = false;
                 request.addEventListener("load", function(ev) {
                     let ids = [];
                     if (ev.currentTarget.status === 200) {
