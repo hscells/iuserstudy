@@ -223,7 +223,7 @@
                     <input class="panel-body" v-show="tabState==='mesh'" style="overflow:hidden;width:100%" v-model="meshTerm">
                     <div class="divider"></div>
                     <div class="panel-footer">
-                        <button class="btn btn-primary" id="btn-update-tree" v-on:click="loadMeSH();loadMeSHTitles()">
+                        <button class="btn btn-primary" id="btn-update-tree" v-on:click="loadMeSH()">
                             <i class="icon icon-forward"></i> Search
                         </button>
                         <div class="divider"></div>
@@ -674,33 +674,9 @@
                 request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                 request.send("db=mesh" + "&id=" + id);
             },
-            // load MeSH IDs and save for later processing
-            loadMeSH: function () {
+            // This action is triggered after the loadMeSH
+            loadMeSHTitles: function(ids){
                 let self = this;
-                let request = new XMLHttpRequest();
-                request.addEventListener("load", function(ev) {
-                    let ids = [];
-                    if (ev.currentTarget.status === 200) {
-                        var xmlDoc = ev.currentTarget.responseXML;
-                        let rawValues = xmlDoc.getElementsByTagName("Id");
-                        for (i = 0; i < rawValues.length; i++) {
-                            ids[i] = rawValues[i].childNodes[0].nodeValue;
-                        }
-                    } else {
-                        ids = [0];
-                        self.meshInit = false;
-                    }
-                    self.ids = ids;
-                });
-                request.open("POST", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?");
-                request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                // Set retmax to 9999999 simply to avoid another unneccessary API call to get the correct count
-                request.send("db=mesh" + "&sort=relevance&term=" + self.meshTerm + "&retmax=9999999");
-            },
-            // This action is performed along with the loadMeSH, use debounce to delay this action until the loadMeSH get the ids
-            loadMeSHTitles: _.debounce(function(){
-                let self = this;
-                let ids = self.ids;
                 let meshInfo = [];
                 let names = [];
                 let descs = [];
@@ -737,11 +713,38 @@
                         self.meshInfo = meshInfo;
                     }
                     self.meshInit = true;
+                    self.meshReady = true;
+                    self.meshBusy = false;
                 });
                 request.open("POST", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?");
                 request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                 request.send("db=mesh&sort=relevance" + "&id=" + self.ids.toString());
-            }, 1300),
+            },
+            // load MeSH IDs and save for later processing then load MeSH Term information by calling loadMeSHTitles
+            loadMeSH: function () {
+                let self = this;
+                let request = new XMLHttpRequest();
+                self.meshBusy = true;
+                request.addEventListener("load", function(ev) {
+                    let ids = [];
+                    if (ev.currentTarget.status === 200) {
+                        var xmlDoc = ev.currentTarget.responseXML;
+                        let rawValues = xmlDoc.getElementsByTagName("Id");
+                        for (i = 0; i < rawValues.length; i++) {
+                            ids[i] = rawValues[i].childNodes[0].nodeValue;
+                        }
+                    } else {
+                        ids = [0];
+                        self.meshInit = false;
+                    }
+                    self.ids = ids;
+                    self.loadMeSHTitles(ids);
+                });
+                request.open("POST", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?");
+                request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                // Set retmax to 9999999 simply to avoid another unneccessary API call to get the correct count
+                request.send("db=mesh" + "&sort=relevance&term=" + self.meshTerm + "&retmax=9999999");
+            },
             // Create pagination
             paginate: function (meshInfo) {
                 let self = this;
