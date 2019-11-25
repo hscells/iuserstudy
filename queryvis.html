@@ -251,13 +251,13 @@
                         <!--Thanks to https://vuejsexamples.com/pagination-in-vuejs-simple-way/-->
                         <ul class="pagination" v-if="meshInit">
                             <li class="page-item">
-                                <button v-if="page > 1" type="button" class="btn btn-primary" v-on:click="page--;resetDiv()"> Previous </button>
+                                <button type="button" class="btn btn-primary" v-on:click="resetDiv('p')"> Previous </button>
                             </li>
                             <li class="page-item">
-                                <button type="button" v-if="page <= totalPages" class="btn btn-primary"> [[ page ]] / [[ totalPages ]] </button>
+                                <button type="button" v-if="page <= totalPages" class="btn btn-primary"> <input v-bind:value="page" style="width:20%;height:100%" v-model="uDefPage" v-on:keyup="jumpPage" /> / [[ totalPages ]] </button>
                             </li>
                             <li class="page-item">
-                                <button v-if="page < totalPages" type="button" v-on:click="page++;resetDiv()" class="btn btn-primary"> Next </button>
+                                <button type="button" v-on:click="resetDiv('n')" class="btn btn-primary"> Next </button>
                             </li>
                         </ul>
                         <div v-if="meshInit && totalPages > 0">
@@ -450,9 +450,10 @@
             meshReady: false,
 
 			page: 1,
-			perPage: 10,
+			perPage: 5,
             totalPages: 0,
-            userDefPerPage: 10,
+            userDefPerPage: 5,
+            uDefPage: 1,
 
             results: [],
             total: 0,
@@ -506,12 +507,30 @@
                 return JSON.stringify(q)
             }
         },
-
         methods: {
-            resetDiv: function () {
+            jumpPage: function (e) {
+                if (e.keyCode === 13) {
+                    if (this.uDefPage != this.page && this.uDefPage != '' && this.uDefPage != undefined && this.uDefPage > 0 && this.uDefPage <= this.totalPages) {
+                        this.page = this.uDefPage;
+                    }
+                }
+            },
+            resetDiv: function (direction) {
+                let self = this;
                 var div = document.getElementsByClassName("infoBox");
                 for (i = 0; i < div.length; i++) {
                     div[i].style.display = "none";
+                }
+                if (direction === 'p') {
+                    if (self.page > 1 && self.uDefPage > 1) {
+                        self.page--;
+                        self.uDefPage--;
+                    }
+                } else if (direction === 'n') {
+                    if (self.page < self.totalPages && self.uDefPage < self.totalPages) {
+                        self.page++;
+                        self.uDefPage++;
+                    }
                 }
             },
             ctrlDiv: function (id) {
@@ -718,6 +737,13 @@
                 let request = new XMLHttpRequest();
                 self.meshBusy = true;
                 self.meshReady = false;
+                self.ids = [];
+                self.meshInfo = [{rank: 0, id:"", name:"", desc:"", yIntroduced:"", supDate:"", terms:[]}];
+                self.page = 1;
+                self.uDefPage = 1;
+                self.totalPages = 0;
+                self.meshInit = false;
+                self.userDefPerPage = 5;
                 request.addEventListener("load", function(ev) {
                     let ids = [];
                     if (ev.currentTarget.status === 200) {
@@ -749,6 +775,8 @@
                 } else {
                     self.perPage = 10;
                 }
+                self.page = 1;
+                self.uDefPage = 1;
             },
             // Create pagination
             paginate: function (meshInfo) {
