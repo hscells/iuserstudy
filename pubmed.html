@@ -150,23 +150,23 @@
                             <i class="icon icon-forward"></i> Search
                         </button>
                         <div class="divider"></div>
-                        <div v-if="meshBusy && !meshReady" class="loading loading-lg"></div>
                         <p v-if="!meshInit">Use the search box above to input your term. Click the back link in the top left corner of the interface to return to the study.</p>
+                        <div v-if="meshBusy && !meshReady" class="loading loading-lg"></div>
                         <ol>
                             <li v-if="meshInit" v-for="info in displayedMeSHInfos" class="pb-2">
-                                <a href="#" v-on:click="loadEntryTerm(info.id)">[[info.name]]</a></br>
+                                <a href="#/" v-on:click="ctrlDiv(info.id);return false"> [[ info.name ]] </a></br>
                                 <div class="text-left text-sm">
-                                    <span><strong>Description:</strong> [[info.desc]]</span>
+                                    <span><strong>Description:</strong> [[ info.desc ]] </span>
                                     <span v-show="info.desc === ''"> No description</span>
                                 </div>
                                 <div class="text-left text-sm text-gray">
                                     <span class="span-sm" v-show="info.yIntroduced != ''"><strong>Year Introduced:</strong> [[ info.yIntroduced ]]</span>
                                     <span class="span-sm" v-show="info.supDate != '1/01/01' && info.yIntroduced === ''"><strong>Year Introduced:</strong> [[ info.supDate ]]</span>
-                                    <span class="span-sm" v-show="info.yIntroduced === '' && info.supDate === '1/01/01'"><strong>Year Introduced:</strong> Not Provided</span>
+                                    <span class="span-sm" v-show="info.yIntroduced === '' && info.supDate === '1/01/01'"><strong>Year Introduced:</strong> Not Provided </span>
                                 </div>
-                                <ul v-if="termDoc.id == info.id">
-                                    <li v-for="term in termDoc.termEntry">
-                                        [[term]]
+                                <ul style="display:none" v-bind:id="info.id">
+                                    <li v-for="term in info.terms">
+                                        [[ term ]]
                                     </li>
                                 </ul>
                             </li>
@@ -354,7 +354,7 @@
             date: "{{.Date}}",
 
             ids: [],
-            meshInfo: [{id:"", name:"", desc:"", yIntroduced:"", supDate:""}],
+            meshInfo: [{id:"", name:"", desc:"", yIntroduced:"", supDate:"", terms:[]}],
             meshTerm: "",
             termDoc: {id: "", termEntry: []},
             meshInit: false,
@@ -420,6 +420,10 @@
             }
         },
         methods: {
+            ctrlDiv: function (id) {
+                var div = document.getElementById(id);
+                div.style.display = div.style.display === "block" ? "none" : "block";
+            },
             removeQuery: function (index) {
                 this.queries.splice(index, 1)
                 if (this.queries.length == 0) {
@@ -536,47 +540,6 @@
                     request.send("start=" + 0 + "&query=" + self.textQueryDate + "&lang=" + self.queryLanguage);
                 }
             },
-            // load entry terms from XML response for each MeSH ID passed in
-            loadEntryTerm: function (id) {
-                let self = this;
-                let request = new XMLHttpRequest();
-                request.addEventListener("load", function(ev) {
-                    if (ev.currentTarget.status === 200) {
-                        var textDoc = ev.currentTarget.responseText;
-                        var textArray = textDoc
-                        .replace(/\n\r/g, "\n")
-                        .replace(/\r/g, "\n")
-                        .split(/\n{2,}/g);
-                        var piece = 0;
-                        var selected = 0;
-                        for (j = 0; j < textArray.length; j++) {
-                            if (!textArray[j].includes("Entry Terms:")) {
-                                piece++;
-                            } else {
-                                selected = piece;
-                            }
-                        }
-                        var index = 0;
-                        var termEntryPreProc = textArray[selected].split("\n");
-                        for (i = 0; i < termEntryPreProc.length; i++) {
-                            if (termEntryPreProc[i].includes(":")) {
-                                index++;
-                            }
-                        }
-                        var termEntryProc = _.slice(termEntryPreProc, index);
-                        var termEntryArray = [];
-                        for (i = 0; i < termEntryProc.length; i++) {
-                            termEntryArray[i] = _.trim(termEntryProc[i]);
-                        }
-                        self.termDoc.id = id;
-                        self.termDoc.termEntry = termEntryArray;
-                        self.meshInit = true;
-                    }
-                });
-                request.open("POST", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?");
-                request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                request.send("db=mesh" + "&id=" + id);
-            },
             // This action is triggered after the loadMeSH
             loadMeSHTitles: function(ids){
                 let self = this;
@@ -585,6 +548,7 @@
                 let descs = [];
                 let yIntroduceds = [];
                 let supDates = [];
+                let entryTerms = [];
                 let request = new XMLHttpRequest();
                 request.addEventListener("load", function(ev) {
                     if (ev.currentTarget.status === 200) {
@@ -593,6 +557,13 @@
                         for (i = 0; i < rawValues.length; i++) {
                             if (rawValues[i].getAttribute("Type") == "List" && rawValues[i].getAttribute("Name") == "DS_MeshTerms") {
                                 names.push(rawValues[i].childNodes[1].innerHTML);
+                                var terms = [];
+                                for (k = 2; k < rawValues[i].childNodes.length; k++) {
+                                    if (rawValues[i].childNodes[k].innerHTML != undefined) {
+                                        terms.push(rawValues[i].childNodes[k].innerHTML);
+                                    }
+                                }
+                                entryTerms.push(terms);
                             } else if (rawValues[i].getAttribute("Type") == "String" && rawValues[i].getAttribute("Name") == "DS_ScopeNote") {
                                 descs.push(rawValues[i].innerHTML);
                             } else if (rawValues[i].getAttribute("Type") == "Date" && rawValues[i].getAttribute("Name") == "DS_EntryDate") {
@@ -610,6 +581,7 @@
                                 yIntroduced: yIntroduceds[j],
                                 desc: descs[j],
                                 supDate: supDates[j],
+                                terms: entryTerms[j]
                             };
                             meshInfo.push(temp);
                         }
