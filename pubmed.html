@@ -177,10 +177,10 @@
                                 <button v-if="page > 1" type="button" class="btn btn-primary" v-on:click="page--"> Previous </button>
                             </li>
                             <li class="page-item">
-                                <button type="button" class="btn btn-primary"> [[page]] / [[totalPages]] </button>
+                                <button type="button" v-if="page <= totalPages" class="btn btn-primary"> [[page]] / [[totalPages]] </button>
                             </li>
                             <li class="page-item">
-                                <button v-if="page < meshInfo.length/20" type="button" v-on:click="page++" class="btn btn-primary"> Next </button>
+                                <button v-if="page < totalPages" type="button" v-on:click="page++" class="btn btn-primary"> Next </button>
                             </li>
                         </ul>
                     </div>
@@ -528,6 +528,7 @@
                     request.send("start=" + 0 + "&query=" + self.textQueryDate + "&lang=" + self.queryLanguage);
                 }
             },
+            // load entry terms from XML response for each MeSH ID passed in
             loadEntryTerm: function (id) {
                 let self = this;
                 let request = new XMLHttpRequest();
@@ -568,6 +569,7 @@
                 request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                 request.send("db=mesh" + "&id=" + id);
             },
+            // load MeSH IDs and save for later processing
             loadMeSH: function () {
                 let self = this;
                 let request = new XMLHttpRequest();
@@ -579,17 +581,18 @@
                         for (i = 0; i < rawValues.length; i++) {
                             ids[i] = rawValues[i].childNodes[0].nodeValue;
                         }
-                        retMax = xmlDoc.getElementsByTagName("Count")[0].childNodes[0].nodeValue;
                     } else {
                         ids = [0];
+                        self.meshInit = false;
                     }
                     self.ids = ids;
                 });
                 request.open("POST", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?");
                 request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                // Set retmax to 99999 simply to avoid another unneccessary API call to get the correct count
-                request.send("db=mesh" + "&sort=relevance&term=" + self.meshTerm + "&retmax=99999");
+                // Set retmax to 9999999 simply to avoid another unneccessary API call to get the correct count
+                request.send("db=mesh" + "&sort=relevance&term=" + self.meshTerm + "&retmax=9999999");
             },
+            // This action is performed along with the loadMeSH, use debounce to delay this action until the loadMeSH get the ids
             loadMeSHTitles: _.debounce(function(){
                 let self = this;
                 let ids = self.ids;
@@ -633,7 +636,8 @@
                 request.open("POST", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?");
                 request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                 request.send("db=mesh&sort=relevance" + "&id=" + self.ids.toString());
-            }, 1000),
+            }, 1300),
+            // Create pagination
             paginate: function (meshInfo) {
                 let self = this;
                 let page = self.page;
