@@ -181,7 +181,7 @@
                             <a href="#">Search Criteria</a>
                         </li>
                         <li class="tab-item" v-bind:class="{active: tabState==='mesh'}" v-on:click="tabState='mesh'">
-                            <a href="#">MeSH Browser</a>
+                            <a href="#" class="badge" v-bind:data-badge="ids.length">MeSH Browser</a>
                         </li>
                     </ul>
                 </div>
@@ -254,7 +254,7 @@
                                 <button v-if="page > 1" type="button" class="btn btn-primary" v-on:click="page--"> Previous </button>
                             </li>
                             <li class="page-item">
-                                <button type="button" class="btn btn-primary"> [[page]] </button>
+                                <button type="button" class="btn btn-primary"> [[page]] / [[totalPages]] </button>
                             </li>
                             <li class="page-item">
                                 <button v-if="page < meshInfo.length/20" type="button" v-on:click="page++" class="btn btn-primary"> Next </button>
@@ -444,7 +444,8 @@
             meshReady: false,
 
 			page: 1,
-			perPage: 20,	
+			perPage: 20,
+            totalPages: 0,
 
             results: [],
             total: 0,
@@ -741,6 +742,7 @@
             paginate: function (meshInfo) {
                 let self = this;
                 let page = self.page;
+                self.totalPages = Math.ceil(meshInfo.length/20);
                 let perPage = self.perPage;
                 let from = (page * perPage) - perPage;
                 let to = (page * perPage);
