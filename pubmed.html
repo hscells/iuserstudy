@@ -145,6 +145,7 @@
                 <div class="panel-body container" v-show="tabState==='mesh'" style="overflow:hidden;">
                     <input class="panel-body" v-show="tabState==='mesh'" style="overflow:hidden;width:100%" v-model="meshTerm" id="meshInputBox" v-on:keyup="loadMeSH">
                     <div class="divider"></div>
+                    <a href="#" v-on:click="resetMeSHBrowser()">Clear All</a>
                     <div class="panel-footer">
                         <button class="btn btn-primary" id="btn-update-tree" v-on:click="loadMeSH()">
                             <i class="icon icon-forward"></i> Search
@@ -522,6 +523,22 @@
             }, 300),
             clear: function () {
                 this.queries = [{query: "", field: "All Fields", operator: "", cqr: {}}, {query: "", field: "All Fields", operator: "and", cqr: {}}];
+            },
+            resetMeSHBrowser: function () {
+                this.meshInfo = [{rank: 0, id:"", name:"", desc:"", yIntroduced:"", supDate:"", terms:[]}];
+                this.ids = [];
+                this.meshTerm = "";
+                this.meshInit = false;
+                this.meshReady = false;
+                this.meshBusy = false;
+                this.page = 1;
+			    this.perPage = 5;
+                this.totalPages = 0;
+                this.userDefPerPage = 5;
+                this.uDefPage = 1;
+                this.meshSearchStart = 0;
+                this.meshSearchEnd = 0;
+                this.timeSpend = 0;
             },
             loadNextResults: function () {
                 let self = this;
