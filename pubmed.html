@@ -105,7 +105,7 @@
                         <li class="tab-item" v-bind:class="{active: tabState==='criteria'}" v-on:click="tabState='criteria'">
                             <a href="#">Search Criteria</a>
                         </li>
-                        <li class="tab-item" v-bind:class="{active: tabState==='mesh'}" v-on:click="tabState='mesh'">
+                        <li class="tab-item" v-bind:class="{active: tabState==='mesh'}" v-on:click="tabState='mesh';meshSearchBoxFocus()">
                             <a href="#" class="badge" v-bind:data-badge="ids.length">MeSH Browser</a>
                         </li>
                     </ul>
@@ -143,7 +143,7 @@
                     <div v-if="busy && ready" class="loading loading-lg"></div>
                 </div>
                 <div class="panel-body container" v-show="tabState==='mesh'" style="overflow:hidden;">
-                    <input class="panel-body" v-show="tabState==='mesh'" style="overflow:hidden;width:100%" v-model="meshTerm">
+                    <input class="panel-body" v-show="tabState==='mesh'" style="overflow:hidden;width:100%" v-model="meshTerm" id="meshInputBox" v-on:keyup="loadMeSH">
                     <div class="divider"></div>
                     <div class="panel-footer">
                         <button class="btn btn-primary" id="btn-update-tree" v-on:click="loadMeSH()">
@@ -152,6 +152,9 @@
                         <div class="divider"></div>
                         <p v-if="!meshInit">Use the search box above to input your term. Click the back link in the top left corner of the interface to return to the study.</p>
                         <div v-if="meshBusy && !meshReady" class="loading loading-lg"></div>
+                        <div class="text-left text-sm text-gray">
+                            <span class="span-sm" v-if="meshInit" style="font-size:100%"> Total <strong>[[ ids.length ]]</strong> results found (<strong>[[ timeSpend ]]</strong> seconds)</span>
+                        </div>
                         <ul style="list-style-type:none">
                             <li v-if="meshInit" v-for="info in displayedMeSHInfos" class="pb-2"> [[ info.rank ]].
                                 <a href="#/" v-on:click="ctrlDiv(info.id)"> [[ info.name ]] </a></br>
@@ -174,18 +177,18 @@
                         <!--Thanks to https://vuejsexamples.com/pagination-in-vuejs-simple-way/-->
                         <ul class="pagination" v-if="meshInit">
                             <li class="page-item">
-                                <button type="button" class="btn btn-primary" v-on:click="resetDiv('p')"> Previous </button>
+                                <button v-if="ids.length != 0" type="button" class="btn btn-primary" v-on:click="resetDiv('p')"> Previous </button>
                             </li>
                             <li class="page-item">
-                                <button type="button" v-if="page <= totalPages" class="btn btn-primary"> <input v-bind:value="page" style="width:20%;height:100%" v-model="uDefPage" v-on:keyup="jumpPage" /> / [[ totalPages ]] </button>
+                                <button type="button" v-if="page <= totalPages" class="btn btn-primary"> <input v-bind:value="page" style="width:20%;height:100%;text-align:center" v-model="uDefPage" v-on:keyup="jumpPage" /> / [[ totalPages ]] </button>
                             </li>
                             <li class="page-item">
-                                <button type="button" v-on:click="resetDiv('n')" class="btn btn-primary"> Next </button>
+                                <button v-if="ids.length != 0" type="button" v-on:click="resetDiv('n')" class="btn btn-primary"> Next </button>
                             </li>
                         </ul>
                         <div v-if="meshInit && totalPages > 0">
                             Number of MeSH Terms Per Page:
-                            <input type="number" class="panel-body" v-show="tabState==='mesh'" style="overflow:hidden;width:10%" v-model="userDefPerPage">
+                            <input type="number" class="panel-body" v-show="tabState==='mesh'" style="overflow:hidden;width:10%" v-model="userDefPerPage" v-on:keyup="changeNumOfTermsPerPage">
                             <button class="btn btn-primary" id="btn-update-tree" v-on:click="changeNumOfTermsPerPage()">
                                 Change
                             </button>
@@ -353,6 +356,7 @@
             tabState: "results",
             date: "{{.Date}}",
 
+            // handle MeSH browser
             ids: [],
             meshInfo: [{rank: 0, id:"", name:"", desc:"", yIntroduced:"", supDate:"", terms:[]}],
             meshTerm: "",
@@ -360,11 +364,17 @@
             meshReady: false,
             meshBusy: false,
 
+            // handle pagination
 			page: 1,
 			perPage: 5,
             totalPages: 0,
             userDefPerPage: 5,
             uDefPage: 1,
+
+            // handle time spend count
+            meshSearchStart: 0,
+            meshSearchEnd: 0,
+            timeSpend: 0,
 
             numRet: 0,
             numRel: 0,
@@ -420,6 +430,9 @@
             }
         },
         methods: {
+            meshSearchBoxFocus: function() {
+                document.getElementById("meshInputBox").focus();
+            },
             jumpPage: function (e) {
                 if (e.keyCode === 13) {
                     if (this.uDefPage != this.page && this.uDefPage != '' && this.uDefPage != undefined && this.uDefPage > 0 && this.uDefPage <= this.totalPages) {
@@ -622,57 +635,64 @@
                     self.meshInit = true;
                     self.meshReady = true;
                     self.meshBusy = false;
+                    self.meshSearchEnd = new Date().getTime();
+                    self.timeSpend = (self.meshSearchEnd - self.meshSearchStart)/1000;
                 });
                 request.open("POST", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?");
                 request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                 request.send("db=mesh&sort=relevance" + "&id=" + self.ids.toString());
             },
             // load MeSH IDs and save for later processing then load MeSH Term information by calling loadMeSHTitles
-            loadMeSH: function () {
-                let self = this;
-                let request = new XMLHttpRequest();
-                self.meshBusy = true;
-                self.meshReady = false;
-                self.ids = [];
-                self.meshInfo = [{rank: 0, id:"", name:"", desc:"", yIntroduced:"", supDate:"", terms:[]}];
-                self.page = 1;
-                self.uDefPage = 1;
-                self.totalPages = 0;
-                self.meshInit = false;
-                self.userDefPerPage = 5;
-                request.addEventListener("load", function(ev) {
-                    let ids = [];
-                    if (ev.currentTarget.status === 200) {
-                        var xmlDoc = ev.currentTarget.responseXML;
-                        let rawValues = xmlDoc.getElementsByTagName("Id");
-                        for (i = 0; i < rawValues.length; i++) {
-                            ids[i] = rawValues[i].childNodes[0].nodeValue;
+            loadMeSH: function (e) {
+                if ((e != undefined && e.keyCode === 13) || e === undefined) {
+                    let self = this;
+                    let request = new XMLHttpRequest();
+                    self.meshBusy = true;
+                    self.meshReady = false;
+                    self.ids = [];
+                    self.meshInfo = [{rank: 0, id:"", name:"", desc:"", yIntroduced:"", supDate:"", terms:[]}];
+                    self.page = 1;
+                    self.uDefPage = 1;
+                    self.totalPages = 0;
+                    self.meshInit = false;
+                    self.userDefPerPage = 5;
+                    self.meshSearchStart = new Date().getTime();
+                    request.addEventListener("load", function(ev) {
+                        let ids = [];
+                        if (ev.currentTarget.status === 200) {
+                            var xmlDoc = ev.currentTarget.responseXML;
+                            let rawValues = xmlDoc.getElementsByTagName("Id");
+                            for (i = 0; i < rawValues.length; i++) {
+                                ids[i] = rawValues[i].childNodes[0].nodeValue;
+                            }
+                        } else {
+                            ids = [0];
+                            self.meshInit = false;
+                        }
+                        self.ids = ids;
+                        self.loadMeSHTitles(ids);
+                    });
+                    request.open("POST", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?");
+                    request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                    // Set retmax to 9999999 simply to avoid another unneccessary API call to get the correct count
+                    request.send("db=mesh" + "&sort=relevance&term=" + self.meshTerm + "&retmax=9999999");
+                }
+            },
+            changeNumOfTermsPerPage: function (e) {
+                if ((e != undefined && e.keyCode === 13) || e === undefined) {
+                    let self = this;
+                    if (/^\d+$/.test(self.userDefPerPage)) {
+                        if (self.userDefPerPage === '' || parseInt(self.userDefPerPage) === 0 || parseInt(self.userDefPerPage) < 0) {
+                            self.perPage = 10;
+                        } else {
+                            self.perPage = parseInt(self.userDefPerPage);
                         }
                     } else {
-                        ids = [0];
-                        self.meshInit = false;
-                    }
-                    self.ids = ids;
-                    self.loadMeSHTitles(ids);
-                });
-                request.open("POST", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?");
-                request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                // Set retmax to 9999999 simply to avoid another unneccessary API call to get the correct count
-                request.send("db=mesh" + "&sort=relevance&term=" + self.meshTerm + "&retmax=9999999");
-            },
-            changeNumOfTermsPerPage: function () {
-                let self = this;
-                if (/^\d+$/.test(self.userDefPerPage)) {
-                    if (self.userDefPerPage === '' || parseInt(self.userDefPerPage) === 0 || parseInt(self.userDefPerPage) < 0) {
                         self.perPage = 10;
-                    } else {
-                        self.perPage = parseInt(self.userDefPerPage);
                     }
-                } else {
-                    self.perPage = 10;
+                    self.page = 1;
+                    self.uDefPage = 1;
                 }
-                self.page = 1;
-                self.uDefPage = 1;
             },
             // Create pagination
             paginate: function (meshInfo) {
