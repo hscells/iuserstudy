@@ -105,6 +105,9 @@
                         <li class="tab-item" v-bind:class="{active: tabState==='criteria'}" v-on:click="tabState='criteria'">
                             <a href="#">Search Criteria</a>
                         </li>
+                        <li class="tab-item" v-bind:class="{active: tabState==='mesh'}" v-on:click="tabState='mesh';meshSearchBoxFocus()">
+                            <a href="#" class="badge" v-bind:data-badge="ids.length">MeSH Browser</a>
+                        </li>
                     </ul>
                 </div>
                 <div class="panel-body container" v-if="tabState==='history'">
@@ -138,6 +141,60 @@
                         </li>
                     </ol>
                     <div v-if="busy && ready" class="loading loading-lg"></div>
+                </div>
+                <div class="panel-body container" v-show="tabState==='mesh'" style="overflow:hidden;">
+                    <input class="panel-body" v-show="tabState==='mesh'" style="overflow:hidden;width:100%" v-model="meshTerm" id="meshInputBox" v-on:keyup="loadMeSH">
+                    <div class="divider"></div>
+                    <a href="#" v-on:click="resetMeSHBrowser()">Clear All</a>
+                    <div class="panel-footer">
+                        <button class="btn btn-primary" id="btn-update-tree" v-on:click="loadMeSH()">
+                            <i class="icon icon-forward"></i> Search
+                        </button>
+                        <div class="divider"></div>
+                        <p v-if="!meshInit">Use the search box above to input your term. Click the back link in the top left corner of the interface to return to the study.</p>
+                        <div v-if="meshBusy && !meshReady" class="loading loading-lg"></div>
+                        <div class="text-left text-sm text-gray">
+                            <span class="span-sm" v-if="meshInit" style="font-size:100%"> Total of <strong>[[ ids.length ]]</strong> results found (<strong>[[ timeSpend ]]</strong> seconds)</span>
+                        </div>
+                        <ul style="list-style-type:none">
+                            <li v-if="meshInit" v-for="info in displayedMeSHInfos" class="pb-2"> [[ info.rank ]].
+                                <a href="#/" v-on:click="ctrlDiv(info.id)"> [[ info.name ]] </a></br>
+                                <div class="text-left text-sm">
+                                    <span><strong>Description:</strong> [[ info.desc ]] </span>
+                                    <span v-show="info.desc === ''"> No description</span>
+                                </div>
+                                <div class="text-left text-sm text-gray">
+                                    <span class="span-sm" v-show="info.yIntroduced != ''"><strong>Year Introduced:</strong> [[ info.yIntroduced ]]</span>
+                                    <span class="span-sm" v-show="info.supDate != '1/01/01' && info.yIntroduced === ''"><strong>Year Introduced:</strong> [[ info.supDate ]]</span>
+                                    <span class="span-sm" v-show="info.yIntroduced === '' && info.supDate === '1/01/01'"><strong>Year Introduced:</strong> Not Provided </span>
+                                </div>
+                                <ul style="display:none" v-bind:id="info.id" class="infoBox">
+                                    <li v-for="term in info.terms">
+                                        [[ term ]]
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <!--Thanks to https://vuejsexamples.com/pagination-in-vuejs-simple-way/-->
+                        <ul class="pagination" v-if="meshInit">
+                            <li class="page-item">
+                                <button v-if="ids.length != 0" type="button" class="btn btn-primary" v-on:click="resetDiv('p')"> Previous </button>
+                            </li>
+                            <li class="page-item">
+                                <button type="button" v-if="page <= totalPages" class="btn btn-primary"> <input v-bind:value="page" style="width:30%;height:100%;text-align:center" v-model="uDefPage" v-on:keyup="jumpPage" /> / [[ totalPages ]] </button>
+                            </li>
+                            <li class="page-item">
+                                <button v-if="ids.length != 0" type="button" v-on:click="resetDiv('n')" class="btn btn-primary"> Next </button>
+                            </li>
+                        </ul>
+                        <div v-if="meshInit && totalPages > 0">
+                            Number of MeSH Terms Per Page:
+                            <input type="number" class="panel-body" v-show="tabState==='mesh'" style="overflow:hidden;width:5%" v-model="userDefPerPage" v-on:keyup="changeNumOfTermsPerPage">
+                            <button class="btn btn-primary" id="btn-update-tree" v-on:click="changeNumOfTermsPerPage()">
+                                Change
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <div class="panel-body container" v-if="tabState==='seed'">
                     <ul>
@@ -300,6 +357,26 @@
             tabState: "results",
             date: "{{.Date}}",
 
+            // handle MeSH browser
+            ids: [],
+            meshInfo: [{rank: 0, id:"", name:"", desc:"", yIntroduced:"", supDate:"", terms:[]}],
+            meshTerm: "",
+            meshInit: false,
+            meshReady: false,
+            meshBusy: false,
+
+            // handle pagination
+			page: 1,
+			perPage: 5,
+            totalPages: 0,
+            userDefPerPage: 5,
+            uDefPage: 1,
+
+            // handle time spend count
+            meshSearchStart: 0,
+            meshSearchEnd: 0,
+            timeSpend: 0,
+
             numRet: 0,
             numRel: 0,
             numRelRet: 0,
@@ -310,6 +387,9 @@
             history: [],
         },
         computed: {
+            displayedMeSHInfos() {
+			    return this.paginate(this.meshInfo);
+		    },
             cqrQuery() {
                 var q = {};
                 for (var i = 0; i < this.queries.length; i++) {
@@ -351,6 +431,44 @@
             }
         },
         methods: {
+            meshSearchBoxFocus: function() {
+                document.getElementById("meshInputBox").focus();
+            },
+            jumpPage: function (e) {
+                if (e.keyCode === 13) {
+                    if (this.uDefPage != this.page && this.uDefPage != '' && this.uDefPage != undefined && this.uDefPage > 0 && this.uDefPage <= this.totalPages) {
+                        this.page = this.uDefPage;
+                    }
+                }
+            },
+            resetDiv: function (direction) {
+                let self = this;
+                var div = document.getElementsByClassName("infoBox");
+                for (i = 0; i < div.length; i++) {
+                    div[i].style.display = "none";
+                }
+                if (direction === 'p') {
+                    if (self.page > 1 && self.uDefPage > 1) {
+                        self.page--;
+                        self.uDefPage--;
+                    }
+                } else if (direction === 'n') {
+                    if (self.page < self.totalPages && self.uDefPage < self.totalPages) {
+                        self.page++;
+                        self.uDefPage++;
+                    }
+                }
+            },
+            ctrlDiv: function (id) {
+                var div = document.getElementById(id);
+                var divs = document.getElementsByClassName("infoBox");
+                for (i = 0; i < divs.length; i++) {
+                    if (divs[i].id != id) {
+                        divs[i].style.display = "none";
+                    }
+                }
+                div.style.display = div.style.display === "block" ? "none" : "block";
+            },
             removeQuery: function (index) {
                 this.queries.splice(index, 1)
                 if (this.queries.length == 0) {
@@ -405,6 +523,22 @@
             }, 300),
             clear: function () {
                 this.queries = [{query: "", field: "All Fields", operator: "", cqr: {}}, {query: "", field: "All Fields", operator: "and", cqr: {}}];
+            },
+            resetMeSHBrowser: function () {
+                this.meshInfo = [{rank: 0, id:"", name:"", desc:"", yIntroduced:"", supDate:"", terms:[]}];
+                this.ids = [];
+                this.meshTerm = "";
+                this.meshInit = false;
+                this.meshReady = false;
+                this.meshBusy = false;
+                this.page = 1;
+			    this.perPage = 5;
+                this.totalPages = 0;
+                this.userDefPerPage = 5;
+                this.uDefPage = 1;
+                this.meshSearchStart = 0;
+                this.meshSearchEnd = 0;
+                this.timeSpend = 0;
             },
             loadNextResults: function () {
                 let self = this;
@@ -466,7 +600,126 @@
                     request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                     request.send("start=" + 0 + "&query=" + self.textQueryDate + "&lang=" + self.queryLanguage);
                 }
-            }
+            },
+            // This action is triggered after the loadMeSH
+            loadMeSHTitles: function(ids){
+                let self = this;
+                let meshInfo = [];
+                let names = [];
+                let descs = [];
+                let yIntroduceds = [];
+                let supDates = [];
+                let entryTerms = [];
+                let request = new XMLHttpRequest();
+                request.addEventListener("load", function(ev) {
+                    if (ev.currentTarget.status === 200) {
+                        var xmlDoc = ev.currentTarget.responseXML;
+                        var rawValues = xmlDoc.querySelectorAll("Item");
+                        for (i = 0; i < rawValues.length; i++) {
+                            if (rawValues[i].getAttribute("Type") == "List" && rawValues[i].getAttribute("Name") == "DS_MeshTerms") {
+                                names.push(rawValues[i].childNodes[1].innerHTML);
+                                var terms = [];
+                                for (k = 2; k < rawValues[i].childNodes.length; k++) {
+                                    if (rawValues[i].childNodes[k].innerHTML != undefined) {
+                                        terms.push(rawValues[i].childNodes[k].innerHTML);
+                                    }
+                                }
+                                entryTerms.push(terms);
+                            } else if (rawValues[i].getAttribute("Type") == "String" && rawValues[i].getAttribute("Name") == "DS_ScopeNote") {
+                                descs.push(rawValues[i].innerHTML);
+                            } else if (rawValues[i].getAttribute("Type") == "Date" && rawValues[i].getAttribute("Name") == "DS_EntryDate") {
+                                var tempStr = rawValues[i].innerHTML.toString()
+                                var splitStr = tempStr.split(" ")[0];
+                                supDates.push(splitStr);
+                            } else if (rawValues[i].getAttribute("Type") == "String" && rawValues[i].getAttribute("Name") == "DS_YearIntroduced") {
+                                yIntroduceds.push(rawValues[i].innerHTML);
+                            }
+                        }
+                        for (j = 0; j < ids.length; j++) {
+                            var temp = {
+                                rank: j + 1,
+                                id: ids[j],
+                                name: names[j],
+                                yIntroduced: yIntroduceds[j],
+                                desc: descs[j],
+                                supDate: supDates[j],
+                                terms: entryTerms[j]
+                            };
+                            meshInfo.push(temp);
+                        }
+                        self.meshInfo = meshInfo;
+                    }
+                    self.meshInit = true;
+                    self.meshReady = true;
+                    self.meshBusy = false;
+                    self.meshSearchEnd = new Date().getTime();
+                    self.timeSpend = (self.meshSearchEnd - self.meshSearchStart)/1000;
+                });
+                request.open("POST", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?");
+                request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                request.send("db=mesh&sort=relevance" + "&id=" + self.ids.toString());
+            },
+            // load MeSH IDs and save for later processing then load MeSH Term information by calling loadMeSHTitles
+            loadMeSH: function (e) {
+                if ((e != undefined && e.keyCode === 13) || e === undefined) {
+                    let self = this;
+                    let request = new XMLHttpRequest();
+                    self.meshBusy = true;
+                    self.meshReady = false;
+                    self.ids = [];
+                    self.meshInfo = [{rank: 0, id:"", name:"", desc:"", yIntroduced:"", supDate:"", terms:[]}];
+                    self.page = 1;
+                    self.uDefPage = 1;
+                    self.totalPages = 0;
+                    self.meshInit = false;
+                    self.meshSearchStart = new Date().getTime();
+                    request.addEventListener("load", function(ev) {
+                        let ids = [];
+                        if (ev.currentTarget.status === 200) {
+                            var xmlDoc = ev.currentTarget.responseXML;
+                            let rawValues = xmlDoc.getElementsByTagName("Id");
+                            for (i = 0; i < rawValues.length; i++) {
+                                ids[i] = rawValues[i].childNodes[0].nodeValue;
+                            }
+                        } else {
+                            ids = [0];
+                            self.meshInit = false;
+                        }
+                        self.ids = ids;
+                        self.loadMeSHTitles(ids);
+                    });
+                    request.open("POST", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?");
+                    request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                    // Set retmax to 9999999 simply to avoid another unneccessary API call to get the correct count
+                    request.send("db=mesh" + "&sort=relevance&term=" + self.meshTerm + "&retmax=9999999");
+                }
+            },
+            changeNumOfTermsPerPage: function (e) {
+                if ((e != undefined && e.keyCode === 13) || e === undefined) {
+                    let self = this;
+                    if (/^\d+$/.test(self.userDefPerPage)) {
+                        if (self.userDefPerPage === '' || parseInt(self.userDefPerPage) === 0 || parseInt(self.userDefPerPage) < 0) {
+                            self.perPage = 10;
+                        } else {
+                            self.perPage = parseInt(self.userDefPerPage);
+                        }
+                    } else {
+                        self.perPage = 10;
+                    }
+                    self.page = 1;
+                    self.uDefPage = 1;
+                }
+            },
+            // Create pagination
+            paginate: function (meshInfo) {
+                let self = this;
+                let page = self.page;
+                self.totalPages = Math.ceil(meshInfo.length/self.perPage);
+                let perPage = self.perPage;
+                let from = (page * perPage) - perPage;
+                let to = (page * perPage);
+                return  meshInfo.slice(from, to);
+		    },
         },
         beforeMount: function () {
             this.getHistory()
