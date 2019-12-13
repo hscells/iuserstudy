@@ -140,8 +140,22 @@ func (IUserStudyPlugin) Serve(s searchrefiner.Server, c *gin.Context) {
 	// Use the storage system of searchrefiner.
 	storage, ok := s.Storage[pluginStorageName]
 	if !ok {
-		c.HTML(http.StatusInternalServerError, "error.html", searchrefiner.ErrorPage{Error: "please create storage bucket for user study", BackLink: "/"})
-		return
+		var err error
+		s.Storage[pluginStorageName], err = searchrefiner.OpenPluginStorage(pluginStorageName)
+		if err != nil {
+			c.HTML(http.StatusInternalServerError, "error.html", searchrefiner.ErrorPage{Error: err.Error()})
+			return
+		}
+		err = s.Storage[pluginStorageName].CreateBucket(participantsBucket)
+		if err != nil {
+			c.HTML(http.StatusInternalServerError, "error.html", searchrefiner.ErrorPage{Error: err.Error()})
+			return
+		}
+		err = s.Storage[pluginStorageName].CreateBucket(consentBucket)
+		if err != nil {
+			c.HTML(http.StatusInternalServerError, "error.html", searchrefiner.ErrorPage{Error: err.Error()})
+			return
+		}
 	}
 
 	// Obtain the username, and perform a lookup to see if they are a valid participant.
