@@ -273,12 +273,16 @@
                         </div>
                     </div>
                 </div>
-                <div class="panel-body container" v-show="tabState==='seed'">
-                    <ul>
-                        {{range .Seed }}
-                            <li><a href="https://www.ncbi.nlm.nih.gov/pubmed/{{ . }}" target="_blank">{{ . }}</a></li>
-                        {{end}}
-                    </ul>
+                <div class="panel-body container" v-if="tabState==='seed'" v-show="tabState==='seed'" style="overflow:hidden;">
+                    <ol>
+                        <li v-for="seed in seedDocInfos" class="pb-2">
+                            <a v-bind:href="'https://www.ncbi.nlm.nih.gov/pubmed/' + seed.pmid" target="_blank">[[ seed.title ]]</a>
+                            <a v-bind:href="'https://www.ncbi.nlm.nih.gov/pubmed/' + seed.pmid" target="_blank" v-show="!seed.title">[No Title] [[seed.pmid]]</a>
+                            <div class="text-left text-sm text-gray">
+                                <span class="span-sm"><strong>PMID</strong>: [[ seed.pmid ]]</span>
+                            </div>
+                        </li>
+                    </ol>
                 </div>
                 <div class="panel-body container" v-show="tabState==='criteria'">
                     {{if eq .Protocol 1}}
@@ -466,6 +470,10 @@
             meshSearchEnd: 0,
             timeSpend: 0,
 
+            seed: "{{.Seed}}",
+            seedDocIds: null,
+            seedDocInfos: [{"pmid": null, "title" : null}],
+
             results: [],
             total: 0,
             busy: false,
@@ -639,6 +647,34 @@
             }, 250, {'maxWait': 1000}),
             clear: function () {
                 this.queries = [{query: "", field: "All Fields", operator: "", cqr: {}}, {query: "", field: "All Fields", operator: "and", cqr: {}}];
+            },
+            loadSeedDocInfo: function () {
+                let self = this;
+                let seedDocInfos = [];
+                var originalSeed = self.seed;
+                var splitedSeed = originalSeed.substring(1, originalSeed.length - 1).split(" ");
+                self.seedDocIds = splitedSeed.join(",");
+                let request = new XMLHttpRequest();
+                request.addEventListener("load", function(ev) {
+                    if (ev.currentTarget.status === 200) {
+                        let resp = ev.currentTarget.responseXML;
+                        var rawValues = resp.querySelectorAll("Item");
+                        var tempSeedIds = splitedSeed;
+                        for (i = 0; i < rawValues.length; i++) {
+                            var seedDocInfo = {};
+                            if (rawValues[i].getAttribute("Type") == "String" && rawValues[i].getAttribute("Name") == "Title") {
+                                seedDocInfo.title = rawValues[i].innerHTML;
+                                seedDocInfo.pmid = tempSeedIds[0];
+                                tempSeedIds = tempSeedIds.splice(1);
+                                seedDocInfos.push(seedDocInfo);
+                            }
+                        }
+                    }
+                    self.seedDocInfos = seedDocInfos;
+                });
+                request.open("POST", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?");
+                request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                request.send("db=pubmed&id=" + self.seedDocIds);
             },
             resetMeSHBrowser: function () {
                 this.meshInfo = [{rank: 0, id:"", name:"", desc:"", yIntroduced:"", supDate:"", terms:[]}];
@@ -826,7 +862,8 @@
 		    }
         },
         beforeMount: function () {
-            this.getHistory()
+            this.getHistory();
+            this.loadSeedDocInfo();
         },
         watch: {
             // Do not continue to update the log when we are not in the console tab.
