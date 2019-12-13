@@ -442,20 +442,18 @@ func (IUserStudyPlugin) Serve(s searchrefiner.Server, c *gin.Context) {
 	}))
 }
 
-func (IUserStudyPlugin) PermissionType()
-searchrefiner.PluginPermission{
-return searchrefiner.PluginUser
+func (IUserStudyPlugin) PermissionType() searchrefiner.PluginPermission {
+	return searchrefiner.PluginUser
 }
 
-func (IUserStudyPlugin) Details()
-searchrefiner.PluginDetails{
-return searchrefiner.PluginDetails{
-Title:       "Query Visualisation User Study",
-Description: "Interface for participants in the Query Visualisation User Study",
-Author:      "Harry Scells",
-Version:     "09.August.2019",
-ProjectURL:  "https://ielab.io/searchrefiner",
-}
+func (IUserStudyPlugin) Details() searchrefiner.PluginDetails {
+	return searchrefiner.PluginDetails{
+		Title:       "Query Visualisation User Study",
+		Description: "Interface for participants in the Query Visualisation User Study",
+		Author:      "Harry Scells",
+		Version:     "09.August.2019",
+		ProjectURL:  "https://ielab.io/searchrefiner",
+	}
 }
 
 var Iuserstudy = IUserStudyPlugin{}
