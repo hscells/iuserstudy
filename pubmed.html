@@ -205,7 +205,7 @@
                                 <span slot="header" class="span-sm" v-if="document.type == 'book'"><strong>Book</strong>: [[ document.book ]]</span>
                                 <span slot="header" class="span-sm" v-if="document.type == 'article'"><strong>Journal</strong>: [[ document.journal ]]</span>
                                 <br slot="header">
-                                <span slot="header" class="span-sm"><strong>Publication Date</strong>: [[ document.pubdate ]]</span>
+                                <span slot="header" class="span-sm" v-if="document.pubdate != null"><strong>Publication Date</strong>: [[ document.pubdate ]]</span>
                                 <div slot="body" class="divider"></div>
                                 <h5 slot="body"><strong>Abstract:</strong></h5>
                                 <ul style="list-style-type: none;" slot="body">
@@ -306,7 +306,7 @@
                                 <span slot="header" class="span-sm" v-if="document.type == 'book'"><strong>Book</strong>: [[ document.book ]]</span>
                                 <span slot="header" class="span-sm" v-if="document.type == 'article'"><strong>Journal</strong>: [[ document.journal ]]</span>
                                 <br slot="header">
-                                <span slot="header" class="span-sm"><strong>Publication Date</strong>: [[ document.pubdate ]]</span>
+                                <span slot="header" class="span-sm" v-if="document.pubdate != null"><strong>Publication Date</strong>: [[ document.pubdate ]]</span>
                                 <div slot="body" class="divider"></div>
                                 <h5 slot="body"><strong>Abstract:</strong></h5>
                                 <ul style="list-style-type: none;" slot="body">
@@ -765,6 +765,7 @@
                                 for (i = 0; i < pubdateFull.length; i++) {
                                     if (pubdateFull[i]["@PubStatus"] == "pubmed") {
                                         pubdate = pubdateFull[i]["Day"] + "-" + pubdateFull[i]["Month"] + "-" + pubdateFull[i]["Year"];
+                                        break;
                                     } else {
                                         pubdate = null;
                                     }
@@ -867,6 +868,9 @@
                                 for (i = 0; i < pubdateFull.length; i++) {
                                     if (pubdateFull[i]["@PubStatus"] == "pubmed") {
                                         pubdate = pubdateFull[i]["Day"] + "-" + pubdateFull[i]["Month"] + "-" + pubdateFull[i]["Year"];
+                                        break;
+                                    } else {
+                                        pubdate = null;
                                     }
                                 }
                             } else {
