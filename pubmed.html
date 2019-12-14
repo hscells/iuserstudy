@@ -130,8 +130,8 @@
         <div class="column col-1"></div>
         <div class="column col-10">
             <div class="form-group">
-                <pre name="query" class="code" id="search-box">[[ textQuery ]]</pre>
-                <input type="hidden" name="lang" value="pubmed">
+                <pre name="query" class="code" id="pub-text-query-box">[[ textQuery ]]</pre>
+                <input type="hidden" name="lang" value="pubmed" id="pub-lang-input">
             </div>
             {{/*<a href="#">Edit</a>*/}}
             <div class="panel p-2">
@@ -139,17 +139,17 @@
                     <b>Query Builder</b>
                 </div>
                 <div class="panel-body">
-                    <builder v-for="(query, index) in queries"
+                    <builder id="pub-query-builder" v-for="(query, index) in queries"
                              :key="query.id"
                              v-on:add="addQuery"
                              v-on:remove="removeQuery"
                              v-bind:query="query"
                              v-bind:index="index"
                              v-bind:last="index==queries.length-1"></builder>
-                    <a href="#" v-on:click="clear">Clear</a>
+                    <a href="#" v-on:click="clear" id="pub-clear-query-builder">Clear</a>
                 </div>
                 <div class="panel-footer">
-                    <button class="btn btn-primary" id="btn-update-tree" v-on:click="loadResults">
+                    <button class="btn btn-primary" id="pub-load-search-results-btn" v-on:click="loadResults">
                         <i class="icon icon-forward"></i> Results
                     </button>
                     <div class="divider"></div>
@@ -160,19 +160,19 @@
                 <div class="panel-header">
                     <ul class="tab tab-block">
                         <li class="tab-item" v-bind:class="{active: tabState==='results'}" v-on:click="tabState='results'">
-                            <a href="#" class="badge" v-bind:data-badge="total">Results</a>
+                            <a href="#" class="badge" id="pub-result-tab" v-bind:data-badge="total">Results</a>
                         </li>
                         <li class="tab-item" v-bind:class="{active: tabState==='history'}" v-on:click="tabState='history'">
-                            <a href="#">History</a>
+                            <a href="#" id="pub-history-tab">History</a>
                         </li>
                         <li class="tab-item" v-bind:class="{active: tabState==='seed'}" v-on:click="tabState='seed'">
-                            <a href="#">Seed Documents</a>
+                            <a href="#" id="pub-seed-tab">Seed Documents</a>
                         </li>
                         <li class="tab-item" v-bind:class="{active: tabState==='criteria'}" v-on:click="tabState='criteria'">
-                            <a href="#">Search Criteria</a>
+                            <a href="#" id="pub-criteria-tab">Search Criteria</a>
                         </li>
                         <li class="tab-item" v-bind:class="{active: tabState==='mesh'}" v-on:click="tabState='mesh';meshSearchBoxFocus()">
-                            <a href="#" class="badge" v-bind:data-badge="ids.length">MeSH Browser</a>
+                            <a href="#" id="pub-mesh-tab" class="badge" v-bind:data-badge="ids.length">MeSH Browser</a>
                         </li>
                     </ul>
                 </div>
@@ -184,8 +184,8 @@
                     <div class="divider"></div>
                     <div v-for="query in history">
                         <div class="columns">
-                            <div class="column col-8">[[ query.QueryString ]]</div>
-                            <div class="column col-2">[[ query.NumRet ]]</div>
+                            <div class="column col-8" id="pub-query-string">[[ query.QueryString ]]</div>
+                            <div class="column col-2" id="pub-query-numret">[[ query.NumRet ]]</div>
                         </div>
                         <div class="divider"></div>
                     </div>
@@ -195,46 +195,46 @@
                     <p v-if="!init">Results will show here once you click the Results button above.</p>
                     <ol v-infinite-scroll="loadNextResults" infinite-scroll-disabled="busy" infinite-scroll-distance="10">
                         <li v-for="c in results" class="pb-2">
-                            <a href="#/" v-on:click="loadResultDocument(c.PMID)">[[c.TI]]</a>
+                            <a href="#/" id="pub-results-item" v-on:click="loadResultDocument(c.PMID)">[[c.TI]]</a>
                             <!-- Thanks to https://cn.vuejs.org/v2/examples/modal.html-->
-                            <modal v-if="showModal" v-on:close="showModal = false">
-                                <h3 slot="header">[[ document.title ]]</h3>
-                                <h5 slot="header" v-show="!document.title">[No Title] [[document.pmid]]</h5>
-                                <span slot="header" class="span-sm"><strong>PMID</strong>: [[ document.pmid ]]</span>
+                            <modal id="pub-results-modal" v-if="showModal" v-on:close="showModal = false">
+                                <h3 slot="header" id="pub-result-modal-doc-title">[[ document.title ]]</h3>
+                                <h5 slot="header" id="pub-result-modal-doc-title" v-show="!document.title">[No Title] [[document.pmid]]</h5>
+                                <span slot="header" id="pub-result-modal-doc-pmid" class="span-sm"><strong>PMID</strong>: [[ document.pmid ]]</span>
                                 <br slot="header">
-                                <span slot="header" class="span-sm" v-if="document.type == 'book'"><strong>Book</strong>: [[ document.book ]]</span>
-                                <span slot="header" class="span-sm" v-if="document.type == 'article'"><strong>Journal</strong>: [[ document.journal ]]</span>
+                                <span slot="header" id="pub-result-modal-doc-name" class="span-sm" v-if="document.type == 'book'"><strong>Book</strong>: [[ document.book ]]</span>
+                                <span slot="header" id="pub-result-modal-doc-name" class="span-sm" v-if="document.type == 'article'"><strong>Journal</strong>: [[ document.journal ]]</span>
                                 <br slot="header">
-                                <span slot="header" class="span-sm" v-if="document.pubdate != null"><strong>Publication Date</strong>: [[ document.pubdate ]]</span>
+                                <span slot="header" id="pub-result-modal-doc-pubdate" class="span-sm" v-if="document.pubdate != null"><strong>Publication Date</strong>: [[ document.pubdate ]]</span>
                                 <div slot="body" class="divider"></div>
                                 <h5 slot="body"><strong>Abstract:</strong></h5>
                                 <ul style="list-style-type: none;" slot="body">
                                     <li class="span-rg" v-for="field in document.abstract">
-                                        <span class="span-rg" v-if="field.field != ''"><strong>[[ field.field ]]</strong>: [[ field.content ]]</span>
-                                        <span class="span-rg" v-if="field.field == ''">[[ field.content ]]</span>
+                                        <span class="span-rg" id="pub-result-modal-doc-abs" v-if="field.field != ''"><strong>[[ field.field ]]</strong>: [[ field.content ]]</span>
+                                        <span class="span-rg" id="pub-result-modal-doc-abs" v-if="field.field == ''">[[ field.content ]]</span>
                                     </li>
                                 </ul>
                                 <h5 slot="body" v-if="(document.type == 'book' || document.keywords != undefined)"><strong>Keywords:</strong></h5>
                                 <h5 slot="body" v-if="document.type == 'article' && document.meshheadings != undefined && document.meshheadings[0] != undefined"><strong>Mesh Headings:</strong></h5>
                                 <ul style="list-style-type: circle;" slot="body" v-if="document.type == 'book' || document.keywords != undefined">
-                                    <li class="span-rg" v-for="keyword in document.keywords" v-if="document.keywords.length > 0">
-                                        <span class="span-rg">[[ keyword ]]</span>
+                                    <li class="span-rg" id="pub-result-modal-doc-keywords-item" v-for="keyword in document.keywords" v-if="document.keywords.length > 0">
+                                        <span class="span-rg" id="pub-result-modal-doc-keyword">[[ keyword ]]</span>
                                     </li>
                                 </ul>
                                 <ul style="list-style-type: circle;" slot="body" v-if="document.type == 'article' && document.meshheadings != undefined">
-                                    <li class="span-rg" v-for="mesh in document.meshheadings" v-if="document.meshheadings.length > 0">
-                                        <span class="span-rg">[[ mesh ]]</span>
+                                    <li class="span-rg" id="pub-result-modal-doc-mesh-item" v-for="mesh in document.meshheadings" v-if="document.meshheadings.length > 0">
+                                        <span id="pub-result-modal-doc-mesh" class="span-rg">[[ mesh ]]</span>
                                     </li>
                                 </ul>
                             </modal>
-                            <a href="#/" v-on:click="loadResultDocument(c.PMID)" v-show="!c.TI">[No Title] [[c.PMID]]</a>
+                            <a href="#/" id="pub-results-item" v-on:click="loadResultDocument(c.PMID)" v-show="!c.TI">[No Title] [[c.PMID]]</a>
                             <div class="text-left text-sm">
                                 <!-- <a v-for="author in c.AU" class="text-success author-sm"
                                    v-bind:href="'https://www.ncbi.nlm.nih.gov/pubmed/?term=%22' + author + '%22[Author]'">[[author]]</a> -->
-                                <span v-for="author in c.AU" class="text-success author-sm">[[author]]</span>&nbsp;
+                                <span id="pub-results-author" v-for="author in c.AU" class="text-success author-sm">[[author]]</span>&nbsp;
                             </div>
                             <div class="text-left text-sm text-gray">
-                                <span class="span-sm"><strong>PMID</strong>: [[ c.PMID ]]</span>
+                                <span id="pub-results-pmid" class="span-sm"><strong>PMID</strong>: [[ c.PMID ]]</span>
                             </div>
                         </li>
                     </ol>
@@ -243,9 +243,9 @@
                 <div class="panel-body container" v-show="tabState==='mesh'" style="overflow:hidden;">
                     <input class="panel-body" v-show="tabState==='mesh'" style="overflow:hidden;width:100%" v-model="meshTerm" id="meshInputBox" v-on:keyup="loadMeSH">
                     <div class="divider"></div>
-                    <a href="#" v-on:click="resetMeSHBrowser()">Clear All</a>
+                    <a href="#" id="pub-reset-mesh" v-on:click="resetMeSHBrowser()">Clear All</a>
                     <div class="panel-footer">
-                        <button class="btn btn-primary" id="btn-update-tree" v-on:click="loadMeSH()">
+                        <button class="btn btn-primary" id="pub-mesh-search-btn" v-on:click="loadMeSH()">
                             <i class="icon icon-forward"></i> Search
                         </button>
                         <div class="divider"></div>
@@ -256,18 +256,18 @@
                         </div>
                         <ul style="list-style-type:none">
                             <li v-if="meshInit" v-for="info in displayedMeSHInfos" class="pb-2"> [[ info.rank ]].
-                                <a href="#/" v-on:click="ctrlDiv(info.id)"> [[ info.name ]] </a></br>
+                                <a href="#/" id="pub-mesh-name" v-on:click="ctrlDiv(info.id)"> [[ info.name ]] </a></br>
                                 <div class="text-left text-sm">
-                                    <span><strong>Description:</strong> [[ info.desc ]] </span>
+                                    <span id="pub-mesh-description"><strong>Description:</strong> [[ info.desc ]] </span>
                                     <span v-show="info.desc === ''"> No description</span>
                                 </div>
                                 <div class="text-left text-sm text-gray">
-                                    <span class="span-sm" v-show="info.yIntroduced != ''"><strong>Year Introduced:</strong> [[ info.yIntroduced ]]</span>
-                                    <span class="span-sm" v-show="info.supDate != '1/01/01' && info.yIntroduced === ''"><strong>Year Introduced:</strong> [[ info.supDate ]]</span>
-                                    <span class="span-sm" v-show="info.yIntroduced === '' && info.supDate === '1/01/01'"><strong>Year Introduced:</strong> Not Provided </span>
+                                    <span id="pub-mesh-year" class="span-sm" v-show="info.yIntroduced != ''"><strong>Year Introduced:</strong> [[ info.yIntroduced ]]</span>
+                                    <span id="pub-mesh-year" class="span-sm" v-show="info.supDate != '1/01/01' && info.yIntroduced === ''"><strong>Year Introduced:</strong> [[ info.supDate ]]</span>
+                                    <span id="pub-mesh-year" class="span-sm" v-show="info.yIntroduced === '' && info.supDate === '1/01/01'"><strong>Year Introduced:</strong> Not Provided </span>
                                 </div>
                                 <ul style="display:none" v-bind:id="info.id" class="infoBox">
-                                    <li v-for="term in info.terms">
+                                    <li v-for="term in info.terms" id="pub-mesh-term">
                                         [[ term ]]
                                     </li>
                                 </ul>
@@ -276,19 +276,19 @@
                         <!--Thanks to https://vuejsexamples.com/pagination-in-vuejs-simple-way/-->
                         <ul class="pagination" v-if="meshInit">
                             <li class="page-item">
-                                <button v-if="ids.length != 0" type="button" class="btn btn-primary" v-on:click="resetDiv('p')"> Previous </button>
+                                <button id="pub-mesh-prev-page" v-if="ids.length != 0" type="button" class="btn btn-primary" v-on:click="resetDiv('p')"> Previous </button>
                             </li>
                             <li class="page-item">
-                                <button type="button" v-if="page <= totalPages" class="btn btn-primary"> <input v-bind:value="page" style="width:30%;height:100%;text-align:center" v-model="uDefPage" v-on:keyup="jumpPage" /> / [[ totalPages ]] </button>
+                                <button id="pub-mesh-page" type="button" v-if="page <= totalPages" class="btn btn-primary"> <input v-bind:value="page" style="width:30%;height:100%;text-align:center" v-model="uDefPage" v-on:keyup="jumpPage" /> / [[ totalPages ]] </button>
                             </li>
                             <li class="page-item">
-                                <button v-if="ids.length != 0" type="button" v-on:click="resetDiv('n')" class="btn btn-primary"> Next </button>
+                                <button id="pub-mesh-next-page" v-if="ids.length != 0" type="button" v-on:click="resetDiv('n')" class="btn btn-primary"> Next </button>
                             </li>
                         </ul>
                         <div v-if="meshInit && totalPages > 0">
                             Number of MeSH Terms Per Page:
-                            <input type="number" class="panel-body" v-show="tabState==='mesh'" style="overflow:hidden;width:5%" v-model="userDefPerPage" v-on:keyup="changeNumOfTermsPerPage">
-                            <button class="btn btn-primary" id="btn-update-tree" v-on:click="changeNumOfTermsPerPage()">
+                            <input id="pub-input-mesh-per-page" type="number" class="panel-body" v-show="tabState==='mesh'" style="overflow:hidden;width:5%" v-model="userDefPerPage" v-on:keyup="changeNumOfTermsPerPage">
+                            <button id="pub-change-mesh-per-page-btn" class="btn btn-primary" v-on:click="changeNumOfTermsPerPage()">
                                 Change
                             </button>
                         </div>
@@ -297,45 +297,45 @@
                 <div class="panel-body container" v-if="tabState==='seed'" v-show="tabState==='seed'" style="overflow:hidden;">
                     <ol>
                         <li v-for="seed in seedDocInfos" class="pb-2">
-                            <a href="#/" v-on:click="loadResultDocument(seed.pmid)">[[ seed.title ]]</a>
-                            <modal v-if="showModal" v-on:close="showModal = false">
-                                <h3 slot="header">[[ document.title ]]</h3>
-                                <h5 slot="header" v-show="!document.title">[No Title] [[document.pmid]]</h5>
-                                <span slot="header" class="span-sm"><strong>PMID</strong>: [[ document.pmid ]]</span>
+                            <a href="#/" id="pub-seed-item" v-on:click="loadResultDocument(seed.pmid)">[[ seed.title ]]</a>
+                            <modal id="pub-seed-modal" v-if="showModal" v-on:close="showModal = false">
+                                <h3 id="pub-seed-modal-doc-title" slot="header">[[ document.title ]]</h3>
+                                <h3 id="pub-seed-modal-doc-title" slot="header" v-show="!document.title">[No Title] [[document.pmid]]</h3>
+                                <span id="pub-seed-modal-doc-pmid" slot="header" class="span-sm"><strong>PMID</strong>: [[ document.pmid ]]</span>
                                 <br slot="header">
-                                <span slot="header" class="span-sm" v-if="document.type == 'book'"><strong>Book</strong>: [[ document.book ]]</span>
-                                <span slot="header" class="span-sm" v-if="document.type == 'article'"><strong>Journal</strong>: [[ document.journal ]]</span>
+                                <span id="pub-seed-modal-doc-name" slot="header" class="span-sm" v-if="document.type == 'book'"><strong>Book</strong>: [[ document.book ]]</span>
+                                <span id="pub-seed-modal-doc-name" slot="header" class="span-sm" v-if="document.type == 'article'"><strong>Journal</strong>: [[ document.journal ]]</span>
                                 <br slot="header">
-                                <span slot="header" class="span-sm" v-if="document.pubdate != null"><strong>Publication Date</strong>: [[ document.pubdate ]]</span>
+                                <span id="pub-seed-modal-doc-pubdate" slot="header" class="span-sm" v-if="document.pubdate != null"><strong>Publication Date</strong>: [[ document.pubdate ]]</span>
                                 <div slot="body" class="divider"></div>
                                 <h5 slot="body"><strong>Abstract:</strong></h5>
                                 <ul style="list-style-type: none;" slot="body">
                                     <li class="span-rg" v-for="field in document.abstract">
-                                        <span class="span-rg" v-if="field.field != ''"><strong>[[ field.field ]]</strong>: [[ field.content ]]</span>
-                                        <span class="span-rg" v-if="field.field == ''">[[ field.content ]]</span>
+                                        <span id="pub-seed-modal-doc-abs" class="span-rg" v-if="field.field != ''"><strong>[[ field.field ]]</strong>: [[ field.content ]]</span>
+                                        <span id="pub-seed-modal-doc-abs" class="span-rg" v-if="field.field == ''">[[ field.content ]]</span>
                                     </li>
                                 </ul>
                                 <h5 slot="body" v-if="document.type == 'book' || document.keywords.length > 0"><strong>Keywords:</strong></h5>
                                 <h5 slot="body" v-if="document.type == 'article' && document.meshheadings != undefined && document.meshheadings.length > 0"><strong>Mesh Headings:</strong></h5>
                                 <ul style="list-style-type: circle;" slot="body" v-if="document.type == 'book' || document.keywords.length > 0">
-                                    <li class="span-rg" v-for="keyword in document.keywords">
-                                        <span class="span-rg">[[ keyword ]]</span>
+                                    <li class="span-rg" id="pub-result-modal-doc-keyword-item" v-for="keyword in document.keywords">
+                                        <span class="span-rg" id="pub-result-modal-doc-keyword">[[ keyword ]]</span>
                                     </li>
                                 </ul>
                                 <ul style="list-style-type: circle;" slot="body" v-if="document.type == 'article' && document.meshheadings != undefined && document.meshheadings.length > 0">
-                                    <li class="span-rg" v-for="mesh in document.meshheadings">
-                                        <span class="span-rg">[[ mesh ]]</span>
+                                    <li class="span-rg" id="pub-result-modal-doc-mesh-item" v-for="mesh in document.meshheadings">
+                                        <span class="span-rg" id="pub-result-modal-doc-mesh">[[ mesh ]]</span>
                                     </li>
                                 </ul>
                             </modal>
-                            <a href="#/" v-on:click="loadResultDocument(seed.pmid)" v-show="!seed.title">[No Title] [[seed.pmid]]</a>
+                            <a href="#/" id="pub-seed-item" v-on:click="loadResultDocument(seed.pmid)" v-show="!seed.title">[No Title] [[seed.pmid]]</a>
                             <div class="text-left text-sm text-gray">
-                                <span class="span-sm"><strong>PMID</strong>: [[ seed.pmid ]]</span>
+                                <span class="span-sm" id="pub-seed-pmid" ><strong>PMID</strong>: [[ seed.pmid ]]</span>
                             </div>
                         </li>
                     </ol>
                 </div>
-                <div class="panel-body container" v-if="tabState==='criteria'">
+                <div class="panel-body container" v-if="tabState==='criteria'" id="pub-criteria-content">
                     {{if eq .Protocol 1}}
                         {{template "protocol1"}}
                     {{else}}
@@ -351,66 +351,66 @@
 <script type="text/x-template" id="builder">
     <div class="columns">
         <div class="column col-2">
-            <select class="form-select select-sm" v-if="index>0" v-model="query.operator" v-bind:field="query.operator" v-on:change="updateCQR">
-                <option value="and">AND</option>
-                <option value="or">OR</option>
-                <option value="not">NOT</option>
+            <select id="pub-query-builder-operator-select" class="form-select select-sm" v-if="index>0" v-model="query.operator" v-bind:field="query.operator" v-on:change="updateCQR">
+                <option id="pub-query-builder-operator-and" value="and">AND</option>
+                <option id="pub-query-builder-operator-or" value="or">OR</option>
+                <option id="pub-query-builder-operator-not" value="not">NOT</option>
             </select>
         </div>
         <div class="column col-3">
-            <select class="form-select select-sm" v-model="query.field" v-bind:field="query.field" v-on:change="updateCQR">
-                <option value="Affiliation">Affiliation</option>
-                <option value="All Fields" selected="selected">All Fields</option>
-                <option value="Author">Author</option>
-                <option value="Author - Corporate">Author - Corporate</option>
-                <option value="Author - First">Author - First</option>
-                <option value="Author - Full">Author - Full</option>
-                <option value="Author - Identifier">Author - Identifier</option>
-                <option value="Author - Last">Author - Last</option>
-                <option value="Book">Book</option>
-                <option value="Conflict of Interest Statements">Conflict of Interest Statements</option>
-                <option value="Date - Completion">Date - Completion</option>
-                <option value="Date - Create">Date - Create</option>
-                <option value="Date - Entrez">Date - Entrez</option>
-                <option value="Date - MeSH">Date - MeSH</option>
-                <option value="Date - Modification">Date - Modification</option>
-                <option value="Date - Publication">Date - Publication</option>
-                <option value="EC/RN Number">EC/RN Number</option>
-                <option value="Editor">Editor</option>
-                <option value="Filter">Filter</option>
-                <option value="Grant Number">Grant Number</option>
-                <option value="ISBN">ISBN</option>
-                <option value="Investigator">Investigator</option>
-                <option value="Investigator - Full">Investigator - Full</option>
-                <option value="Issue">Issue</option>
-                <option value="Journal">Journal</option>
-                <option value="Language">Language</option>
-                <option value="Location ID">Location ID</option>
-                <option value="MeSH Major Topic">MeSH Major Topic</option>
-                <option value="MeSH Subheading">MeSH Subheading</option>
-                <option value="MeSH Terms">MeSH Terms</option>
-                <option value="Other Term">Other Term</option>
-                <option value="Pagination">Pagination</option>
-                <option value="Pharmacological Action">Pharmacological Action</option>
-                <option value="Publication Type">Publication Type</option>
-                <option value="Publisher">Publisher</option>
-                <option value="Secondary Source ID">Secondary Source ID</option>
-                <option value="Subject - Personal Name">Subject - Personal Name</option>
-                <option value="Supplementary Concept">Supplementary Concept</option>
-                <option value="Text Word">Text Word</option>
-                <option value="Title">Title</option>
-                <option value="Title/Abstract">Title/Abstract</option>
-                <option value="Transliterated Title">Transliterated Title</option>
-                <option value="Volume">Volume</option>
+            <select id="pub-query-builder-field-select" class="form-select select-sm" v-model="query.field" v-bind:field="query.field" v-on:change="updateCQR">
+                <option id="pub-query-builder-field-affiliation" value="Affiliation">Affiliation</option>
+                <option id="pub-query-builder-field-all" value="All Fields" selected="selected">All Fields</option>
+                <option id="pub-query-builder-field-author" value="Author">Author</option>
+                <option id="pub-query-builder-field-author-corp" value="Author - Corporate">Author - Corporate</option>
+                <option id="pub-query-builder-field-author-first" value="Author - First">Author - First</option>
+                <option id="pub-query-builder-field-author-full" value="Author - Full">Author - Full</option>
+                <option id="pub-query-builder-field-author-identifier" value="Author - Identifier">Author - Identifier</option>
+                <option id="pub-query-builder-field-author-last" value="Author - Last">Author - Last</option>
+                <option id="pub-query-builder-field-book" value="Book">Book</option>
+                <option id="pub-query-builder-field-conflict-interest-state" value="Conflict of Interest Statements">Conflict of Interest Statements</option>
+                <option id="pub-query-builder-field-comp-date" value="Date - Completion">Date - Completion</option>
+                <option id="pub-query-builder-field-create-date" value="Date - Create">Date - Create</option>
+                <option id="pub-query-builder-field-entrez-date" value="Date - Entrez">Date - Entrez</option>
+                <option id="pub-query-builder-field-mesh-date" value="Date - MeSH">Date - MeSH</option>
+                <option id="pub-query-builder-field-moddate" value="Date - Modification">Date - Modification</option>
+                <option id="pub-query-builder-field-pubdate" value="Date - Publication">Date - Publication</option>
+                <option id="pub-query-builder-field-ec-rn-no" value="EC/RN Number">EC/RN Number</option>
+                <option id="pub-query-builder-field-editor" value="Editor">Editor</option>
+                <option id="pub-query-builder-field-filter" value="Filter">Filter</option>
+                <option id="pub-query-builder-field-grant-no" value="Grant Number">Grant Number</option>
+                <option id="pub-query-builder-field-isbn" value="ISBN">ISBN</option>
+                <option id="pub-query-builder-field-investigator" value="Investigator">Investigator</option>
+                <option id="pub-query-builder-field-investigator-full" value="Investigator - Full">Investigator - Full</option>
+                <option id="pub-query-builder-field-issue" value="Issue">Issue</option>
+                <option id="pub-query-builder-field-journal" value="Journal">Journal</option>
+                <option id="pub-query-builder-field-lang" value="Language">Language</option>
+                <option id="pub-query-builder-field-location-id" value="Location ID">Location ID</option>
+                <option id="pub-query-builder-field-mesh-major-topic" value="MeSH Major Topic">MeSH Major Topic</option>
+                <option id="pub-query-builder-field-mesh-subheading" value="MeSH Subheading">MeSH Subheading</option>
+                <option id="pub-query-builder-field-mesh-term" value="MeSH Terms">MeSH Terms</option>
+                <option id="pub-query-builder-field-other-term" value="Other Term">Other Term</option>
+                <option id="pub-query-builder-field-pagination" value="Pagination">Pagination</option>
+                <option id="pub-query-builder-field-pharmacological-act" value="Pharmacological Action">Pharmacological Action</option>
+                <option id="pub-query-builder-field-pub-type" value="Publication Type">Publication Type</option>
+                <option id="pub-query-builder-field-publisher" value="Publisher">Publisher</option>
+                <option id="pub-query-builder-field-sec-source-id" value="Secondary Source ID">Secondary Source ID</option>
+                <option id="pub-query-builder-field-sub-personal-name" value="Subject - Personal Name">Subject - Personal Name</option>
+                <option id="pub-query-builder-field-supp-concept" value="Supplementary Concept">Supplementary Concept</option>
+                <option id="pub-query-builder-field-text-word" value="Text Word">Text Word</option>
+                <option id="pub-query-builder-field-title" value="Title">Title</option>
+                <option id="pub-query-builder-field-title-abs" value="Title/Abstract">Title/Abstract</option>
+                <option id="pub-query-builder-field-trans-title" value="Transliterated Title">Transliterated Title</option>
+                <option id="pub-query-builder-field-volume" value="Volume">Volume</option>
             </select>
         </div>
         <div class="column col-5">
-            <input type="text" v-model="query.query" v-bind:query="query.query" v-on:keyup="updateCQR" class="form-input input-sm"/>
+            <input id="pub-cqr" type="text" v-model="query.query" v-bind:query="query.query" v-on:keyup="updateCQR" class="form-input input-sm"/>
         </div>
         <div class="column col-2">
             <div class="btn-group">
-                <a href="#" class="btn btn-action btn-sm" v-on:click="removeSelf"><i class="icon icon-minus"></i></a>
-                <a href="#" class="btn btn-action btn-sm" v-if="last" v-on:click="addQuery"><i class="icon icon-plus"></i></a>
+                <a href="#" id="pub-remove-query-from-builder" class="btn btn-action btn-sm" v-on:click="removeSelf"><i class="icon icon-minus"></i></a>
+                <a href="#" id="pub-add-query-to-builder" class="btn btn-action btn-sm" v-if="last" v-on:click="addQuery"><i class="icon icon-plus"></i></a>
             </div>
         </div>
     </div>
@@ -421,17 +421,17 @@
         <div class="modal-mask">
             <div class="modal-wrapper">
                 <div class="modal-container">
-                    <a href="#/" class="modal-default-button" @click="$emit('close')">
-                        Close
+                    <a href="#/" id="pub-modal-close-btn" class="modal-default-button" @click="$emit('close')">
+                        CLOSE
                     </a>
                     <div class="modal-header">
                         <slot name="header">
-                            default header
+                            DEFAULT HEADER
                         </slot>
                     </div>
                     <div class="modal-body">
                         <slot name="body">
-                            default body
+                            DEFAULT BODY
                         </slot>
                     </div>
                 </div>
