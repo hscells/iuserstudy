@@ -1,7 +1,7 @@
 {{define "seed"}}
     <ul>
         {{range . }}
-            <li><a href="https://www.ncbi.nlm.nih.gov/pubmed/{{ . }}" target="_blank">{{ . }}</a></li>
+            <li><a href="#/">{{ . }}</a></li>
         {{end}}
     </ul>
 {{end}}
@@ -10,14 +10,14 @@
         <li>Use the <b>searchrefiner</b> query visualiser to formulate an effective query for this task.</li>
         <li>Choose what you believe to be the most effective query using one of the <i class="btn btn-action btn-sm icon icon-forward"></i> buttons from your history below.</li>
     </ol>
-    <a href="?uid={{.UID}}&tree" class="btn btn-primary">Open Interface<i class="icon icon-arrow-right"></i></a>
+    <a href="?uid={{.UID}}&tree" class="btn btn-primary" id="qvis-open-qvis-btn">Open Interface<i class="icon icon-arrow-right"></i></a>
 {{end}}
 {{define "pubmed"}}
     <ol>
         <li>Use the <b>PubMed</b> interface to formulate an effective query for this task.</li>
         <li>Choose what you believe to be the most effective query using one of the <i class="btn btn-action btn-sm icon icon-forward"></i> buttons from your history below.</li>
     </ol>
-    <a href="?uid={{.UID}}&pubmed" class="btn btn-primary">Open PubMed<i class="icon icon-arrow-right"></i></a>
+    <a href="?uid={{.UID}}&pubmed" class="btn btn-primary" id="pub-open-pubmed-btn">Open PubMed<i class="icon icon-arrow-right"></i></a>
 {{end}}
 {{define "history"}}
     <div class="panel p-2 mt-2">
@@ -35,16 +35,16 @@
             <div class="divider"></div>
             <div v-for="query in history">
                 <div class="columns">
-                    <div class="column col-7">[[ query.QueryString ]]</div>
-                    <div class="column col-2">[[ query.NumRet ]]</div>
+                    <div class="column col-7" id="hist-query-string">[[ query.QueryString ]]</div>
+                    <div class="column col-2" id="hist-query-numret">[[ query.NumRet ]]</div>
                     {{ if eq .Interface 1 }}
                         <div class="column col-2">[[ query.NumRelRet ]]</div>
                     {{ end }}
                     <div class="column col-1">
                         <form method="post" action="/plugin/iuserstudy">
                             <!--suppress XmlUnboundNsPrefix -->
-                            <input type="hidden" name="query" v-bind:value="[[ query.QueryString ]]">
-                            <button type="submit" class="btn btn-action"><i class="icon icon-forward"></i></button>
+                            <input type="hidden" name="query" id="hist-query-string" v-bind:value="[[ query.QueryString ]]">
+                            <button type="submit" class="btn btn-action" id="hist-best-query-submit-btn"><i class="icon icon-forward"></i></button>
                         </form>
                     </div>
                 </div>
