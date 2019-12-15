@@ -214,7 +214,7 @@
                                         <span class="span-rg" id="pub-result-modal-doc-abs" v-if="field.field == ''">[[ field.content ]]</span>
                                     </li>
                                 </ul>
-                                <h5 slot="body" v-if="(document.type == 'book' || document.keywords != undefined)"><strong>Keywords:</strong></h5>
+                                <h5 slot="body" v-if="((document.type == 'book' && Array.isArray(document.keywords) && document.keywords.length) || (document.type == 'article' && Array.isArray(document.keywords) && document.keywords.length))"><strong>Keywords:</strong></h5>
                                 <h5 slot="body" v-if="document.type == 'article' && document.meshheadings != undefined && document.meshheadings[0] != undefined"><strong>Mesh Headings:</strong></h5>
                                 <ul style="list-style-type: circle;" slot="body" v-if="document.type == 'book' || document.keywords != undefined">
                                     <li class="span-rg" id="pub-result-modal-doc-keywords-item" v-for="keyword in document.keywords" v-if="document.keywords.length > 0">
@@ -315,7 +315,7 @@
                                         <span id="pub-seed-modal-doc-abs" class="span-rg" v-if="field.field == ''">[[ field.content ]]</span>
                                     </li>
                                 </ul>
-                                <h5 slot="body" v-if="document.type == 'book' || document.keywords.length > 0"><strong>Keywords:</strong></h5>
+                                <h5 slot="body" v-if="((document.type == 'book' && Array.isArray(document.keywords) && document.keywords.length) || (document.type == 'article' && Array.isArray(document.keywords) && document.keywords.length))"><strong>Keywords:</strong></h5>
                                 <h5 slot="body" v-if="document.type == 'article' && document.meshheadings != undefined && document.meshheadings.length > 0"><strong>Mesh Headings:</strong></h5>
                                 <ul style="list-style-type: circle;" slot="body" v-if="document.type == 'book' || document.keywords.length > 0">
                                     <li class="span-rg" id="pub-result-modal-doc-keyword-item" v-for="keyword in document.keywords">
