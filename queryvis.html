@@ -291,15 +291,9 @@
                                         <span id="qvis-result-modal-doc-abs" class="span-rg" v-if="field.field == ''">[[ field.content ]]</span>
                                     </li>
                                 </ul>
-                                <h5 slot="body" v-if="((document.type == 'book' && Array.isArray(document.keywords) && document.keywords.length) || (document.type == 'article' && Array.isArray(document.keywords) && document.keywords.length))"><strong>Keywords:</strong></h5>
-                                <h5 slot="body" v-if="document.type == 'article' && document.meshheadings != undefined && document.meshheadings[0] != undefined"><strong>Mesh Headings:</strong></h5>
-                                <ul style="list-style-type: circle;" slot="body" v-if="document.type == 'book' || document.keywords != undefined">
-                                    <li class="span-rg" id="qvis-result-modal-doc-keywords-item" v-for="keyword in document.keywords" v-if="document.keywords.length > 0">
-                                        <span id="qvis-result-modal-doc-keyword" class="span-rg">[[ keyword ]]</span>
-                                    </li>
-                                </ul>
-                                <ul style="list-style-type: circle;" slot="body" v-if="document.type == 'article' && document.meshheadings != undefined">
-                                    <li class="span-rg" id="qvis-result-modal-doc-mesh-item" v-for="mesh in document.meshheadings" v-if="document.meshheadings.length > 0">
+                                <h5 slot="body" v-if="document.type == 'article' && document.meshheadings.length > 0"><strong>Mesh Headings:</strong></h5>
+                                <ul style="list-style-type: circle;" slot="body" v-if="document.type == 'article' && document.meshheadings.length > 0">
+                                    <li class="span-rg" id="qvis-result-modal-doc-mesh-item" v-for="mesh in document.meshheadings">
                                         <span id="qvis-result-modal-doc-mesh" class="span-rg">[[ mesh ]]</span>
                                     </li>
                                 </ul>
@@ -392,14 +386,8 @@
                                         <span id="qvis-seed-modal-doc-abs" class="span-rg" v-if="field.field == ''">[[ field.content ]]</span>
                                     </li>
                                 </ul>
-                                <h5 slot="body" v-if="((document.type == 'book' && Array.isArray(document.keywords) && document.keywords.length) || (document.type == 'article' && Array.isArray(document.keywords) && document.keywords.length))"><strong>Keywords:</strong></h5>
-                                <h5 slot="body" v-if="document.type == 'article' && document.meshheadings != undefined && document.meshheadings.length > 0"><strong>Mesh Headings:</strong></h5>
-                                <ul style="list-style-type: circle;" slot="body" v-if="document.type == 'book' || document.keywords.length > 0">
-                                    <li class="span-rg" id="qvis-result-modal-doc-keyword-item" v-for="keyword in document.keywords">
-                                        <span class="span-rg" id="qvis-result-modal-doc-keyword">[[ keyword ]]</span>
-                                    </li>
-                                </ul>
-                                <ul style="list-style-type: circle;" slot="body" v-if="document.type == 'article' && document.meshheadings != undefined && document.meshheadings.length > 0">
+                                <h5 slot="body" v-if="document.type == 'article' && document.meshheadings.length > 0"><strong>Mesh Headings:</strong></h5>
+                                <ul style="list-style-type: circle;" slot="body" v-if="document.type == 'article' && document.meshheadings.length > 0">
                                     <li class="span-rg" v-for="mesh in document.meshheadings" id="qvis-result-modal-doc-mesh-item">
                                         <span class="span-rg" id="qvis-result-modal-doc-mesh">[[ mesh ]]</span>
                                     </li>
@@ -629,7 +617,7 @@
             seedDocIds: null,
             seedDocInfos: [{"pmid": null, "title" : null}],
 
-            document: {"type" : null, "pmid": null, "title": null, "abstract": [], "pubdate": null, "journal": null, "book":null, "meshheadings" : [], "keywords" : []},
+            document: {"type" : null, "pmid": null, "title": null, "abstract": [], "pubdate": null, "journal": null, "book":null, "meshheadings" : []},
 
             showModal: false,
 
@@ -821,7 +809,6 @@
                             var abstract = [];
                             var pubdate = null;
                             var book = null;
-                            var keywords = [];
                             try {
                                 title = jRes.PubmedArticleSet.PubmedBookArticle.BookDocument.ArticleTitle["#text"];
                             } catch (error) {
@@ -878,35 +865,6 @@
                             } catch (error) {
                                 book = null;
                             }
-                            var keywordsFull = null;
-                            try {
-                                keywordsFull = jRes.PubmedArticleSet.PubmedBookArticle.BookDocument.KeywordList;
-                            } catch (error) {
-                                keywordsFull = null;
-                            }
-                            if (keywordsFull != null) {
-                                if (keywordsFull.constructor == Object) {
-                                    var k = keywordsFull["Keyword"];
-                                    for (i = 0; i < k.length; i++) {
-                                        keywords.push(k[i]);
-                                    }
-                                } else if (Array.isArray(keywordsFull) && keywordsFull.length > 0) {
-                                    for (i = 0; i < keywordsFull.length; i++) {
-                                        var keywordsArr = keywordsFull[i]["Keyword"];
-                                        if (Array.isArray(keywordsArr)) {
-                                            for (k = 0; k < keywordsArr.length; k++) {
-                                                keywords.push(keywordsArr[k]);
-                                            }
-                                        } else {
-                                            keywords.push(keywordsArr);
-                                        }
-                                    }
-                                } else if (keywordsFull === undefined) {
-                                    keywords = [];
-                                }
-                            } else {
-                                keywords = [];
-                            }
                             var document = {
                                 "type" : "book",
                                 "pmid" : pmid,
@@ -914,7 +872,6 @@
                                 "title" : title,
                                 "book" : book,
                                 "pubdate" : pubdate,
-                                "keywords" : keywords,
                             };
                             self.document = document;
                             self.showModal = true;
@@ -924,7 +881,6 @@
                             var pubdate = null;
                             var journal = null;
                             var meshheadings = [];
-                            var keywords = [];
                             try {
                                 title = jRes.PubmedArticleSet.PubmedArticle.MedlineCitation.Article.ArticleTitle;
                             } catch (error) {
@@ -982,15 +938,9 @@
                                 journal = null;
                             }
                             var meshheadingsFull = null;
-                            var keywordsFull = null;
                             try {
                                 meshheadingsFull = jRes.PubmedArticleSet.PubmedArticle.MedlineCitation.MeshHeadingList.MeshHeading;
                             } catch (error) {
-                                try {
-                                    keywordsFull = jRes.PubmedArticleSet.PubmedArticle.MedlineCitation.KeywordList;
-                                } catch (error) {
-                                    keywordsFull = null;
-                                }
                                 meshheadingsFull = null;
                             }
                             if (meshheadingsFull != null) {
@@ -1005,28 +955,7 @@
                                 } else if (meshheadingsFull === undefined) {
                                     meshheadings = [];
                                 }
-                            } else if (keywordsFull != null) {
-                                if (keywordsFull.constructor == Object) {
-                                    var k = keywordsFull["Keyword"];
-                                    for (i = 0; i < k.length; i++) {
-                                        keywords.push(k[i]["#text"]);
-                                    }
-                                } else if (Array.isArray(keywordsFull) && keywordsFull.length > 0) {
-                                    for (i = 0; i < keywordsFull.length; i++) {
-                                        var keywordsArr = keywordsFull[i]["Keyword"];
-                                        if (Array.isArray(keywordsArr)) {
-                                            for (k = 0; k < keywordsArr.length; k++) {
-                                                keywords.push(keywordsArr[k]);
-                                            }
-                                        } else {
-                                            keywords.push(keywordsArr);
-                                        }
-                                    }
-                                } else if (keywordsFull === undefined) {
-                                    keywords = [];
-                                }
                             } else {
-                                keywords = [];
                                 meshheadings = [];
                             }
                             var document = {
@@ -1037,7 +966,6 @@
                                 "journal" : journal,
                                 "pubdate" : pubdate,
                                 "meshheadings" : meshheadings,
-                                "keywords" : keywords,
                             };
                             self.document = document;
                             self.showModal = true;
