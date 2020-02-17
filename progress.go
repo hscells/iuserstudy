@@ -41,18 +41,6 @@ const (
 	studyComplete
 )
 
-var steps = []status{
-	preExperimentQuestionnaire,
-	preTaskQuestionnaire1,
-	experiment1,
-	postTaskQuestionnaire1,
-	preTaskQuestionnaire2,
-	experiment2,
-	postTaskQuestionnaire2,
-	postExperimentQuestionnaire,
-	studyComplete,
-}
-
 const protocols = 2
 const complete = 1
 

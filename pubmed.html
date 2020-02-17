@@ -872,9 +872,8 @@
                         }
                     }
                 });
-                request.open("POST", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?");
-                request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                request.send("db=pubmed&retmode=xml&rettype=medline&id=" + pmid);
+                request.open("GET", "https://cors-anywhere.herokuapp.com/eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&retmode=xml&rettype=medline&id=" + pmid);
+                request.send();
             },
             loadSeedDocInfo: function () {
                 let self = this;
@@ -900,9 +899,8 @@
                     }
                     self.seedDocInfos = seedDocInfos;
                 });
-                request.open("POST", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?");
-                request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                request.send("db=pubmed&id=" + self.seedDocIds);
+                request.open("GET", "https://cors-anywhere.herokuapp.com/eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id=" + self.seedDocIds);
+                request.send();
             },
             loadNextResults: function () {
                 let self = this;
@@ -1019,9 +1017,8 @@
                     self.meshSearchEnd = new Date().getTime();
                     self.timeSpend = (self.meshSearchEnd - self.meshSearchStart)/1000;
                 });
-                request.open("POST", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?");
-                request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                request.send("db=mesh&sort=relevance" + "&id=" + self.ids.toString());
+                request.open("GET", "https://cors-anywhere.herokuapp.com/eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=mesh&sort=relevance" + "&id=" + self.ids.toString());
+                request.send();
             },
             // load MeSH IDs and save for later processing then load MeSH Term information by calling loadMeSHTitles
             loadMeSH: function (e) {
@@ -1052,10 +1049,9 @@
                         self.ids = ids;
                         self.loadMeSHTitles(ids);
                     });
-                    request.open("POST", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?");
-                    request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                     // Set retmax to 9999999 simply to avoid another unneccessary API call to get the correct count
-                    request.send("db=mesh" + "&sort=relevance&term=" + self.meshTerm + "&retmax=9999999");
+                    request.open("GET", "https://cors-anywhere.herokuapp.com/eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=mesh" + "&sort=relevance&term=" + self.meshTerm + "&retmax=9999999");
+                    request.send();
                 }
             },
             changeNumOfTermsPerPage: function (e) {

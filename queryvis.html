@@ -169,8 +169,8 @@
             margin-top: 1px;
             margin-right: 2px;
             position: relative;
-            top:0;
-            right:0;
+            top: 0;
+            right: 0;
             float: right;
         }
 
@@ -320,7 +320,7 @@
                             <i class="icon icon-forward"></i> Search
                         </button>
                         <div class="divider"></div>
-                        <p v-if="!meshInit">Use the search box above to input your term. Click the back link in the top left corner of the interface to return to the study.</p>
+                        <p v-if="!meshInit">Use the search box above to input your term.</p>
                         <div v-if="meshBusy && !meshReady" class="loading loading-lg"></div>
                         <div class="text-left text-sm text-gray">
                             <span class="span-sm" v-if="meshInit" style="font-size:100%"> Total of <strong>[[ ids.length ]]</strong> results found (<strong>[[ timeSpend ]]</strong> seconds)</span>
@@ -347,13 +347,13 @@
                         <!--Thanks to https://vuejsexamples.com/pagination-in-vuejs-simple-way/-->
                         <ul class="pagination" v-if="meshInit">
                             <li class="page-item">
-                                <button id="qvis-mesh-prev-page" v-if="ids.length != 0" type="button" class="btn btn-primary" v-on:click="resetDiv('p')"> Previous </button>
+                                <button id="qvis-mesh-prev-page" v-if="ids.length != 0" type="button" class="btn btn-primary" v-on:click="resetDiv('p')"> Previous</button>
                             </li>
                             <li class="page-item">
-                                <button id="qvis-mesh-page" type="button" v-if="page <= totalPages" class="btn btn-primary"> <input v-bind:value="page" style="width:30%;height:100%;text-align:center" v-model="uDefPage" v-on:keyup="jumpPage" /> / [[ totalPages ]] </button>
+                                <button id="qvis-mesh-page" type="button" v-if="page <= totalPages" class="btn btn-primary"><input v-bind:value="page" style="width:30%;height:100%;text-align:center" v-model="uDefPage" v-on:keyup="jumpPage"/> / [[ totalPages ]]</button>
                             </li>
                             <li class="page-item">
-                                <button id="qvis-mesh-next-page" v-if="ids.length != 0" type="button" v-on:click="resetDiv('n')" class="btn btn-primary"> Next </button>
+                                <button id="qvis-mesh-next-page" v-if="ids.length != 0" type="button" v-on:click="resetDiv('n')" class="btn btn-primary"> Next</button>
                             </li>
                         </ul>
                         <div v-if="meshInit && totalPages > 0">
@@ -595,15 +595,15 @@
 
             // handle MeSH browser
             ids: [],
-            meshInfo: [{rank: 0, id:"", name:"", desc:"", yIntroduced:"", supDate:"", terms:[]}],
+            meshInfo: [{rank: 0, id: "", name: "", desc: "", yIntroduced: "", supDate: "", terms: []}],
             meshTerm: "",
             meshInit: false,
             meshBusy: false,
             meshReady: false,
 
             // handle pagination
-			page: 1,
-			perPage: 5,
+            page: 1,
+            perPage: 5,
             totalPages: 0,
             userDefPerPage: 5,
             uDefPage: 1,
@@ -615,9 +615,9 @@
 
             seed: "{{.Seed}}",
             seedDocIds: null,
-            seedDocInfos: [{"pmid": null, "title" : null}],
+            seedDocInfos: [{"pmid": null, "title": null}],
 
-            document: {"type" : null, "pmid": null, "title": null, "abstract": [], "pubdate": null, "journal": null, "book":null, "meshheadings" : []},
+            document: {"type": null, "pmid": null, "title": null, "abstract": [], "pubdate": null, "journal": null, "book": null, "meshheadings": []},
 
             showModal: false,
 
@@ -631,8 +631,8 @@
         },
         computed: {
             displayedMeSHInfos() {
-			    return this.paginate(this.meshInfo);
-		    },
+                return this.paginate(this.meshInfo);
+            },
             cqrQuery() {
                 var q = {};
                 for (var i = 0; i < this.queries.length; i++) {
@@ -674,7 +674,7 @@
             }
         },
         methods: {
-            meshSearchBoxFocus: function() {
+            meshSearchBoxFocus: function () {
                 document.getElementById("meshInputBox").focus();
             },
             jumpPage: function (e) {
@@ -798,7 +798,7 @@
             loadResultDocument: function (pmid) {
                 let self = this;
                 var request = new XMLHttpRequest();
-                request.addEventListener("load", function(ev) {
+                request.addEventListener("load", function (ev) {
                     if (ev.currentTarget.status === 200) {
                         let resp = ev.currentTarget.responseXML;
                         var strJRes = xml2json(resp);
@@ -821,21 +821,21 @@
                                 abstractFull = null;
                             }
                             if (abstractFull != null) {
-                                if (typeof(abstractFull) === "object") {
+                                if (typeof (abstractFull) === "object") {
                                     for (i = 0; i < abstractFull.length; i++) {
                                         var content = abstractFull[i]["#text"];
                                         content = content.replace(/<i>/g, "");
                                         content = content.replace(/<\/i>/g, "");
                                         var field = {
-                                            "field" : abstractFull[i]["@Label"],
-                                            "content" : content
+                                            "field": abstractFull[i]["@Label"],
+                                            "content": content
                                         };
                                         abstract.push(field);
                                     }
                                 } else {
                                     var field = {
-                                        "field" : "",
-                                        "content" : abstractFull,
+                                        "field": "",
+                                        "content": abstractFull,
                                     }
                                     abstract.push(field);
                                 }
@@ -866,12 +866,12 @@
                                 book = null;
                             }
                             var document = {
-                                "type" : "book",
-                                "pmid" : pmid,
-                                "abstract" : abstract,
-                                "title" : title,
-                                "book" : book,
-                                "pubdate" : pubdate,
+                                "type": "book",
+                                "pmid": pmid,
+                                "abstract": abstract,
+                                "title": title,
+                                "book": book,
+                                "pubdate": pubdate,
                             };
                             self.document = document;
                             self.showModal = true;
@@ -893,21 +893,21 @@
                                 abstractFull = null;
                             }
                             if (abstractFull != null) {
-                                if (typeof(abstractFull) === "object") {
+                                if (typeof (abstractFull) === "object") {
                                     for (i = 0; i < abstractFull.length; i++) {
                                         var content = abstractFull[i]["#text"];
                                         content = content.replace(/<i>/g, "");
                                         content = content.replace(/<\/i>/g, "");
                                         var field = {
-                                            "field" : abstractFull[i]["@Label"],
-                                            "content" : content
+                                            "field": abstractFull[i]["@Label"],
+                                            "content": content
                                         };
                                         abstract.push(field);
                                     }
                                 } else {
                                     var field = {
-                                        "field" : "",
-                                        "content" : abstractFull,
+                                        "field": "",
+                                        "content": abstractFull,
                                     }
                                     abstract.push(field);
                                 }
@@ -934,7 +934,7 @@
                             }
                             try {
                                 journal = jRes.PubmedArticleSet.PubmedArticle.MedlineCitation.Article.Journal.Title;
-                            } catch(error) {
+                            } catch (error) {
                                 journal = null;
                             }
                             var meshheadingsFull = null;
@@ -959,22 +959,21 @@
                                 meshheadings = [];
                             }
                             var document = {
-                                "type" : "article",
-                                "pmid" : pmid,
-                                "abstract" : abstract,
-                                "title" : title,
-                                "journal" : journal,
-                                "pubdate" : pubdate,
-                                "meshheadings" : meshheadings,
+                                "type": "article",
+                                "pmid": pmid,
+                                "abstract": abstract,
+                                "title": title,
+                                "journal": journal,
+                                "pubdate": pubdate,
+                                "meshheadings": meshheadings,
                             };
                             self.document = document;
                             self.showModal = true;
                         }
                     }
                 });
-                request.open("POST", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?");
-                request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                request.send("db=pubmed&retmode=xml&rettype=medline&id=" + pmid);
+                request.open("GET", "https://cors-anywhere.herokuapp.com/eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&retmode=xml&rettype=medline&id=" + pmid);
+                request.send();
             },
             loadSeedDocInfo: function () {
                 let self = this;
@@ -983,7 +982,7 @@
                 var splitedSeed = originalSeed.substring(1, originalSeed.length - 1).split(" ");
                 self.seedDocIds = splitedSeed.join(",");
                 let request = new XMLHttpRequest();
-                request.addEventListener("load", function(ev) {
+                request.addEventListener("load", function (ev) {
                     if (ev.currentTarget.status === 200) {
                         let resp = ev.currentTarget.responseXML;
                         var rawValues = resp.querySelectorAll("Item");
@@ -1000,19 +999,18 @@
                     }
                     self.seedDocInfos = seedDocInfos;
                 });
-                request.open("POST", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?");
-                request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                request.send("db=pubmed&id=" + self.seedDocIds);
+                request.open("GET", "https://cors-anywhere.herokuapp.com/eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id=" + self.seedDocIds);
+                request.send();
             },
             resetMeSHBrowser: function () {
-                this.meshInfo = [{rank: 0, id:"", name:"", desc:"", yIntroduced:"", supDate:"", terms:[]}];
+                this.meshInfo = [{rank: 0, id: "", name: "", desc: "", yIntroduced: "", supDate: "", terms: []}];
                 this.ids = [];
                 this.meshTerm = "";
                 this.meshInit = false;
                 this.meshReady = false;
                 this.meshBusy = false;
                 this.page = 1;
-			    this.perPage = 5;
+                this.perPage = 5;
                 this.totalPages = 0;
                 this.userDefPerPage = 5;
                 this.uDefPage = 1;
@@ -1070,7 +1068,7 @@
                 }
             },
             // This action is triggered after the loadMeSH
-            loadMeSHTitles: function(ids){
+            loadMeSHTitles: function (ids) {
                 let self = this;
                 let meshInfo = [];
                 let names = [];
@@ -1079,7 +1077,7 @@
                 let supDates = [];
                 let entryTerms = [];
                 let request = new XMLHttpRequest();
-                request.addEventListener("load", function(ev) {
+                request.addEventListener("load", function (ev) {
                     if (ev.currentTarget.status === 200) {
                         var xmlDoc = ev.currentTarget.responseXML;
                         var rawValues = xmlDoc.querySelectorAll("Item");
@@ -1121,11 +1119,10 @@
                     self.meshReady = true;
                     self.meshBusy = false;
                     self.meshSearchEnd = new Date().getTime();
-                    self.timeSpend = (self.meshSearchEnd - self.meshSearchStart)/1000;
+                    self.timeSpend = (self.meshSearchEnd - self.meshSearchStart) / 1000;
                 });
-                request.open("POST", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?");
-                request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                request.send("db=mesh&sort=relevance" + "&id=" + self.ids.toString());
+                request.open("GET", "https://cors-anywhere.herokuapp.com/eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=mesh&sort=relevance" + "&id=" + self.ids.toString());
+                request.send();
             },
             // load MeSH IDs and save for later processing then load MeSH Term information by calling loadMeSHTitles
             loadMeSH: function (e) {
@@ -1135,13 +1132,13 @@
                     self.meshBusy = true;
                     self.meshReady = false;
                     self.ids = [];
-                    self.meshInfo = [{rank: 0, id:"", name:"", desc:"", yIntroduced:"", supDate:"", terms:[]}];
+                    self.meshInfo = [{rank: 0, id: "", name: "", desc: "", yIntroduced: "", supDate: "", terms: []}];
                     self.page = 1;
                     self.uDefPage = 1;
                     self.totalPages = 0;
                     self.meshInit = false;
                     self.meshSearchStart = new Date().getTime();
-                    request.addEventListener("load", function(ev) {
+                    request.addEventListener("load", function (ev) {
                         let ids = [];
                         if (ev.currentTarget.status === 200) {
                             var xmlDoc = ev.currentTarget.responseXML;
@@ -1156,10 +1153,9 @@
                         self.ids = ids;
                         self.loadMeSHTitles(ids);
                     });
-                    request.open("POST", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?");
-                    request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                     // Set retmax to 9999999 simply to avoid another unneccessary API call to get the correct count
-                    request.send("db=mesh" + "&sort=relevance&term=" + self.meshTerm + "&retmax=9999999");
+                    request.open("GET", "https://cors-anywhere.herokuapp.com/eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=mesh" + "&sort=relevance&term=" + self.meshTerm + "&retmax=9999999");
+                    request.send();
                 }
             },
             changeNumOfTermsPerPage: function (e) {
@@ -1182,12 +1178,12 @@
             paginate: function (meshInfo) {
                 let self = this;
                 let page = self.page;
-                self.totalPages = Math.ceil(meshInfo.length/self.perPage);
+                self.totalPages = Math.ceil(meshInfo.length / self.perPage);
                 let perPage = self.perPage;
                 let from = (page * perPage) - perPage;
                 let to = (page * perPage);
-                return  meshInfo.slice(from, to);
-		    }
+                return meshInfo.slice(from, to);
+            }
         },
         beforeMount: function () {
             this.getHistory();
