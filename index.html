@@ -10,12 +10,30 @@
         <li>Use the <b>searchrefiner</b> query visualiser to formulate an effective query for this task.</li>
         <li>Choose what you believe to be the most effective query using one of the <i class="btn btn-action btn-sm icon icon-forward"></i> buttons from your history below.</li>
     </ol>
+    <b>Instructions:</b>
+    <img src="/plugin/iuserstudy/static/howto-queryvis.png" width="100%" alt="instructions for using the searchrefiner interface.">
+    <ol>
+        <li>Formulate your query here. This interface replicates the PubMed advanced query editor. Your query will be updated in real-time in the grey area above the editor. Click the + and - buttons to add or remove clauses to the query. Click the visualise button to create the visualisation as seen in (3).</li>
+        <li>Use the tabs to move between different sources of information. The Results tab contains the studies retrieved by the query. The number of studies retrieved by the query is indicated by the number in the Results tab. The History tab contains your history of query formulations. Seed Documents contains reference studies provided to you by the researchers. Search Criteria contains the protocol for the systematic review. MeSH Browser contains an embedded MeSH search engine which can be
+            used for looking up MeSH terms.
+        </li>
+        <li>This box contains statistics about your search: 4201 is the number of studies retrieved by the search; 10 is the number of seed studies; 6 is the number of seed studies retrieved by the search.</li>
+        <li>A visualisation of your query will appear here. You may zoom and drag this visualisation. The edges between nodes display the number of studies retrieved by the clause, and the number of seed studies retrieved (in parenthesis).</li>
+    </ol>
     <a href="?uid={{.UID}}&tree" class="btn btn-primary" id="qvis-open-qvis-btn">Open Interface<i class="icon icon-arrow-right"></i></a>
 {{end}}
 {{define "pubmed"}}
     <ol>
         <li>Use the <b>PubMed</b> interface to formulate an effective query for this task.</li>
         <li>Choose what you believe to be the most effective query using one of the <i class="btn btn-action btn-sm icon icon-forward"></i> buttons from your history below.</li>
+    </ol>
+    <b>Instructions:</b>
+    <img src="/plugin/iuserstudy/static/howto-pubmed.png" width="100%" alt="instructions for using the pubmed interface.">
+    <ol>
+        <li>Formulate your query here. This interface replicates the PubMed advanced query editor. Your query will be updated in real-time in the grey area above the editor. Click the + and - buttons to add or remove clauses to the query. Click the Results button to run the search.</li>
+        <li>Use the tabs to move between different sources of information. The Results tab contains the studies retrieved by the query. The number of studies retrieved by the query is indicated by the number in the Results tab. The History tab contains your history of query formulations. Seed Documents contains reference studies provided to you by the researchers. Search Criteria contains the protocol for the systematic review. MeSH Browser contains an embedded MeSH search engine which can be
+            used for looking up MeSH terms.
+        </li>
     </ol>
     <a href="?uid={{.UID}}&pubmed" class="btn btn-primary" id="pub-open-pubmed-btn">Open PubMed<i class="icon icon-arrow-right"></i></a>
 {{end}}
@@ -268,7 +286,8 @@
                         <h3>Thank-you for participating in this study! 😎</h3>
                     </div>
                     <div class="panel-body">
-                        You can now close this window. Your answers to the questionnaires and the queries you formulated have been recorded.
+                        <p>You can now close this window. Your answers to the questionnaires and the queries you formulated have been recorded.</p>
+                        <p>If you elected to receive results, you will be contacted in the following months with this information.</p>
                     </div>
                     <div class="panel-footer"></div>
                 </div>
