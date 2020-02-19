@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/boltdb/bolt"
 	"github.com/go-errors/errors"
 )
@@ -66,16 +67,19 @@ func newProgress(db *bolt.DB) (progress, error) {
 		// second byte contains the number of assigned protocols so far.
 		p := tx.Bucket([]byte(bucketProtocol)) // Protocol bucket.
 		b2 := p.Get([]byte(bucketProtocol))    // Bytes for this key.
-		pv = b2[0]                             // Which protocol?
 		idx := b2[1]                           // Index of protocol assignment.
-		if idx >= protocols*2 {
-			b2 = []byte{byte(p2), idx}
-		} else if b2[1] == 0 {
-			b2 = []byte{byte(p1), idx}
+		pv = b2[0]
+		if idx%protocols == 0 {
+			if pv == byte(p2) {
+				pv = byte(p1)
+			} else {
+				pv = byte(p2)
+			}
 		}
-		// Note the increase of index.
-		return i.Put([]byte(bucketProtocol), []byte{b2[0], idx + 1})
+		fmt.Println("============>", pv, idx+1)
+		return p.Put([]byte(bucketProtocol), []byte{pv, idx + 1})
 	})
+	fmt.Println("-------------->", iv, pv)
 	return progress{byte(preExperimentQuestionnaire), byte(iv), byte(pv)}, err
 }
 

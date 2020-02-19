@@ -230,41 +230,47 @@ func (IUserStudyPlugin) Serve(s searchrefiner.Server, c *gin.Context) {
 		return
 	}
 
-	// Configure the database.
+	fmt.Println(uid, "consent given")
+
+	_, ferr := os.Stat("plugin/iuserstudy/data.db")
+
 	if db == nil {
-		var err error
+		// Configure the database.
 		db, err = bolt.Open("plugin/iuserstudy/data.db", os.ModePerm, nil)
 		if err != nil {
 			c.HTML(http.StatusUnauthorized, "error.html", searchrefiner.ErrorPage{Error: err.Error(), BackLink: "/"})
 			return
 		}
-		err = db.Update(func(tx *bolt.Tx) error {
-			_, err := tx.CreateBucketIfNotExists([]byte(bucketProgress))
-			if err != nil {
+		fmt.Println(uid, "opened database")
+		if os.IsNotExist(ferr) {
+			fmt.Println("initialising ")
+			err = db.Update(func(tx *bolt.Tx) error {
+				_, err := tx.CreateBucketIfNotExists([]byte(bucketProgress))
+				if err != nil {
+					return err
+				}
+				i, err := tx.CreateBucketIfNotExists([]byte(bucketInterface))
+				if err != nil {
+					return err
+				}
+				// check if bucket exists
+				err = i.Put([]byte(bucketInterface), []byte{byte(queryvis)})
+				if err != nil {
+					return err
+				}
+				p, err := tx.CreateBucketIfNotExists([]byte(bucketProtocol))
+				if err != nil {
+					return err
+				}
+				err = p.Put([]byte(bucketProtocol), []byte{byte(p1), 0})
 				return err
-			}
-			i, err := tx.CreateBucketIfNotExists([]byte(bucketInterface))
+			})
 			if err != nil {
-				return err
+				c.HTML(http.StatusUnauthorized, "error.html", searchrefiner.ErrorPage{Error: err.Error(), BackLink: "/"})
+				return
 			}
-			// check if bucket exists
-			err = i.Put([]byte(bucketInterface), []byte{byte(queryvis)})
-			if err != nil {
-				return err
-			}
-			p, err := tx.CreateBucketIfNotExists([]byte(bucketProtocol))
-			if err != nil {
-				return err
-			}
-			err = p.Put([]byte(bucketProtocol), []byte{byte(p1), 0})
-			return err
-		})
-		if err != nil {
-			c.HTML(http.StatusUnauthorized, "error.html", searchrefiner.ErrorPage{Error: err.Error(), BackLink: "/"})
-			return
 		}
 	}
-
 	// Get the current progress of the user.
 	var step progress
 	err = db.View(func(tx *bolt.Tx) error {
