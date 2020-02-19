@@ -76,10 +76,8 @@ func newProgress(db *bolt.DB) (progress, error) {
 				pv = byte(p2)
 			}
 		}
-		fmt.Println("============>", pv, idx+1)
 		return p.Put([]byte(bucketProtocol), []byte{pv, idx + 1})
 	})
-	fmt.Println("-------------->", iv, pv)
 	return progress{byte(preExperimentQuestionnaire), byte(iv), byte(pv)}, err
 }
 
