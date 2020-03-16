@@ -321,6 +321,7 @@ func (IUserStudyPlugin) Serve(s searchrefiner.Server, c *gin.Context) {
 			Language: "pubmed",
 			Seed:     seed,
 			Date:     date,
+			Protocol: int(p),
 		}))
 		return
 	}
@@ -332,6 +333,7 @@ func (IUserStudyPlugin) Serve(s searchrefiner.Server, c *gin.Context) {
 			Language: "pubmed",
 			Seed:     seed,
 			Date:     date,
+			Protocol: int(p),
 		}))
 		return
 	}
