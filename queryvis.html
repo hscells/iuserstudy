@@ -226,9 +226,12 @@
                 <div class="panel-footer">
                     <button class="btn btn-primary nav-height" id="qvis-load-results-update-tree-btn" v-on:click="updateTree">
                         <i class="icon icon-forward"></i> Search
-                    </button>
-                    <div class="divider"></div>
-                    <p>Use the query builder above to formulate your query. Click the back link in the top left corner of the interface to return to the study.</p>
+                    </button><br/>
+                    <small>Note: New searches can be slow, especially when matching many studies.</small><br/>
+                    <div>
+                        <div class="divider"></div>
+                        Use the query builder above to formulate your query. Click the back link in the top left corner of the interface to return to the study.<br/>
+                    </div>
                 </div>
             </div>
             <div class="panel p-2 mt-2">
@@ -733,13 +736,12 @@
                         }
                         self.numRel = resp.NumRel;
                         self.numRelRet = resp.NumRelRet;
+                        self.getHistory();
                     });
                     request.open("POST", "/plugin/iuserstudy?tree=y", true);
                     request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
                     request.send("query=" + this.textQuery + "&lang=" + this.queryLanguage);
                 }
-
-                self.getHistory();
             },
             removeQuery: function (index) {
                 this.queries.splice(index, 1)
@@ -750,11 +752,11 @@
             addQuery: function (query) {
                 this.queries.push(query)
             },
-            addFromHistory: function(idx) {
+            addFromHistory: function (idx) {
                 var self = this;
                 request = new XMLHttpRequest();
                 request.addEventListener("load", function (ev) {
-                    self.addQuery({"field": "All Fields", "cqr": JSON.parse(ev.target.responseText), "query": self.history[idx]["QueryString"], "operator":"and"});
+                    self.addQuery({"field": "All Fields", "cqr": JSON.parse(ev.target.responseText), "query": self.history[idx]["QueryString"], "operator": "and"});
                 })
                 request.open("POST", "/api/query2cqr", true);
                 request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -1070,6 +1072,7 @@
                             self.start = resp.Documents.length;
                             self.total = resp.Total;
                             bb.log(ev, "query", self.textQuery)
+                            bb.log(ev, "query-date", self.textQueryDate)
                         }
                     });
                     request.open("POST", "/api/scroll");

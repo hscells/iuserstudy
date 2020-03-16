@@ -7,10 +7,10 @@
 {{end}}
 {{define "queryvis"}}
     <ul>
-        <li>Use the <b>searchrefiner</b> query visualiser to formulate an effective query for this task.</li>
-        <li>Choose what you believe to be the most effective query using one of the <i class="btn btn-action btn-sm icon icon-forward"></i> buttons from your history below.</li>
+        <li>Use the <b>searchrefiner</b> interface to develop an effective search for this task. A button at the bottom of this page will take you to the interface. Use the instructions below to assist you in completing the task.</li>
+        <li>Choose what you believe to be the most effective query by selecting <b>one</b> of the <i class="btn btn-action btn-sm icon icon-forward"></i> buttons from your history below. These will appear once you have used the interface.</li>
     </ul>
-    <b>Instructions:</b>
+    <b>Instructions for how to use the seachrefiner interface:</b>
     <img src="/plugin/iuserstudy/static/howto-queryvis.png" width="100%" alt="instructions for using the searchrefiner interface.">
     <ol>
         <li>Formulate your query here. This interface replicates the PubMed advanced query editor. Your query will be updated in real-time in the grey area above the editor. Click the + and - buttons to add or remove clauses to the query. Click the visualise button to create the visualisation as seen in (3).</li>
@@ -24,10 +24,10 @@
 {{end}}
 {{define "pubmed"}}
     <ul>
-        <li>Use the <b>PubMed</b> interface to formulate an effective query for this task.</li>
-        <li>Choose what you believe to be the most effective query using one of the <i class="btn btn-action btn-sm icon icon-forward"></i> buttons from your history below.</li>
+        <li>Use the <b>PubMed</b> interface to develop an effective search for this task. A button at the bottom of this page will take you to the interface. Use the instructions below to assist you in completing the task.</li>
+        <li>Choose what you believe to be the most effective search using one of the <i class="btn btn-action btn-sm icon icon-forward"></i> buttons from your history below. These will appear once you have used the interface.</li>
     </ul>
-    <b>Instructions:</b>
+    <b>Instructions for how to use the PubMed interface:</b>
     <img src="/plugin/iuserstudy/static/howto-pubmed.png" width="100%" alt="instructions for using the pubmed interface.">
     <ol>
         <li>Formulate your query here. This interface replicates the PubMed advanced query editor. Your query will be updated in real-time in the grey area above the editor. Click the + and - buttons to add or remove clauses to the query. Click the Results button to run the search.</li>
@@ -81,9 +81,9 @@
         </p>
         <p>
             This study comprises eight steps in total for you to complete.
-            Steps 3 and 6 will have you formulating queries in <b>PubMed syntax</b> for real systematic reviews.
-            The other steps involve answering short questionnaires about your knowledge regarding the query formulation and the information tasks.
-            The visualisation below presents the tasks you will be completing in more detail, with respect to the tasks you will be performing and the questionnaires to complete.
+            Steps 3 and 6 will have you developing searches in <b>PubMed syntax</b> for real systematic reviews.
+            The other steps involve answering short questionnaires about your knowledge regarding query formulation and the tasks you will complete in this study.
+            The visualisation below illustrates the tasks you will be performing and the questionnaires to complete.
         </p>
         <img src="/plugin/iuserstudy/static/process.png" alt="process of the user study." style="max-width: 520px;">
         <p>The first step in the study is the pre-study questionnaire, presented below. Please complete the pre-study questionnaire to progress.</p>
@@ -101,7 +101,7 @@
 {{define "pretask"}}
     <div class="info">
         <h2>Pre-Task Questionnaire <span class="h3">(Step {{ .Step }})</span></h2>
-        <p><b>Task</b>: You have been provided with the following criteria for considering studies for including in a systematic review:</p>
+        <p><b>Scenario</b>: You have been provided with the following criteria for considering studies for including in a systematic review:</p>
         {{ if eq .Protocol 1 }}
             {{template "protocol1" . }}
         {{ else }}
@@ -109,7 +109,7 @@
         {{ end }}
         <div class="divider"></div>
         <p>
-            Your task is to design a search to identify eligible studies for inclusion in the systematic review. Before you begin, please complete the following questionnaire.
+            <b>Task</b>: Your task is to develop a search to identify eligible studies for inclusion in the systematic review. Before you begin, please complete the following questionnaire.
         </p>
         <div class="panel">
             <div class="panel-header">
@@ -126,11 +126,11 @@
     <div class="info">
         <h2>Task <span class="h3">(Step {{ .Step }})</span></h2>
         <p>Please complete the task described below as required by the study.</p>
-        <p>We have repeated the inclusion criteria inside the interface for convenience. We have also provided within the interface a number of "seed" studies that are known-to-be-relevant for this task.</p>
+        <p>We have repeated the inclusion criteria within the interface for convenience. We have also provided within the interface, a number of "seed" studies that are known-to-be-relevant for this task.</p>
         <p>Below, we have provided a link to the interface you have to use to formulate the search to identify eligible studies for inclusion in the systematic review.</p>
-        <p>When formulating a query, please <b>do not use any other system</b> other than the one prescribed below. This includes external tools you might usually use, e.g., the MeSH browser on the NCBI website. For this purpose, please use the MeSH browser provided within the interface.</p>
-        <p>There is a link in the top left of the interface to return back to this page when you are satisfied with the query you have formulated.</p>
-        <h4>Interface</h4>
+        <p>When formulating a query, please <b>do not use any other system</b> other than the one prescribed below. This includes external tools you might usually use, e.g., the MeSH browser on the NCBI website.</p>
+        <p>There is a link in the top left of the interface to return back to this page once you are satisfied with the search you have developed.</p>
+        <h4>Instructions</h4>
         {{ if eq .Interface 1 }}
             {{template "queryvis" . }}
         {{ else }}
