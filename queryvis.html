@@ -247,36 +247,38 @@
                             <a href="#" id="qvis-criteria-tab">Search Criteria</a>
                         </li>
                         <li class="tab-item" v-bind:class="{active: tabState==='mesh'}" v-on:click="tabState='mesh';meshSearchBoxFocus()">
-                            <a href="#" id="qvis-mesh-tab" class="badge" v-bind:data-badge="ids.length">MeSH Browser</a>
+                            <a href="#" id="qvis-mesh-tab">MeSH Browser</a>
                         </li>
                     </ul>
                 </div>
                 <div class="panel-body container" v-show="tabState==='history'">
                     <div class="columns">
-                        <div class="column col-8 text-italic">Query</div>
+                        <div class="column col-6 text-italic">Query</div>
                         <div class="column col-2 text-italic">Items found</div>
                         <div class="column col-2 text-italic">Relevant items found</div>
+                        <div class="column col-1 text-italic">Add to Search</div>
                     </div>
                     <div class="divider"></div>
-                    <div v-for="query in history">
+                    <div v-for="(query, i) in history">
                         <div class="columns">
-                            <div class="column col-8" id="qvis-query-string">[[ query.QueryString ]]</div>
+                            <div class="column col-6" id="qvis-query-string">[[ query.QueryString ]]</div>
                             <div class="column col-2" id="qvis-query-numret">[[ query.NumRet ]]</div>
                             <div class="column col-2" id="qvis-query-numrelret">[[ query.NumRelRet ]]</div>
+                            <div class="column col-1" id="pub-query-numret"><a href="#" class="btn btn-primary" v-on:click="addFromHistory(i)">add</a></div>
                         </div>
                         <div class="divider"></div>
                     </div>
                 </div>
                 <div class="panel-body container" v-show="tabState==='results'" style="overflow: hidden">
                     <div v-if="busy && !ready" class="loading loading-lg"></div>
-                    <p v-if="!init">Results will show here once you click the Visualise button above.</p>
+                    <p v-if="!init">Results will show here once you click the search button above.</p>
                     <ol v-infinite-scroll="loadNextResults" infinite-scroll-disabled="busy" infinite-scroll-distance="10">
                         <li v-for="c in results" class="pb-2">
                             <a href="#/" id="qvis-results-item" v-on:click="loadResultDocument(c.PMID)">[[c.TI]]</a>
                             <!-- Thanks to https://cn.vuejs.org/v2/examples/modal.html-->
                             <modal id="qvis-results-modal" v-if="showModal" v-on:close="showModal = false">
                                 <h3 slot="header" id="qvis-result-modal-doc-title">[[ document.title ]]</h3>
-                                <h5 slot="header" id="qvis-result-modal-doc-title" v-show="!document.title">[No Title] [[document.pmid]]</h5>
+                                <h5 slot="header" id="qvis-result-modal-doc-title" v-show="!document.title">Cannot load results. Try again later. [[document.pmid]]</h5>
                                 <span slot="header" id="qvis-result-modal-doc-pmid" class="span-sm"><strong>PMID</strong>: [[ document.pmid ]]</span>
                                 <br slot="header">
                                 <span slot="header" id="qvis-result-modal-doc-name" class="span-sm" v-if="document.type == 'book'"><strong>Book</strong>: [[ document.book ]]</span>
@@ -312,7 +314,7 @@
                     <div v-if="busy && ready" class="loading loading-lg"></div>
                 </div>
                 <div class="panel-body container" v-show="tabState==='mesh'" style="overflow:hidden;">
-                    <input class="panel-body" v-show="tabState==='mesh'" style="overflow:hidden;width:100%" v-model="meshTerm" id="meshInputBox" v-on:keyup="loadMeSH">
+                    <input class="panel-body" v-show="tabState==='mesh'" style="overflow:hidden;width:100%" v-model="meshTerm" id="meshInputBox" v-on:keyup="loadMeSH" placeholder="type search terms here">
                     <div class="divider"></div>
                     <a href="#" id="qvis-reset-mesh" v-on:click="resetMeSHBrowser()">Clear All</a>
                     <div class="panel-footer">
@@ -644,12 +646,12 @@
                         }
                     } else {
                         child = this.queries[i].cqr;
-                        if (child === undefined || child.operator == "") {
-                            child = {
-                                query: this.queries[i].query,
-                                fields: [this.queries[i].field],
-                            }
-                        }
+                        // if (child === undefined || child.operator == "") {
+                        //     child = {
+                        //         query: this.queries[i].query,
+                        //         fields: [this.queries[i].field],
+                        //     }
+                        // }
                     }
 
                     // Skip adding this child because it is empty.
@@ -738,8 +740,6 @@
                 }
 
                 self.getHistory();
-
-                bb.log(e, "treesubmit", document.getElementById("search-box").value)
             },
             removeQuery: function (index) {
                 this.queries.splice(index, 1)
@@ -749,6 +749,16 @@
             },
             addQuery: function (query) {
                 this.queries.push(query)
+            },
+            addFromHistory: function(idx) {
+                var self = this;
+                request = new XMLHttpRequest();
+                request.addEventListener("load", function (ev) {
+                    self.addQuery({"field": "All Fields", "cqr": JSON.parse(ev.target.responseText), "query": self.history[idx]["QueryString"], "operator":"and"});
+                })
+                request.open("POST", "/api/query2cqr", true);
+                request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                request.send("query=" + this.history[idx]["QueryString"] + "&lang=pubmed");
             },
             getHistory: function () {
                 var self = this;

@@ -6,32 +6,32 @@
     </ul>
 {{end}}
 {{define "queryvis"}}
-    <ol>
+    <ul>
         <li>Use the <b>searchrefiner</b> query visualiser to formulate an effective query for this task.</li>
         <li>Choose what you believe to be the most effective query using one of the <i class="btn btn-action btn-sm icon icon-forward"></i> buttons from your history below.</li>
-    </ol>
+    </ul>
     <b>Instructions:</b>
     <img src="/plugin/iuserstudy/static/howto-queryvis.png" width="100%" alt="instructions for using the searchrefiner interface.">
     <ol>
         <li>Formulate your query here. This interface replicates the PubMed advanced query editor. Your query will be updated in real-time in the grey area above the editor. Click the + and - buttons to add or remove clauses to the query. Click the visualise button to create the visualisation as seen in (3).</li>
-        <li>Use the tabs to move between different sources of information. The Results tab contains the studies retrieved by the query. The number of studies retrieved by the query is indicated by the number in the Results tab. The History tab contains your history of query formulations. Seed Documents contains reference studies provided to you by the researchers. Search Criteria contains the protocol for the systematic review. MeSH Browser contains an embedded MeSH search engine which can be
+        <li>Use the tabs to move between different sources of information. The Results tab contains the studies retrieved by the query. The number of studies retrieved by the query is indicated by the number in the Results tab. The History tab contains your history of searches. Seed Documents contains reference studies provided to you by the researchers. Search Criteria contains the protocol for the systematic review. MeSH Browser contains an embedded MeSH search engine which can be
             used for looking up MeSH terms.
         </li>
         <li>This box contains statistics about your search: 4201 is the number of studies retrieved by the search; 10 is the number of seed studies; 6 is the number of seed studies retrieved by the search.</li>
         <li>A visualisation of your query will appear here. You may zoom and drag this visualisation. The edges between nodes display the number of studies retrieved by the clause, and the number of seed studies retrieved (in parenthesis).</li>
     </ol>
-    <a href="?uid={{.UID}}&tree" class="btn btn-primary" id="qvis-open-qvis-btn">Open QueryVis Interface<i class="icon icon-arrow-right"></i></a>
+    <a href="?uid={{.UID}}&tree" class="btn btn-primary" id="qvis-open-qvis-btn">Open searchrefiner Interface<i class="icon icon-arrow-right"></i></a>
 {{end}}
 {{define "pubmed"}}
-    <ol>
+    <ul>
         <li>Use the <b>PubMed</b> interface to formulate an effective query for this task.</li>
         <li>Choose what you believe to be the most effective query using one of the <i class="btn btn-action btn-sm icon icon-forward"></i> buttons from your history below.</li>
-    </ol>
+    </ul>
     <b>Instructions:</b>
     <img src="/plugin/iuserstudy/static/howto-pubmed.png" width="100%" alt="instructions for using the pubmed interface.">
     <ol>
         <li>Formulate your query here. This interface replicates the PubMed advanced query editor. Your query will be updated in real-time in the grey area above the editor. Click the + and - buttons to add or remove clauses to the query. Click the Results button to run the search.</li>
-        <li>Use the tabs to move between different sources of information. The Results tab contains the studies retrieved by the query. The number of studies retrieved by the query is indicated by the number in the Results tab. The History tab contains your history of query formulations. Seed Documents contains reference studies provided to you by the researchers. Search Criteria contains the protocol for the systematic review. MeSH Browser contains an embedded MeSH search engine which can be
+        <li>Use the tabs to move between different sources of information. The Results tab contains the studies retrieved by the query. The number of studies retrieved by the query is indicated by the number in the Results tab. The History tab contains your history of searches. Seed Documents contains reference studies provided to you by the researchers. Search Criteria contains the protocol for the systematic review. MeSH Browser contains an embedded MeSH search engine which can be
             used for looking up MeSH terms.
         </li>
     </ol>
@@ -125,10 +125,10 @@
 {{define "task"}}
     <div class="info">
         <h2>Task <span class="h3">(Step {{ .Step }})</span></h2>
-        <p>Please complete the first task required by the study.</p>
-        <p>We have repeated the inclusion criteria inside the interface for convenience. We have also provided a number of "seed" studies that are known-to-be-relevant for this task.</p>
+        <p>Please complete the task described below as required by the study.</p>
+        <p>We have repeated the inclusion criteria inside the interface for convenience. We have also provided within the interface a number of "seed" studies that are known-to-be-relevant for this task.</p>
         <p>Below, we have provided a link to the interface you have to use to formulate the search to identify eligible studies for inclusion in the systematic review.</p>
-        <p>When formulating a query, please <b>do not use any other system</b> other than the one prescribed below.</p>
+        <p>When formulating a query, please <b>do not use any other system</b> other than the one prescribed below. This includes external tools you might usually use, e.g., the MeSH browser on the NCBI website. For this purpose, please use the MeSH browser provided within the interface.</p>
         <p>There is a link in the top left of the interface to return back to this page when you are satisfied with the query you have formulated.</p>
         <h4>Interface</h4>
         {{ if eq .Interface 1 }}
@@ -285,7 +285,7 @@
                         <h3>Thank-you for participating in this study! 😎</h3>
                     </div>
                     <div class="panel-body">
-                        <p>You can now close this window. Your answers to the questionnaires and the queries you formulated have been recorded.</p>
+                        <p>You can now close this window. Your answers to the questionnaires and the searches you developed have been recorded.</p>
                         <p>If you elected to receive results, you will be contacted in the following months with this information.</p>
                     </div>
                     <div class="panel-footer"></div>
