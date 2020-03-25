@@ -319,7 +319,7 @@
                 <div class="panel-body container" v-show="tabState==='mesh'" style="overflow:hidden;">
                     <input class="panel-body" v-show="tabState==='mesh'" style="overflow:hidden;width:100%" v-model="meshTerm" id="meshInputBox" v-on:keyup="loadMeSH" placeholder="type search terms here">
                     <div class="divider"></div>
-                    <a href="#" id="qvis-reset-mesh" v-on:click="resetMeSHBrowser()">Clear All</a>
+                    <a href="#" id="qvis-reset-mesh" v-on:click="resetMeSHBrowser()">Clear</a>
                     <div class="panel-footer">
                         <button class="btn btn-primary" id="qvis-mesh-search-btn" v-on:click="loadMeSH()">
                             <i class="icon icon-forward"></i> Search

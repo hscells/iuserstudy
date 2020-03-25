@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/csv"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/boltdb/bolt"
 	"github.com/gin-gonic/gin"
@@ -167,8 +166,7 @@ func (IUserStudyPlugin) Serve(s searchrefiner.Server, c *gin.Context) {
 		c.HTML(http.StatusUnauthorized, "error.html", searchrefiner.ErrorPage{Error: err.Error(), BackLink: "/"})
 		return
 	} else {
-		err := errors.New("unauthorised participant in user study")
-		c.HTML(http.StatusUnauthorized, "error.html", searchrefiner.ErrorPage{Error: err.Error(), BackLink: "/"})
+		c.Render(http.StatusOK, searchrefiner.RenderPlugin(searchrefiner.TemplatePlugin("plugin/iuserstudy/waiting.html"), nil))
 		return
 	}
 

@@ -238,7 +238,7 @@
                 <div class="panel-body container" v-show="tabState==='mesh'" style="overflow:hidden;">
                     <input class="panel-body" v-show="tabState==='mesh'" style="overflow:hidden;width:100%" v-model="meshTerm" id="meshInputBox" v-on:keyup="loadMeSH" placeholder="type search terms here">
                     <div class="divider"></div>
-                    <a href="#" id="pub-reset-mesh" v-on:click="resetMeSHBrowser()">Clear All</a>
+                    <a href="#" id="pub-reset-mesh" v-on:click="resetMeSHBrowser()">Clear</a>
                     <div class="panel-footer">
                         <button class="btn btn-primary" id="pub-mesh-search-btn" v-on:click="loadMeSH()">
                             <i class="icon icon-forward"></i> Search
@@ -639,7 +639,7 @@
                 var self = this;
                 request = new XMLHttpRequest();
                 request.addEventListener("load", function (ev) {
-                    self.addQuery({"field": "All Fields", "cqr": JSON.parse(ev.target.responseText), "query": self.history[idx]["QueryString"], "operator":"AND"});
+                    self.addQuery({"field": "All Fields", "cqr": JSON.parse(ev.target.responseText), "query": self.history[idx]["QueryString"], "operator":"and"});
                 })
                 request.open("POST", "/api/query2cqr", true);
                 request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
